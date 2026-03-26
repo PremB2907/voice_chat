@@ -26,23 +26,28 @@ It’s conversation with mood.
 ```
 voice_chat/
 │
-├── app.py                # Main Flask app
-├── server.py             # Server logic
-├── ai_voice_chat.py      # Core AI conversation logic
-├── emotion_voice.py      # Emotion handling
-├── emotion_tts.py        # Emotion-aware TTS
-├── emotion_advanced.py   # Advanced emotion mapping
-├── tts_engine.py         # Speech synthesis engine
-├── voice_clone.py        # Voice cloning module
-├── test_tts.py           # TTS testing
+├── server.py             # Main Server logic
+├── requirements.txt      # Python dependencies
+├── .gitignore
 │
-├── frontend/
+├── static/               # Frontend elements
 │   ├── index.html
-│   ├── style.css
-│   └── script.js
+│   ├── step1.html
+│   ├── step2.html
+│   └── frontend/
+│       ├── style.css
+│       └── app.js
 │
-├── requirements.txt
-└── .gitignore
+├── scripts/              # AI and TTS test modules
+│   ├── ai_voice_chat.py
+│   ├── emotion_voice.py 
+│   ├── emotion_tts.py   
+│   ├── emotion_advanced.py
+│   ├── tts_engine.py    
+│   ├── voice_clone.py   
+│   └── test_tts.py      
+│
+└── generated_audio/      # Output dynamically generated speech
 ```
 
 ---
@@ -101,7 +106,7 @@ pip install -r requirements.txt
 ### 4️⃣ Run the application
 
 ```bash
-python app.py
+python server.py
 ```
 
 Open browser:
