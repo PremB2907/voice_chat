@@ -3,58 +3,166 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Step 01 - Personality Test</title>
+    <title>Persona Setup · UN-MISS AI</title>
     <link rel="stylesheet" href="frontend/presentation.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+    <style>
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+        }
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            background: var(--white);
+            border: 3px solid var(--black);
+            padding: 12px;
+            font-family: inherit;
+            font-size: 16px;
+            color: var(--black);
+            font-weight: 600;
+        }
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        .save-btn {
+            background: var(--black);
+            color: var(--yellow);
+            border: none;
+            padding: 16px 24px;
+            font-size: 20px;
+            font-weight: 800;
+            font-family: 'Space Grotesk', sans-serif;
+            cursor: pointer;
+            width: 100%;
+            text-transform: uppercase;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 20px;
+        }
+        .save-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 4px 4px 0 var(--white);
+        }
+        .scrollable-left {
+            overflow-y: auto;
+            max-height: 100%;
+        }
+    </style>
 </head>
 <body>
     <div class="slide-wrapper">
         
         <!-- LEFT PANE -->
-        <div class="left-pane bg-yellow">
-            <div class="step-label">STEP 01/03</div>
-            
-            <h1 class="title-huge">PERSONALITY<br>TEST</h1>
-            
-            <a href="https://www.16personalities.com/free-personality-test" target="_blank" class="url-bar" style="text-decoration: none;">
-                <span>↗</span>
-                <span>16personalities.com/free-personality-test</span>
-            </a>
-            
-            <div class="text-reason">
-                WHY IT MATTERS:<br><br>
-                Your MBTI personality type helps calibrate the AI persona — shaping<br>
-                response warmth, directness, humour style, and emotional tone.
+        <div class="left-pane bg-yellow scrollable-left">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
+                <div class="step-label">STEP 01 — PERSONA SETUP</div>
+                <a href="/" style="font-family:'Space Mono',monospace; font-size:11px; font-weight:700; color:#0a0a0a; text-decoration:none; border:2px solid #0a0a0a; padding:6px 12px; letter-spacing:2px;">← BACK TO CHAT</a>
             </div>
             
-            <div class="mbti-grid">
-                <div class="mbti-card">
-                    <div class="mbti-title">INFJ</div>
-                    <div class="mbti-sub">ADVOCATE</div>
-                </div>
-                <div class="mbti-card dark">
-                    <div class="mbti-title">ENTP</div>
-                    <div class="mbti-sub">DEBATER</div>
-                </div>
-                <div class="mbti-card">
-                    <div class="mbti-title">ISFP</div>
-                    <div class="mbti-sub">ADVENTURER</div>
-                </div>
-                <div class="mbti-card dark">
-                    <div class="mbti-title">ESTJ</div>
-                    <div class="mbti-sub">EXECUTIVE</div>
-                </div>
+            <h1 class="title-huge" style="font-size: 60px; margin-bottom: 20px;">PERSONA<br>INGESTION</h1>
+            
+            <div class="text-reason" style="margin-bottom: 25px; font-size: 14px;">
+                Calibrate the AI persona by providing memories and context.<br>
+                The more details you provide, the more realistic the response.
             </div>
+            
+            <form id="persona-form">
+                <div class="form-group">
+                    <label>MBTI PERSONALITY</label>
+                    <select id="mbti-input">
+                        <option value="INFJ">INFJ (Advocate - warm, insightful)</option>
+                        <option value="ENTP">ENTP (Debater - witty, clever)</option>
+                        <option value="ISFP">ISFP (Adventurer - gentle, artistic)</option>
+                        <option value="ESTJ">ESTJ (Executive - direct, caring but firm)</option>
+                        <option value="ESFP">ESFP (Entertainer - energetic, loving)</option>
+                        <option value="INTP">INTP (Logician - philosophical, quiet)</option>
+                        <option value="ENFJ">ENFJ (Protagonist - charismatic, inspiring)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>RELATIONSHIP TO YOU</label>
+                    <input type="text" id="rel-input" placeholder="e.g. Husband, Brother, Best Friend" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>FAVORITE MEMORY</label>
+                    <textarea id="memory-input" placeholder="e.g. That time we got lost in Kyoto..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>CATCHPHRASES & QUIRKS</label>
+                    <textarea id="quirks-input" placeholder="e.g. Always said 'Right on!', used a lot of puns..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>OTHER CONTEXT (RAW DATA DUMP)</label>
+                    <textarea id="other-input" placeholder="Paste chat histories, emails, or deeply personal info here..."></textarea>
+                </div>
+                
+                <button type="submit" class="save-btn">SAVE & CONTINUE ➔</button>
+            </form>
         </div>
 
         <!-- RIGHT PANE -->
         <div class="right-pane bg-black">
-            <div class="rp-text yellow huge">STEP<br>01</div>
+            <div class="rp-text yellow huge" style="font-size: 50px;">DATA<br>UPLOAD</div>
             <div class="divider"></div>
-            <div class="rp-text white large">FREE<br>TEST</div>
+            <div class="rp-text white large" style="font-size: 30px;">BUILD<br>THE<br>SOUL</div>
             <div class="divider"></div>
-            <div class="rp-text yellow medium" style="letter-spacing: 2px;">5 MIN</div>
+            <div class="rp-text yellow medium" id="status-text" style="letter-spacing: 2px; font-size:20px;">WAITING...</div>
         </div>
         
     </div>
+
+    <script>
+        // Load existing
+        document.getElementById('mbti-input').value = localStorage.getItem('mbti') || 'INFJ';
+        document.getElementById('rel-input').value = localStorage.getItem('rel_context') || '';
+        document.getElementById('memory-input').value = localStorage.getItem('mem_context') || '';
+        document.getElementById('quirks-input').value = localStorage.getItem('quirks_context') || '';
+        document.getElementById('other-input').value = localStorage.getItem('other_context') || '';
+
+        document.getElementById('persona-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const mbti = document.getElementById('mbti-input').value;
+            const rel = document.getElementById('rel-input').value;
+            const mem = document.getElementById('memory-input').value;
+            const quirks = document.getElementById('quirks-input').value;
+            const other = document.getElementById('other-input').value;
+
+            // Save raw data
+            localStorage.setItem('mbti', mbti);
+            localStorage.setItem('rel_context', rel);
+            localStorage.setItem('mem_context', mem);
+            localStorage.setItem('quirks_context', quirks);
+            localStorage.setItem('other_context', other);
+
+            // Compile into a single "customContext" string for Ollama
+            const compiledContext = `
+Relationship: ${rel}
+Favorite Memories: ${mem}
+Catchphrases or Quirks: ${quirks}
+Additional Chat/Background Info: ${other}
+            `.trim();
+
+            localStorage.setItem('customContext', compiledContext);
+
+            document.getElementById('status-text').innerText = 'PERSONA LOCKED IN';
+            document.getElementById('status-text').style.color = '#0f0';
+
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 800);
+        });
+    </script>
 </body>
 </html>

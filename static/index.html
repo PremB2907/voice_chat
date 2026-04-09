@@ -5,12 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content"/>
 <meta name="mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black"/>
 <meta name="theme-color" content="#0a0a0a"/>
 <title>UN-MISS AI · Prem</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Teko:wght@400;500;600;700&family=Noto+Sans:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="frontend/style.css"/>
+<!-- Three.js Setup will be loaded in app.js via ES modules -->
 </head>
 <body>
 
@@ -20,31 +21,35 @@
   <header>
     <div class="brand">
       <div class="brand-name">UN<span>-</span>MISS <span>AI</span></div>
-      <div class="brand-sub">Prem &nbsp;·&nbsp; Always Here</div>
+      <div class="brand-sub">Prem&nbsp;·&nbsp;Always Here</div>
     </div>
     <div class="header-right">
-      <a href="/step1.html" class="hdr-btn" title="Step 1: Personality Test" style="text-decoration:none; font-weight:bold; font-size:14px; margin-right:4px;">S1</a>
-      <a href="/step2.html" class="hdr-btn" title="Step 2: 3D Avatar" style="text-decoration:none; font-weight:bold; font-size:14px; margin-right:12px;">S2</a>
+      <!-- Persona Data Ingestion button -->
+      <a href="/step1.html" class="hdr-btn" title="Personal Data Ingestion" style="text-decoration:none; font-size:9px; font-weight:700; letter-spacing:1px; width:auto; padding: 0 10px;">PERSONA DATA</a>
       <div class="status-chip">
         <div class="status-dot"></div>
-        <span class="status-text">XTTS v2</span>
+        <span class="status-text">XTTS V2</span>
       </div>
-      <button class="hdr-btn" id="theme-toggle" title="Toggle theme" aria-label="Toggle theme">☀</button>
-      <button class="hdr-btn" id="clear-btn"  title="Clear chat"   aria-label="Clear chat">✕</button>
-      <button class="hdr-btn" id="shutdown-btn" title="Stop Server" aria-label="Stop Server" style="color: #ff4444; font-weight: bold;">⏻</button>
-    </div>
-    <!-- Nothing glyph strip -->
-    <div class="glyph-strip">
-      <div class="glyph-dot"></div><div class="glyph-dot"></div>
-      <div class="glyph-dot"></div><div class="glyph-dot"></div>
-      <div class="glyph-dot"></div><div class="glyph-dot"></div>
-      <div class="glyph-dot"></div><div class="glyph-dot"></div>
-      <div class="glyph-dot"></div><div class="glyph-dot"></div>
+      <button class="hdr-btn" id="theme-toggle" title="Toggle Light/Dark" aria-label="Toggle theme">☀</button>
+      <button class="hdr-btn" id="voice-toggle" title="Toggle Voice" aria-label="Toggle Voice">🔊</button>
+      <button class="hdr-btn" id="clear-btn"    title="Clear chat"  aria-label="Clear chat">✕</button>
+      <button class="hdr-btn" id="shutdown-btn" title="Stop Server" aria-label="Stop Server" style="color: #FF1744; border-color: #FF1744;">⏻</button>
     </div>
   </header>
 
-  <!-- CHAT -->
+  <!-- ACCENT BAR -->
+  <div class="accent-bar"></div>
+
+  <!-- MAIN AREA -->
   <div class="chat-wrap">
+
+    <!-- 3D AVATAR -->
+    <div class="avatar-view" id="avatar-view">
+      <div id="three-canvas-container" style="width: 100%; height: 100%;"></div>
+      <div class="avatar-hint">Prem · 3D Avatar</div>
+    </div>
+
+    <!-- CHAT -->
     <div class="chat-container" id="chat-box" aria-live="polite">
       <div class="empty-state" id="empty-state">
         <div class="empty-mandala">
@@ -96,7 +101,7 @@
     <div class="apb"></div><div class="apb"></div>
   </div>
   PLAYING
-  <button id="stop-audio-btn" title="Stop Playback" aria-label="Stop Playback" style="background:transparent;border:none;color:inherit;cursor:pointer;margin-left:4px;font-size:10px;">✕</button>
+  <button id="stop-audio-btn" title="Stop" aria-label="Stop audio" style="background:transparent;border:none;color:inherit;cursor:pointer;margin-left:4px;font-size:11px;font-weight:700;">✕</button>
 </div>
 
 <!-- TOAST -->
@@ -104,6 +109,14 @@
 
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.8/dist/purify.min.js"></script>
-<script src="frontend/app.js" defer></script>
+<script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    }
+  }
+</script>
+<script type="module" src="frontend/app.js" defer></script>
 </body>
 </html>

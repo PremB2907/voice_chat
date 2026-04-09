@@ -1,3 +1,8 @@
 pyttsx3
 sounddevice
 scipy
+faiss-cpu
+sentence-transformers
+transformers
+torch
+flask-cors

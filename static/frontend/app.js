@@ -1,3 +1,16 @@
+import * as THREE from 'three';
+import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+/* ═══════════════════════════════════════════════════
+   THREE.JS GLOBAL STATE
+═══════════════════════════════════════════════════ */
+let scene, camera, renderer, clock, mixer;
+window.jawBone = null;
+window.jawBoneBaseRotation = 0;
+window.headBone = null;
+window.headBoneBaseRotation = 0;
+
 /* ═══════════════════════════════════════════════════
    MOBILE KEYBOARD FIX — Visual Viewport API
 ═══════════════════════════════════════════════════ */
@@ -44,6 +57,7 @@ const toastEl   = document.getElementById("toast");
 const SERVER = window.location.origin;
 let timerInterval = null;
 let isLoading = false;
+let isVoiceOn = true;  // declared here so sendMessage can use it
 
 const HISTORY_KEY = "un-miss-history";
 let chatHistory = JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]");
@@ -173,16 +187,45 @@ function setupAudio(url) {
 
 function visualize() {
   requestAnimationFrame(visualize);
+  const avatarView = document.getElementById("avatar-view");
+  
   if (globalAudio.paused || globalAudio.ended) {
     document.querySelectorAll(".apb").forEach((bar, i) => bar.style.height = [4,10,14,10,4][i] + "px");
+    if (avatarView) {
+      avatarView.style.transform = "scale(1)";
+      avatarView.style.filter = "none";
+    }
     return;
   }
   analyser.getByteFrequencyData(dataArray);
   const bars = document.querySelectorAll(".apb");
+  let sum = 0;
   for (let i = 0; i < bars.length; i++) {
     const val = dataArray[i * 2 + 1] || 0;
+    sum += val;
     const h = 4 + (val / 255) * 16;
     if (bars[i]) bars[i].style.height = h + "px";
+  }
+  
+  // Avatar amplitude lip-sync (Option 1: Jaw mapping)
+  const avg = sum / (bars.length || 1);
+  const intensity = avg / 255;
+  
+  if (window.jawBone) {
+    // Map intensity to jaw rotation (assuming X axis opens mouth down; might need adjustment based on rig)
+    window.jawBone.rotation.x = window.jawBoneBaseRotation + (intensity * 0.35); // Max 0.35 radians drop
+  } else if (window.headBone) {
+    // If no jaw bone, bob the head slightly
+    window.headBone.rotation.x = window.headBoneBaseRotation + (intensity * 0.15);
+  } else if (avatarView) {
+    const scale = 1 + intensity * 0.03;
+    avatarView.style.transform = `scale(${scale})`;
+    const glow = intensity * 15;
+    if (glow > 2) {
+      avatarView.style.filter = `drop-shadow(0px 0px ${glow}px rgba(253, 224, 0, 0.4))`;
+    } else {
+      avatarView.style.filter = "none";
+    }
   }
 }
 
@@ -195,11 +238,12 @@ async function sendMessage() {
   setLoading(true);
 
   try {
-    const mbti = localStorage.getItem("mbti") || "INFJ";
+    const customContext = localStorage.getItem("customContext") || "";
+    const mbti = localStorage.getItem("mbti") || "";
     const res = await fetch(`${SERVER}/chat`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message, mbti })
+      body: JSON.stringify({ message, mbti, custom_context: customContext, generate_audio: isVoiceOn })
     });
 
     if (!res.ok) throw new Error(`Server error ${res.status}`);
@@ -209,16 +253,18 @@ async function sendMessage() {
     const msgEl  = addMessage("Prem", data.reply, false);
     const bubble = msgEl.querySelector(".bubble");
 
-    const audio = setupAudio(`${SERVER}/audio/${data.audio}`);
-    audio.onplay   = () => { bubble.classList.add("playing");   showAudioPill(true);  };
-    audio.onended  = () => { bubble.classList.remove("playing"); showAudioPill(false); };
-    audio.onerror  = () => { bubble.classList.remove("playing"); showAudioPill(false); };
+    if (data.audio) {
+      const audio = setupAudio(`${SERVER}/audio/${data.audio}`);
+      audio.onplay   = () => { bubble.classList.add("playing");   showAudioPill(true);  };
+      audio.onended  = () => { bubble.classList.remove("playing"); showAudioPill(false); };
+      audio.onerror  = () => { bubble.classList.remove("playing"); showAudioPill(false); };
 
-    audio.play().catch(() => {
-      showToast("▶  TAP PREM'S MESSAGE TO PLAY");
-      bubble.style.cursor = "pointer";
-      bubble.onclick = () => { audio.play(); bubble.onclick = null; bubble.style.cursor = ""; };
-    });
+      audio.play().catch(() => {
+        showToast("▶  TAP PREM'S MESSAGE TO PLAY");
+        bubble.style.cursor = "pointer";
+        bubble.onclick = () => { audio.play(); bubble.onclick = null; bubble.style.cursor = ""; };
+      });
+    }
 
   } catch (err) {
     setLoading(false);
@@ -235,11 +281,24 @@ userInput.addEventListener("keydown", e => {
 
 /* ═══ THEME ═══ */
 let isLight = false;
-themeBtn.addEventListener("click", () => {
-  isLight = !isLight;
-  themeBtn.textContent = isLight ? "🌙" : "☀";
-  document.documentElement.classList.toggle('light-mode', isLight);
-});
+if (themeBtn) {
+  themeBtn.addEventListener("click", () => {
+    isLight = !isLight;
+    themeBtn.textContent = isLight ? "🌙" : "☀";
+    document.documentElement.classList.toggle('light-mode', isLight);
+  });
+}
+
+/* ═══ VOICE TOGGLE ═══ */
+const voiceToggle = document.getElementById("voice-toggle");
+if (voiceToggle) {
+  voiceToggle.addEventListener("click", () => {
+    isVoiceOn = !isVoiceOn;
+    voiceToggle.textContent = isVoiceOn ? "🔊" : "🔇";
+    voiceToggle.title = isVoiceOn ? "Voice Output ON" : "Voice Output OFF";
+    showToast(isVoiceOn ? "Voice Output Enabled" : "Voice Output Disabled");
+  });
+}
 
 /* ═══ CLEAR ═══ */
 clearBtn.addEventListener("click", () => {
@@ -317,3 +376,99 @@ if (SpeechRecognition && micBtn) {
 
 /* ═══ RESTORE HISTORY ═══ */
 chatHistory.forEach(msg => addMessage(msg.sender, msg.text, msg.isUser, false));
+
+/* ═══════════════════════════════════════════════════
+   THREE.JS SETUP & FBX LOADER (3D Avatar)
+═══════════════════════════════════════════════════ */
+function initThreeJS() {
+  const container = document.getElementById("three-canvas-container");
+  if (!container) return;
+
+  scene = new THREE.Scene();
+  // Optional: subtle fog to blend the character into dark bg
+  // scene.fog = new THREE.FogExp2(0x0a0a0a, 0.02);
+
+  camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
+  camera.position.set(0, 1.5, 3); // roughly head height
+
+  renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+  renderer.setSize(container.clientWidth, container.clientHeight);
+  renderer.setPixelRatio(window.devicePixelRatio);
+  container.appendChild(renderer.domElement);
+
+  const controls = new OrbitControls(camera, renderer.domElement);
+  controls.enableZoom = false;
+  controls.enablePan = false;
+  controls.target.set(0, 1.4, 0); // Focus around the face area
+  controls.update();
+
+  // Lighting
+  const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1.0);
+  hemiLight.position.set(0, 20, 0);
+  scene.add(hemiLight);
+
+  const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+  dirLight.position.set(0, 5, 5);
+  scene.add(dirLight);
+
+  clock = new THREE.Clock();
+
+  // Load FBX Model
+  const loader = new FBXLoader();
+  loader.load('model.fbx', (object) => {
+    // If it has animations, set up mixer (optional, leaving empty for now)
+    if (object.animations && object.animations.length > 0) {
+      mixer = new THREE.AnimationMixer(object);
+      const action = mixer.clipAction(object.animations[0]);
+      action.play();
+    }
+
+    object.position.set(0, 0, 0);
+    // Usually FBX models are scaled differently
+    object.scale.setScalar(0.01); 
+    
+    // Find Jaw or Head bone
+    object.traverse((child) => {
+      if (child.isBone) {
+        const name = child.name.toLowerCase();
+        if ((name.includes("jaw") || name.includes("mouth")) && !window.jawBone) {
+          window.jawBone = child;
+          window.jawBoneBaseRotation = child.rotation.x;
+          console.log("Found Jaw Bone:", child.name);
+        }
+        if (name.includes("head") && !window.headBone) {
+          window.headBone = child;
+          window.headBoneBaseRotation = child.rotation.x;
+          console.log("Found Head Bone:", child.name);
+        }
+      }
+      if (child.isMesh) {
+        child.castShadow = true;
+        child.receiveShadow = true;
+      }
+    });
+
+    scene.add(object);
+  }, undefined, (error) => {
+    console.error("ThreeJS FBXLoader error:", error);
+  });
+
+  // Handle Resize
+  window.addEventListener('resize', () => {
+    if (!container) return;
+    camera.aspect = container.clientWidth / container.clientHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(container.clientWidth, container.clientHeight);
+  });
+
+  // Render Loop
+  function animate() {
+    requestAnimationFrame(animate);
+    const delta = clock.getDelta();
+    if (mixer) mixer.update(delta);
+    renderer.render(scene, camera);
+  }
+  animate();
+}
+
+window.addEventListener("DOMContentLoaded", initThreeJS);
