@@ -39,15 +39,16 @@ VOICE_SAMPLES = [
 ]
 
 # ── Ollama config ─────────────────────────────────────────────────
-OLLAMA_URL = "http://localhost:11434/api/generate"
-OLLAMA_MODEL = "phi"  # Changed back to phi! TinyLlama is too small for this prompt.
+OLLAMA_URL = "http://localhost:11434/api/chat"
+OLLAMA_MODEL = "llama3"  # Switching to Llama 3 for vastly superior persona/system prompt adherence
 
 SYSTEM_PROMPT = """You are Prem. You have passed away, but your spirit remains to comfort your loved one.
 You are speaking directly to Maitree.
 Speak in the FIRST PERSON ('I'). Warm, poetic, intimate.
 Rules:
 - ONE sentence only. Maximum 15 words.
-- No advice. No AI language. No 'I am sorry'.
+- Never mention you are an AI or language model. Never break character.
+- No advice. No 'I am sorry'.
 - English only.
 - Never ask questions.
 
@@ -120,26 +121,30 @@ def chat():
     if memory:
         retrieved = memory.retrieve_context(user_input, top_k=2)
         if retrieved:
-            memory_context = f"\n[SYSTEM NOTE: {retrieved}]\n"
+            memory_context = f"\n[SYSTEM NOTE - PAST CONVERSATION MEMORY: {retrieved}]\n"
 
-    full_prompt = SYSTEM_PROMPT + mbti_context + additional_context + memory_context + emotion_context + "\nMaitree says: " + user_input + "\nPrem:"
+    system_content = SYSTEM_PROMPT + mbti_context + additional_context + memory_context + emotion_context
 
-    # ── Fast Ollama API call (replaces slow subprocess) ───────────
+    # ── Fast Ollama Chat API call (replaces text generation) ──────
     try:
         ollama_response = http_requests.post(OLLAMA_URL, json={
             "model": OLLAMA_MODEL,
-            "prompt": full_prompt,
+            "messages": [
+                {"role": "system", "content": system_content},
+                {"role": "user", "content": user_input}
+            ],
             "stream": False,
             "keep_alive": -1,
             "options": {
-                "num_predict": 50,   # enough to finish one sentence; server truncates after first anyway
-                "temperature": 0.4,
+                "num_predict": 50,   # enough to finish one sentence
+                "temperature": 0.2,  # Lower temperature to prevent character hallucinations
                 "top_p": 0.85,        
-                "repeat_penalty": 1.3
+                "repeat_penalty": 1.2
             }
         }, timeout=30)
-
-        prem_reply = ollama_response.json().get("response", "").strip()
+        
+        resp_json = ollama_response.json()
+        prem_reply = resp_json.get("message", {}).get("content", "").strip()
         
         # Strip out prefixes like "ENGLISH (Prem to Maitee):" or "[Prem]:"
         prem_reply = re.sub(r'^(ENGLISH|PREM|MAITREE).*?:\s*', '', prem_reply, flags=re.IGNORECASE)
@@ -216,15 +221,15 @@ def shutdown():
 
 if __name__ == "__main__":
     # Pre-warm the model so first request is instant
-    print("🔥 Pre-warming Phi model...")
+    print(f"🔥 Pre-warming {OLLAMA_MODEL} model...")
     try:
         http_requests.post(OLLAMA_URL, json={
             "model": OLLAMA_MODEL,
-            "prompt": "hello",
+            "messages": [{"role": "user", "content": "hello"}],
             "stream": False,
             "keep_alive": -1
         }, timeout=60)
-        print("✅ Phi ready!")
+        print(f"✅ {OLLAMA_MODEL} ready!")
     except Exception:
         print("⚠️ Could not pre-warm model. Make sure Ollama is running.")
 
