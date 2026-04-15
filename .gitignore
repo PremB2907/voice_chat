@@ -1,4 +1,67 @@
+# Virtual environments
 venv/
+.venv
+ENV/
+env/
+
+# Python cache
 __pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Audio files
 *.wav
-*.pyc
+*.mp3
+
+# Generated files
+generated_audio/
+output/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+*.Zone.Identifier
+
+# Environment
+.env
+.env.local
+
+# Large model files
+*.pth
+*.pt
+*.bin
+*.ckpt
+models/
+
+# Research & Documentation
+Research Papers/
+*.pdf
+*.PDF
+
+# Presentations (use -p flag to include if needed)
+HACKATHON OFFGRID PPT/
+*.pptx
+*.ppt
+
+# Backups & logs
+*.log
+*.tmp
+*.bak
+*.cache
+.cache/
+memory_log_backup.json
+
+# Data persistence (local only)
+memory_index.faiss
+memory_log.json
