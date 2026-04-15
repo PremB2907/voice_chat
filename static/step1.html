@@ -130,7 +130,7 @@
         document.getElementById('quirks-input').value = localStorage.getItem('quirks_context') || '';
         document.getElementById('other-input').value = localStorage.getItem('other_context') || '';
 
-        document.getElementById('persona-form').addEventListener('submit', (e) => {
+        document.getElementById('persona-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             
             const mbti = document.getElementById('mbti-input').value;
@@ -139,29 +139,60 @@
             const quirks = document.getElementById('quirks-input').value;
             const other = document.getElementById('other-input').value;
 
-            // Save raw data
+            // Save raw data to localStorage
             localStorage.setItem('mbti', mbti);
             localStorage.setItem('rel_context', rel);
             localStorage.setItem('mem_context', mem);
             localStorage.setItem('quirks_context', quirks);
             localStorage.setItem('other_context', other);
 
-            // Compile into a single "customContext" string for Ollama
+            // Compile into customContext for legacy support
             const compiledContext = `
 Relationship: ${rel}
 Favorite Memories: ${mem}
 Catchphrases or Quirks: ${quirks}
 Additional Chat/Background Info: ${other}
             `.trim();
-
             localStorage.setItem('customContext', compiledContext);
 
-            document.getElementById('status-text').innerText = 'PERSONA LOCKED IN';
-            document.getElementById('status-text').style.color = '#0f0';
+            // NEW: Send facts to server's knowledge base
+            document.getElementById('status-text').innerText = 'UPLOADING TO PREM\'S SOUL...';
+            try {
+                const facts = [
+                    { category: 'personality', detail: `Prem's MBTI type is ${mbti}` },
+                    { category: 'relationship', detail: `Prem was ${rel} to Maitree` },
+                ];
+                
+                if (mem && mem.trim()) {
+                    facts.push({ category: 'memory', detail: mem });
+                }
+                if (quirks && quirks.trim()) {
+                    facts.push({ category: 'personality', detail: `Prem's quirks: ${quirks}` });
+                }
+                if (other && other.trim()) {
+                    facts.push({ category: 'memory', detail: other });
+                }
+                
+                // Send each fact to server
+                for (const fact of facts) {
+                    await fetch('/add-fact', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(fact)
+                    });
+                }
+                
+                document.getElementById('status-text').innerText = 'PERSONA LOCKED IN ✓';
+                document.getElementById('status-text').style.color = '#0f0';
 
-            setTimeout(() => {
-                window.location.href = '/';
-            }, 800);
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 1000);
+            } catch (err) {
+                console.error('Error uploading facts:', err);
+                document.getElementById('status-text').innerText = 'ERROR UPLOADING';
+                document.getElementById('status-text').style.color = '#f00';
+            }
         });
     </script>
 </body>

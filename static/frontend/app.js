@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 /* ═══════════════════════════════════════════════════
@@ -60,7 +60,8 @@ let isLoading = false;
 let isVoiceOn = true;  // declared here so sendMessage can use it
 
 const HISTORY_KEY = "un-miss-history";
-let chatHistory = JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]");
+localStorage.removeItem(HISTORY_KEY); // Clear previous session history
+let chatHistory = [];
 
 const globalAudio = new Audio();
 globalAudio.crossOrigin = "anonymous";
@@ -382,19 +383,26 @@ chatHistory.forEach(msg => addMessage(msg.sender, msg.text, msg.isUser, false));
 ═══════════════════════════════════════════════════ */
 function initThreeJS() {
   const container = document.getElementById("three-canvas-container");
-  if (!container) return;
+  if (!container) {
+    console.error("❌ three-canvas-container not found!");
+    return;
+  }
 
+  console.log("📐 Container dimensions:", container.clientWidth, "x", container.clientHeight);
+  
   scene = new THREE.Scene();
-  // Optional: subtle fog to blend the character into dark bg
-  // scene.fog = new THREE.FogExp2(0x0a0a0a, 0.02);
+  scene.background = new THREE.Color(0x0f0f0f);
+  scene.fog = new THREE.FogExp2(0x0a0a0a, 0.02);
 
   camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
-  camera.position.set(0, 1.5, 3); // roughly head height
+  camera.position.set(0, 1.5, 3);
 
-  renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+  renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
   renderer.setSize(container.clientWidth, container.clientHeight);
   renderer.setPixelRatio(window.devicePixelRatio);
+  renderer.shadowMap.enabled = true;
   container.appendChild(renderer.domElement);
+  console.log("✅ Renderer initialized");
 
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.enableZoom = false;
@@ -413,45 +421,72 @@ function initThreeJS() {
 
   clock = new THREE.Clock();
 
-  // Load FBX Model
-  const loader = new FBXLoader();
-  loader.load('model.fbx', (object) => {
-    // If it has animations, set up mixer (optional, leaving empty for now)
-    if (object.animations && object.animations.length > 0) {
-      mixer = new THREE.AnimationMixer(object);
-      const action = mixer.clipAction(object.animations[0]);
-      action.play();
+// Load GLB Model (GLTF binary format - best for web)
+  const loader = new GLTFLoader();
+  console.log("🤖 Attempting to load model from: /model.glb");
+  
+  loader.load(
+    '/model.glb',
+    (gltf) => {
+      console.log("✅ GLB Model loaded successfully!");
+      const model = gltf.scene;
+      
+      // Setup animations if they exist
+      if (gltf.animations && gltf.animations.length > 0) {
+        mixer = new THREE.AnimationMixer(model);
+        const action = mixer.clipAction(gltf.animations[0]);
+        action.play();
+        console.log(`🎬 Playing animation: ${gltf.animations[0].name}`);
+      }
+
+      model.position.set(0, 0, 0);
+      model.scale.setScalar(1); // GLB usually already has correct scale
+      
+      // Find Jaw or Head bone for lip-sync
+      model.traverse((child) => {
+        if (child.isBone) {
+          const name = child.name.toLowerCase();
+          if ((name.includes("jaw") || name.includes("mouth")) && !window.jawBone) {
+            window.jawBone = child;
+            window.jawBoneBaseRotation = child.rotation.x;
+            console.log("🦷 Found Jaw Bone:", child.name);
+          }
+          if (name.includes("head") && !window.headBone) {
+            window.headBone = child;
+            window.headBoneBaseRotation = child.rotation.x;
+            console.log("👤 Found Head Bone:", child.name);
+          }
+        }
+        if (child.isMesh) {
+          child.castShadow = true;
+          child.receiveShadow = true;
+        }
+      });
+
+      scene.add(model);
+      console.log("🎭 Character model added to scene");
+    },
+    (progress) => {
+      const percent = Math.round((progress.loaded / progress.total) * 100);
+      console.log(`📦 Model loading: ${percent}%`);
+    },
+    (error) => {
+      console.error("❌ GLB Loader Error:", error);
+      console.warn("Creating fallback 3D object...");
+      
+      // Fallback: Create a simple glowing sphere
+      const geometry = new THREE.IcosahedronGeometry(1, 4);
+      const material = new THREE.MeshPhongMaterial({
+        color: 0xfdff00,
+        emissive: 0xfdff00,
+        emissiveIntensity: 0.3,
+        wireframe: false
+      });
+      const fallbackMesh = new THREE.Mesh(geometry, material);
+      scene.add(fallbackMesh);
+      console.log("✨ Fallback object created (glowing sphere)");
     }
-
-    object.position.set(0, 0, 0);
-    // Usually FBX models are scaled differently
-    object.scale.setScalar(0.01); 
-    
-    // Find Jaw or Head bone
-    object.traverse((child) => {
-      if (child.isBone) {
-        const name = child.name.toLowerCase();
-        if ((name.includes("jaw") || name.includes("mouth")) && !window.jawBone) {
-          window.jawBone = child;
-          window.jawBoneBaseRotation = child.rotation.x;
-          console.log("Found Jaw Bone:", child.name);
-        }
-        if (name.includes("head") && !window.headBone) {
-          window.headBone = child;
-          window.headBoneBaseRotation = child.rotation.x;
-          console.log("Found Head Bone:", child.name);
-        }
-      }
-      if (child.isMesh) {
-        child.castShadow = true;
-        child.receiveShadow = true;
-      }
-    });
-
-    scene.add(object);
-  }, undefined, (error) => {
-    console.error("ThreeJS FBXLoader error:", error);
-  });
+  );
 
   // Handle Resize
   window.addEventListener('resize', () => {
