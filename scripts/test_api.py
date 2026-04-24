@@ -16,14 +16,17 @@ class TestVoiceChatAPI(unittest.TestCase):
         response = self.client.get('/')
         self.assertEqual(response.status_code, 200)
 
-    @patch('server.tts.tts_to_file')
+    @patch('server.get_tts')
     @patch('server.http_requests.post')
-    def test_chat_endpoint_success(self, mock_post, mock_tts):
+    def test_chat_endpoint_success(self, mock_post, mock_get_tts):
         # Mock ollama response
         mock_post.return_value.json.return_value = {
-            "response": "I am here, Maitree."
+            "message": {
+                "content": "I am here, Maitree."
+            }
         }
         mock_post.return_value.status_code = 200
+        mock_get_tts.return_value.tts_to_file.return_value = None
         
         # Test chat endpoint
         payload = {
@@ -40,7 +43,7 @@ class TestVoiceChatAPI(unittest.TestCase):
         self.assertEqual(data["reply"], "I am here, Maitree.")
         
         # Check if tts was called
-        self.assertTrue(mock_tts.called)
+        self.assertTrue(mock_get_tts.return_value.tts_to_file.called)
 
     def test_chat_endpoint_no_message(self):
         payload = {"weird_field": "hello"}

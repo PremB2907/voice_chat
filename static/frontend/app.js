@@ -60,8 +60,13 @@ let isLoading = false;
 let isVoiceOn = true;  // declared here so sendMessage can use it
 
 const HISTORY_KEY = "un-miss-history";
-localStorage.removeItem(HISTORY_KEY); // Clear previous session history
 let chatHistory = [];
+try {
+  chatHistory = JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]");
+  if (!Array.isArray(chatHistory)) chatHistory = [];
+} catch {
+  chatHistory = [];
+}
 
 const globalAudio = new Audio();
 globalAudio.crossOrigin = "anonymous";
@@ -303,6 +308,13 @@ if (voiceToggle) {
 
 /* ═══ CLEAR ═══ */
 clearBtn.addEventListener("click", () => {
+  // Stop audio + clear persisted history
+  try { globalAudio.pause(); } catch {}
+  showAudioPill(false);
+  chatHistory = [];
+  localStorage.removeItem(HISTORY_KEY);
+  document.querySelectorAll(".bubble.playing").forEach(b => b.classList.remove("playing"));
+
   chatBox.innerHTML = `
     <div class="empty-state" id="empty-state">
       <div class="empty-mandala">

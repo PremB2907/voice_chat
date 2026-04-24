@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, send_file
+from flask import Flask, request, jsonify, send_file, send_from_directory, abort
 from flask_cors import CORS
 from TTS.api import TTS
 import requests as http_requests
@@ -9,6 +9,7 @@ import time
 import glob
 from transformers import pipeline
 import logging
+import json
 
 try:
     from memory_store import MemoryStore
@@ -16,7 +17,24 @@ try:
     # Verify memory integrity on startup
     memory.get_memory_status()
 except Exception as e:
-    print(f"⚠️ Memory module failed to load: {e}")
+    memory = None
+    _bootstrap_memory_error = str(e)
+else:
+    _bootstrap_memory_error = None
+
+logging.basicConfig(
+    level=os.environ.get("LOG_LEVEL", "INFO").upper(),
+    format="%(asctime)s %(levelname)s %(name)s %(message)s",
+)
+logger = logging.getLogger("voice_chat.server")
+
+def log_event(level: str, event: str, **fields):
+    payload = {"event": event, **fields}
+    msg = json.dumps(payload, ensure_ascii=False, default=str)
+    getattr(logger, level.lower(), logger.info)(msg)
+
+if _bootstrap_memory_error:
+    log_event("warning", "memory_init_failed", error=_bootstrap_memory_error)
     memory = None
 
 # static_folder="static" means Flask will serve ALL files in the static directory
@@ -25,34 +43,60 @@ app = Flask(__name__, static_folder="static", static_url_path="")
 CORS(app)
 
 # ── STARTUP CHECK ─────────────────────────────────────────────────
-print("\n" + "="*60)
-print("🚀 SERVER STARTUP DIAGNOSTICS")
-print("="*60)
+log_event("info", "startup", msg="SERVER STARTUP DIAGNOSTICS")
 model_glb_path = os.path.join("static", "model.glb")
 if os.path.exists(model_glb_path):
     size = os.path.getsize(model_glb_path)
-    print(f"✅ 3D Model (GLB) found: {model_glb_path} ({size / 1024:.0f} KB)")
-    print(f"   Will be served at: http://localhost:5000/model.glb")
+    log_event(
+        "info",
+        "asset_found",
+        asset="model.glb",
+        path=model_glb_path,
+        size_kb=round(size / 1024),
+        served_at="http://localhost:5000/model.glb",
+    )
 else:
-    print(f"⚠️  3D Model NOT found: {model_glb_path}")
-    print(f"   App will show fallback sphere if file is missing")
-print("="*60 + "\n")
+    log_event("warning", "asset_missing", asset="model.glb", path=model_glb_path)
 
-print("🔊 Loading Prem's Voice Model...")
-tts = TTS("tts_models/multilingual/multi-dataset/xtts_v2")
+log_event("info", "tts", msg="TTS model will lazy-load on first use")
+_tts = None
 
-print("🎭 Loading DistilRoBERTa Emotion Model...")
+def get_tts():
+    global _tts
+    if _tts is None:
+        _tts = TTS("tts_models/multilingual/multi-dataset/xtts_v2")
+    return _tts
+
+log_event("info", "emotion", msg="Emotion model will lazy-load on first use")
 # Set transformer logging to error to prevent console spam
 logging.getLogger("transformers").setLevel(logging.ERROR)
-try:
-    emotion_classifier = pipeline("text-classification", model="j-hartmann/emotion-english-distilroberta-base", top_k=1)
-except Exception as e:
-    print(f"⚠️ Emotion model skipped or failed: {e}")
-    emotion_classifier = None
+emotion_classifier = None
+
+def get_emotion_classifier():
+    global emotion_classifier
+    if emotion_classifier is not None:
+        return emotion_classifier
+    try:
+        emotion_classifier = pipeline(
+            "text-classification",
+            model="j-hartmann/emotion-english-distilroberta-base",
+            top_k=1,
+        )
+    except Exception as e:
+        log_event("warning", "emotion_model_failed", error=str(e))
+        emotion_classifier = None
+    return emotion_classifier
 
 VOICE_SAMPLES = [
     "voice_samples/my_voice.wav.wav"
 ]
+
+def get_voice_samples():
+    # Prefer the configured sample if it exists; otherwise fall back to any wavs present.
+    configured = [p for p in VOICE_SAMPLES if os.path.exists(p)]
+    if configured:
+        return configured
+    return sorted(glob.glob(os.path.join("voice_samples", "*.wav")))
 
 # ── Ollama config ─────────────────────────────────────────────────
 OLLAMA_URL = "http://localhost:11434/api/chat"
@@ -127,10 +171,14 @@ def chat():
             filename = f"response_{uuid.uuid4().hex}.wav"
             filepath = os.path.join("generated_audio", filename)
             try:
-                tts.tts_to_file(text=prem_reply, speaker_wav=VOICE_SAMPLES, language="en", file_path=filepath)
+                os.makedirs("generated_audio", exist_ok=True)
+                speaker_wavs = get_voice_samples()
+                if not speaker_wavs:
+                    raise RuntimeError("No voice samples found in voice_samples/")
+                get_tts().tts_to_file(text=prem_reply, speaker_wav=speaker_wavs, language="en", file_path=filepath)
                 result_audio = filename
             except Exception as e:
-                print(f"TTS error during crisis mode: {e}")
+                log_event("warning", "tts_failed", mode="crisis", error=str(e))
                 
         return jsonify({
             "reply": prem_reply,
@@ -145,22 +193,22 @@ def chat():
         retrieved = memory.retrieve_relevant_facts(user_input, top_k=5)
         if retrieved:
             memory_context = f"\n{retrieved}"
-            print(f"✅ Prem's facts retrieved: {len(retrieved)} chars")
+            log_event("info", "memory_facts_retrieved", chars=len(retrieved))
         else:
-            print(f"ℹ️ No relevant facts about Prem found for this query")
+            log_event("info", "memory_no_relevant_facts")
     else:
-        print(f"⚠️ Memory module not available")
+        log_event("warning", "memory_unavailable")
     
     # 2. Detect Emotion
     emotion_context = ""
-    if emotion_classifier:
+    if get_emotion_classifier():
         try:
-            emo_out = emotion_classifier(user_input)[0][0]
+            emo_out = get_emotion_classifier()(user_input)[0][0]
             emotion_label = emo_out['label']
             # j-hartmann labels: anger, disgust, fear, joy, neutral, sadness, surprise
             emotion_context = f"\n[Maitree's heart carries: {emotion_label}. Spirit senses this deeply.]"
         except Exception as e:
-            print(f"Emotion detection error: {e}")
+            log_event("warning", "emotion_detection_failed", error=str(e))
     
     mbti_context = f"\nMaitree's MBTI: {mbti}" if mbti else ""
     additional_context = f"\nContext: {custom_context}" if custom_context else ""
@@ -205,7 +253,7 @@ def chat():
             prem_reply = prem_reply.strip() + "."
         
     except Exception as e:
-        print(f"⚠️ Ollama error: {e}")
+        log_event("warning", "ollama_error", error=str(e))
         prem_reply = ""
 
     # Validate response integrity (ensure it's not AI blabbering)
@@ -232,13 +280,21 @@ def chat():
     # ── Generate voice with XTTS ──────────────────────────────────
     filename = f"response_{uuid.uuid4().hex}.wav"
     filepath = os.path.join("generated_audio", filename)
-
-    tts.tts_to_file(
-        text=prem_reply,
-        speaker_wav=VOICE_SAMPLES,
-        language="en",
-        file_path=filepath
-    )
+    result_audio = None
+    try:
+        os.makedirs("generated_audio", exist_ok=True)
+        speaker_wavs = get_voice_samples()
+        if not speaker_wavs:
+            raise RuntimeError("No voice samples found in voice_samples/")
+        get_tts().tts_to_file(
+            text=prem_reply,
+            speaker_wav=speaker_wavs,
+            language="en",
+            file_path=filepath
+        )
+        result_audio = filename
+    except Exception as e:
+        log_event("warning", "tts_failed", mode="normal", error=str(e))
     
     # ── Cleanup Old Audio Files ───────────────────────────────────
     try:
@@ -247,12 +303,9 @@ def chat():
             if os.path.getmtime(f) < current_time - 3600: # 1 hour
                 os.remove(f)
     except Exception as e:
-        print(f"⚠️ Failed to cleanup audio: {e}")
+        log_event("warning", "audio_cleanup_failed", error=str(e))
 
-    return jsonify({
-        "reply": prem_reply,
-        "audio": filename
-    })
+    return jsonify({"reply": prem_reply, "audio": result_audio})
 
 # ── ADD PREM'S FACTS ENDPOINT ─────────────────────────────────────
 @app.route("/add-fact", methods=["POST"])
@@ -312,10 +365,16 @@ def memory_status():
 # ── AUDIO ENDPOINT ────────────────────────────────────────────────
 @app.route("/audio/<filename>")
 def audio(filename):
-    filepath = os.path.join("generated_audio", filename)
-    if os.path.exists(filepath):
-        return send_file(filepath, mimetype="audio/wav")
-    return "Audio not found", 404
+    # Prevent path traversal and only serve wav outputs we generate.
+    if not filename.lower().endswith(".wav"):
+        abort(404)
+    base_dir = os.path.abspath("generated_audio")
+    requested = os.path.abspath(os.path.join(base_dir, filename))
+    if not requested.startswith(base_dir + os.sep):
+        abort(404)
+    if not os.path.exists(requested):
+        abort(404)
+    return send_from_directory(base_dir, filename, mimetype="audio/wav")
 
 # ── 3D MODEL ENDPOINT ─────────────────────────────────────────────
 @app.route("/model.glb")
@@ -324,23 +383,27 @@ def serve_model():
     model_path = os.path.join("static", "model.glb")
     if os.path.exists(model_path):
         size_kb = os.path.getsize(model_path) / 1024
-        print(f"✅ Serving model.glb ({size_kb:.0f} KB)")
+        log_event("info", "serve_model", size_kb=round(size_kb))
         return send_file(model_path, mimetype="model/gltf-binary")
     else:
-        print(f"⚠️  GLB file not found at {model_path} - browser will show fallback sphere")
+        log_event("warning", "serve_model_missing", path=model_path)
         return jsonify({"error": "Model not found, using fallback"}), 404
 
 # ── SHUTDOWN ENDPOINT ─────────────────────────────────────────────
 @app.route("/shutdown", methods=["POST"])
 def shutdown():
-    print("\n🛑 Stop button pressed! Shutting down server...")
+    log_event("info", "shutdown_requested")
+    func = request.environ.get("werkzeug.server.shutdown")
+    if func:
+        func()
+        return jsonify({"status": "stopping"})
+    # Fallback for non-werkzeug environments
     os._exit(0)
-    return jsonify({"status": "stopping"})
 
 
 if __name__ == "__main__":
     # Pre-warm the model so first request is instant
-    print(f"🔥 Pre-warming {OLLAMA_MODEL} model...")
+    log_event("info", "ollama_prewarm_start", model=OLLAMA_MODEL)
     try:
         http_requests.post(OLLAMA_URL, json={
             "model": OLLAMA_MODEL,
@@ -348,8 +411,8 @@ if __name__ == "__main__":
             "stream": False,
             "keep_alive": -1
         }, timeout=60)
-        print(f"✅ {OLLAMA_MODEL} ready!")
+        log_event("info", "ollama_prewarm_ok", model=OLLAMA_MODEL)
     except Exception:
-        print("⚠️ Could not pre-warm model. Make sure Ollama is running.")
+        log_event("warning", "ollama_prewarm_failed", hint="Make sure Ollama is running on localhost:11434")
 
     app.run(host="0.0.0.0", port=5000, debug=False)

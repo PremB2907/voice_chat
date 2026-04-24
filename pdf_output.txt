@@ -1,0 +1,851 @@
+MemoryBridge: An AI-Based Conversational
+System for Emotionally Adaptive Interaction with
+Deceased Loved Ones Using Personal Data
+Modalities
+Prem Sudesh Barskar
+Shah And Anchor
+Kutchhi Engineering College
+Affiliated to University of Mumbai
+prem.barskar24@sakec.ac.in
+Maitree Mitesh Tanna
+Shah And Anchor
+Kutchhi Engineering College
+Affiliated to University of Mumbai
+maitree.tanna24@sakec.ac.in
+Omkar Vijay Narsale
+Shah And Anchor
+Kutchhi Engineering College
+Affiliated to University of Mumbai
+omkar.narsale24@sakec.ac.in
+Abstract—The loss of a close loved one deprives individuals not
+only of a physical presence but of an entire ecosystem of emo-
+tional guidance, comfort, and personalised interaction. Existing
+digital archives—photographs, messages, and voice recordings—
+remain static and passive, offering no interactive medium for
+continued engagement. This paper proposes MemoryBridge, an
+AI-based conversational system that learns from multimodal
+personal data including text messages, voice notes, and be-
+havioural patterns to simulate emotionally familiar interactions
+with deceased individuals. The system delivers text, voice, and
+visually animated responses that preserve the linguistic style,
+tonal patterns, and emotional characteristics of the lost person.
+Built on a locally-served Large Language Model with structured
+persona prompting, an XTTS v2 voice synthesis module, a
+FAISS-backed memory-augmented dialogue manager, a seven-
+class emotion-aware response pipeline, and a real-time 3D avatar
+with lip synchronisation, MemoryBridge provides contextually
+sensitive interactions that are especially meaningful during
+significant life moments such as birthdays, anniversaries, and
+personal milestones. Ethical safeguards including consent-by-
+design, representational humility, crisis interception, and AI-
+generation transparency are embedded at every layer of the
+system. A deepfake text detection module further safeguards
+interaction quality. The paper details the system architecture,
+prototype implementation, ethical framework, and evaluation
+methodology.
+Index Terms—grief support AI, conversational agent, digital
+immortality, voice synthesis, LLM persona simulation, emotional
+AI, memory augmentation, deepfake text detection, digital after-
+life ethics, 3D avatar, lip synchronisation
+I. INTRODUCTION
+Bereavement is among the most profound psychological
+experiences a human being can endure. Beyond the immediate
+grief of physical loss, individuals mourn the cessation of a
+unique communicative relationship shaped by years of shared
+language, emotional cadence, and personal history. A parent’s
+advice, a partner’s reassurance, a friend’s humour: these are
+not simply the content of communication, but its irreplaceable
+texture.
+Contemporary digital technology has transformed the land-
+scape of personal data accumulation. The average individual
+leaves behind tens of thousands of text messages, voice
+recordings, social media posts, and video clips—a rich, largely
+untapped archive of linguistic and behavioural identity. Yet
+these records remain passive artefacts. They can be read or
+listened to, but they cannot respond, contextualise, or adapt to
+new circumstances.
+This gap motivates the present work. We propose Memo-
+ryBridge, an AI-based conversational system that processes
+multimodal personal data to construct and maintain an inter-
+active, emotionally adaptive persona of a deceased individual.
+The system enables text, voice, and avatar-based dialogue that
+mirrors the linguistic style, emotional register, and personal
+knowledge base of the loved one.
+The ethical dimension of such a system is non-trivial.
+Digital afterlife technologies carry significant risks: questions
+of personal identity, posthumous data ownership, religious
+and cultural sensitivities, and the potential for grief prolon-
+gation demand careful governance [9]. MemoryBridge ad-
+dresses these risks through a consent-by-design framework
+and a transparency-first interaction model [1]. The system
+also incorporates a deepfake text authentication layer [10] to
+ensure that AI-generated responses are never misrepresented
+as human-authored communications, and a keyword-based
+crisis interception framework to safeguard psychologically
+vulnerable users.
+The key contributions of this paper are:
+• A multimodal personal data ingestion and processing
+pipeline for constructing a deceased individual’s conver-
+sational persona.
+• A locally-served LLM architecture using structured per-
+sona prompting [3] for persona-faithful, emotionally re-
+sponsive dialogue generation, with a planned LoRA fine-
+tuning pathway for production deployment.
+• A voice synthesis module replicating the deceased’s vocal
+characteristics using XTTS v2 [11], supporting zero-shot
+voice cloning from minimal audio samples.
+• A FAISS-backed memory architecture [8] with Short-
+Term Memory (STM) and Long-Term Memory (LTM)
+for persistent persona retention across sessions.
+• An emotion-aware response engine classifying seven
+emotional states and contextualising interactions based
+on significant life events.
+• A real-time 3D avatar module with audio-driven lip
+synchronisation via the Web Audio API and Three.js.
+• A deepfake text detection module [10] ensuring AI-
+generation transparency for users.
+• A keyword-based crisis interception framework that by-
+passes LLM processing to deliver immediate safety re-
+sponses during high-risk interactions.
+• A consent-by-design ethical framework [1], [9] govern-
+ing data collection, persona deployment, and interaction
+boundaries.
+• Comprehensive evaluation across persona fidelity, emo-
+tional alignment, voice naturalness, memory retrieval
+quality, and user experience metrics.
+The remainder of this paper is structured as follows: Sec-
+tion II reviews related work; Section III describes the system
+architecture; Section IV covers implementation; Section V
+presents the evaluation framework; Section VI addresses eth-
+ical considerations; Section VII discusses results and limita-
+tions; and Section VIII concludes the paper.
+II. RELATED WORK
+A. Digital Immortality and Posthumous AI Personas
+The concept of digital immortality has emerged as a mul-
+tidisciplinary research domain [1]. Syarova et al. identify
+four foundational ethical pillars: data privacy, representational
+authenticity, dynamic consent, and emotional safeguards for
+bereaved relatives. Their work reviews commercial implemen-
+tations including Replika, HereAfter AI, Eterni.me, and Deep
+Nostalgia, identifying significant gaps in unified governance
+standards.
+Complementing this technical survey, Perov et al. [9] pro-
+vide a philosophical analysis of digital afterlife, introducing
+precise distinctions between a digital imitation (a static repro-
+duction recombining existing data) and a digital personality
+(a system employing predictive analytics to model behaviour
+in new situations). Their work highlights three central ethical
+tensions: the impossibility of freezing a morally evolving
+human identity into a statistical model; the ambiguity of data
+ownership for deceased persons who left no pre-mortem con-
+sent; and the diversity of religious and cultural attitudes toward
+posthumous representation. MemoryBridge explicitly adopts
+the conservative position of digital imitation as recommended
+by [9].
+B. Interactive Digital Avatar Platforms
+Awasare et al. [2] present AfterLife Connect, integrating
+LLaMA 3 and Mistral 7B for dialogue, Tacotron 2 and F5-TTS
+for voice synthesis, and StyleGAN3 with FOMM for facial
+animation, deployed on Google Cloud Platform with sub-
+second latency. A proof-of-concept Einstein avatar achieved
+90% persona consistency, 94% voice likeness, and SSIM
+of 0.82, establishing key benchmarks for interactive digital
+persona systems.
+C. Voice Cloning and Text-to-Speech
+Rajkumar et al. [7] present VoiceChat, a deep learning-based
+chat application converting text messages into personalised
+audio using voice cloning. Their system demonstrates that
+a small number of voice samples suffices to capture an
+individual’s accent, inflections, and speech patterns. The four-
+step pipeline—voice recording, vocal pattern analysis, voice
+cloning, and synthesised audio integration—directly informs
+MemoryBridge’s voice module. Their evaluation criteria cov-
+ering naturalness, intelligibility, prosody, linguistic accuracy,
+and Mean Opinion Score (MOS) provide the evaluation tem-
+plate for MemoryBridge’s voice component. MemoryBridge
+adopts XTTS v2 [11], a multilingual zero-shot TTS model em-
+ploying a flow-based architecture for expressive voice cloning
+from minimal reference audio.
+D. Memory-Augmented Dialogue Systems
+Huang et al. [8] present REMIND (Recall-Enhanced Mem-
+ory Integration for Natural Language Dialogue Systems), a
+lightweight modular framework integrating STM for session-
+specific recall and LTM for persistent knowledge retention.
+REMIND employs hybrid retrieval combining vector-based
+similarity search, hierarchical grouping, iterative query re-
+finement, and keyword filtering. Evaluated on the MemoRA
+dataset, LTM Retrieve achieved relevance scores of mean
+8.42 and median 9.0 out of 10 graded by GPT-4o-mini,
+outperforming MemGPT on long-term retrieval coherence.
+MemoryBridge adopts this STM/LTM pattern for cross-session
+persona consistency, implementing the vector storage layer
+using FAISS [14] with Sentence-BERT embeddings.
+E. Emotionally Adaptive AI and Personalised Intelligence
+Varma et al. [3] introduce Artificial Personalized Intelli-
+gence, comparing LoRA fine-tuning of LLaMA-3 8B against
+Retrieval-Augmented Generation (RAG) for emotionally per-
+sonalised response generation. Using a custom dataset of 30
+participants across six universal emotions, fine-tuning signif-
+icantly outperforms RAG (Disgust: Pearson r = 0.890 vs.
+0.821; average cosine similarity 0.76; 44% of predictions ex-
+ceeding 80% similarity). RAG underperforms due to LLaMA-
+3’s adversarial safety training biasing outputs toward neutral
+responses—a key finding motivating MemoryBridge’s planned
+LoRA fine-tuning pathway.
+F. LLM-Based Persona Generation
+Min and Jeong [6] demonstrate that LLMs can generate
+contextually rich, persona-faithful interactions from diverse
+personality configurations in a VR-based public speaking
+Q&A practice system. In a user study with 20 participants,
+LLM-generated questions were rated higher in quality (avg.
+rank 4.14) than human-generated questions (4.85), with 13
+out of 20 participants selecting an LLM-generated question
+as their first choice. The system achieved SUS of 75.0 and
+UEQ Stimulation M = 1.975, validating LLM-based persona
+generation for high-fidelity interactive applications. Memory-
+Bridge draws on this persona engineering methodology for its
+structured system prompt design.
+G. Deepfake Text Detection
+Chong et al. [10] propose a deepfake text detection system
+combining fine-tuned BERT embeddings, emoji2vec embed-
+dings, linguistic features, sentiment features via RoBERTa,
+and a Multi-Layer Perceptron (MLP) classifier. On the en-
+hanced TweepFake dataset of 21,730 tweets, their model
+achieves 88.3% accuracy and F1 scores of 88.1%–88.3%,
+outperforming a fine-tuned RoBERTa baseline of 87.6%. Key
+findings: machine-generated text exhibits higher neutral senti-
+ment proportions, lower perplexity for modern models, fewer
+user mentions and URLs, and distinct part-of-speech (POS)
+patterns. These characteristics inform MemoryBridge’s AI-
+generation transparency module.
+III. METHODOLOGY
+A. System Overview
+MemoryBridge is a modular, privacy-first conversational AI
+system comprising seven principal modules: (1) Multimodal
+Data Ingestion and Processing; (2) Persona Construction and
+LLM Serving; (3) Voice Synthesis and Cloning; (4) Memory-
+Augmented Dialogue Manager; (5) Emotion-Aware Response
+Engine; (6) Real-Time 3D Avatar and Lip Synchronisation;
+and (7) AI Transparency, Crisis Interception, and Ethical
+Governance Layer.
+The current prototype is deployed as a locally-hosted,
+edge-AI system. This architecture prioritises data privacy and
+enables zero-latency data access during inference without
+reliance on external cloud services. A cloud-hosted production
+pathway (Google Cloud Platform with Kubernetes orchestra-
+tion) is planned for scalable deployment.
+B. Multimodal Data Ingestion and Processing
+1) Data Sources: MemoryBridge ingests three primary data
+modalities:
+• Text Data: Chat message exports (WhatsApp, iMessage,
+email), social media posts, and written notes, forming the
+primary training corpus for linguistic style replication.
+• Voice Data: Voice notes, phone call recordings, and video
+audio tracks. XTTS v2 [11] supports zero-shot voice
+cloning from a minimum of approximately 6 seconds of
+clean reference audio, making it suitable for cases with
+limited recorded material.
+• Behavioural
+Data: Communication timing patterns,
+frequently discussed topics, emotional response trig-
+gers, preferred vocabulary, relationship-specific linguistic
+markers, and personality profile indicators (e.g., MBTI-
+style dimensions) used to calibrate the persona system
+prompt.
+Fig. 1. MemoryBridge System Architecture
+2) Text Data Processing Pipeline: Raw message exports
+are preprocessed through the following steps:
+1) Cleaning: Removal of timestamps, sender tags, media
+placeholders, and system messages.
+2) Speaker Diarization: Separation of the deceased’s mes-
+sages using Deepgram Nova-2, as employed in [3].
+3) Conversation Formatting: Construction of question-
+answer pairs and multi-turn dialogue sequences for fine-
+tuning.
+4) Embedding and Clustering: Semantic clustering via
+cosine similarity using all-MiniLM-L6-v2 embed-
+dings to identify emotional patterns, recurring themes,
+and vocabulary signatures.
+5) Persona Profile Extraction: Automated extraction of
+vocabulary range, sentence length distribution, emoji
+usage, greeting and closing patterns, topic preferences,
+and personality indicators, analogous to persona charac-
+terisation in [6] and [5].
+3) Voice Data Processing: Audio recordings are processed
+through a four-step pipeline informed by [7]: (1) voice sample
+registration; (2) vocal pattern analysis via deep neural net-
+works; (3) voice cloning using XTTS v2 [11]; and (4) inte-
+gration of synthesised audio with generated text responses.
+C. Persona Construction and LLM Serving
+1) Prototype: Ollama-Served LLaMA-3: The current proto-
+type serves LLaMA-3 8B locally via Ollama [13], pre-warmed
+at startup to minimise first-response latency. Persona fidelity is
+achieved through structured system prompt engineering rather
+than weight-level fine-tuning in this prototype phase.
+2) Planned: LoRA Fine-Tuning Configuration: For produc-
+tion deployment, the model will be fine-tuned using Low-
+Rank Adaptation (LoRA) [3] with the configuration shown in
+Table I. Varma et al. demonstrate that fine-tuning significantly
+outperforms RAG-based approaches for emotionally person-
+alised response generation [3], motivating this production
+pathway.
+TABLE I
+PLANNED LORA FINE-TUNING CONFIGURATION
+Parameter
+Value
+Base Model
+LLaMA-3 8B
+LoRA Rank
+16
+LoRA Alpha
+32
+LoRA Dropout
+0.05
+Quantisation
+4-bit NF4
+Learning Rate
+5e-5
+Batch Size
+2
+Training Epochs
+10
+Optimiser
+Paged AdamW
+Max Sequence Length
+512 tokens
+Task Type
+Causal LM
+3) Persona System Prompt Engineering: A structured sys-
+tem prompt encodes the deceased individual’s persona profile,
+covering: relationship-specific address patterns, known opin-
+ions and values, characteristic humour and rhetorical patterns,
+emotional response tendencies, and personality dimensions
+derived from the behavioural data pipeline. This approach is
+inspired by the LLM-based persona generation methodology
+of [6] and the ConvoGen characterisation approach of [5].
+The prompt is dynamically assembled at inference time by
+combining the static persona profile with retrieved memory
+context and detected emotional state.
+D. Voice Synthesis and Cloning
+MemoryBridge employs XTTS v2 [11] for voice synthesis,
+a massively multilingual zero-shot TTS model that replicates
+a speaker’s voice characteristics from a short reference audio
+clip without requiring speaker-specific training. The model’s
+flow-based architecture enables expressive, naturalistically
+prosodic speech output across diverse emotional registers.
+The voice pipeline follows the four-stage structure described
+in [7]: (1) voice sample registration from uploaded recordings;
+(2) vocal pattern extraction; (3) zero-shot voice cloning via
+XTTS v2; and (4) integration of synthesised audio with the
+response pipeline and 3D avatar system.
+In observed prototype performance, XTTS v2 achieves a
+Real-Time Factor (RTF) of approximately 2.7–3.6, yielding
+synthesis times of 6–15 seconds per sentence on CPU-only
+inference. GPU acceleration is expected to reduce RTF below
+1.0 in production. Voice output is evaluated using MOS,
+intelligibility, prosody, linguistic accuracy, adaptability, and
+speaker similarity, following the criteria of [7].
+E. Memory-Augmented Dialogue Manager
+MemoryBridge adopts the REMIND framework [8] for
+managing conversational context across sessions, imple-
+mented using FAISS [14] as the vector store backend with
+all-MiniLM-L6-v2 (Sentence-BERT) embeddings.
+1) Short-Term Memory: Manages session-specific conver-
+sational data as a temporary buffer, maintaining a sliding
+window:
+CSTM(t) = {ct−w+1, . . . , ct}
+(1)
+where ct is the conversation at time t and w is the window size.
+Vector-based similarity search retrieves relevant interactions
+sorted by timestamp for chronological coherence.
+2) Long-Term Memory: Provides persistent storage by hi-
+erarchically organising conversations into topic-based groups
+via the FAISS index. At each session start, the FAISS index
+is loaded from disk and cross-checked against the structured
+fact store for consistency. Retrieval is a multi-step iterative
+process: top-k groups are ranked by cosine similarity to the
+query vector, and the top-3 most relevant past interactions are
+injected into the system prompt before response generation [8].
+3) Hybrid Retrieval: STM and LTM are queried concur-
+rently and merged into a unified prompt [8]:
+P = gcombine(RelSTM, RLTM, q)
+(2)
+which is passed to the LLM for response generation.
+F. Emotion-Aware Response Engine
+1) Emotion
+Classification:
+User
+inputs
+are
+classified
+across
+seven
+emotion
+categories
+(Joy,
+Sadness,
+Fear,
+Anger,
+Surprise,
+Disgust,
+and
+Neutral)
+using
+the
+j-hartmann/emotion-english-distilroberta-base
+model [12], a fine-tuned DistilRoBERTa classifier trained
+on a multi-corpus dataset spanning six established emotion
+benchmarks. The detected emotion is injected into the LLM
+system prompt to calibrate response tone prior to every
+generation step.
+2) Significant Moment Detection: The system integrates
+with calendar and notification preferences to detect signifi-
+cant moments—birthdays, death anniversaries, holidays, and
+milestones—and initialises context-enriched conversations on
+these occasions.
+3) Response Generation: The end-to-end response genera-
+tion follows:
+R = Gθ(Ppersona, Euser, Chistory, Tcontext)
+(3)
+where Gθ is the LLM, Ppersona is the structured persona system
+prompt, Euser is the detected seven-class emotion, Chistory is the
+FAISS-retrieved memory context, and Tcontext is the temporal
+and event context.
+G. Real-Time 3D Avatar and Lip Synchronisation
+MemoryBridge renders an interactive 3D avatar to provide a
+visual presence for the simulated persona. The avatar module
+comprises two sub-components: scene rendering and audio-
+driven animation.
+1) Scene Rendering: The frontend constructs a Three.js
+scene with ambient and directional lighting and loads the
+persona’s 3D model from a GLB/GLTF file. The scene is
+served via the Flask backend and rendered natively in the
+browser without external plugins.
+2) Audio-Driven Lip Synchronisation: Upon receiving syn-
+thesised audio from XTTS v2, the frontend captures the audio
+stream using the Web Audio API AnalyserNode. The
+analyser computes per-frame RMS amplitude and frequency
+data, which are mapped directly to the jaw bone rotation of
+the avatar’s skeletal rig. Interpolation between frames ensures
+smooth, naturalistic mouth movement that tracks the temporal
+envelope of the synthesised speech. For avatars rigged with
+facial blendshapes, the system additionally maps frequency
+bands to standard viseme morph targets (e.g., mouthOpen,
+viseme_A).
+This amplitude-to-jaw mapping provides a lightweight, real-
+time synchronisation that operates within the constraints of
+client-side CPU inference without requiring a backend viseme
+extraction pipeline.
+H. AI Transparency, Crisis Interception, and Ethical Gover-
+nance Layer
+1) Deepfake Text Detection: MemoryBridge incorporates a
+deepfake text detection module based on [10] to ensure users
+are never misled about the AI-generated nature of responses.
+The module analyses generated text using perplexity scoring
+via GPT-2, sentiment polarity via RoBERTa, and linguistic
+feature analysis via BERT with an MLP, flagging responses for
+transparency disclosures. Key detection signals [10] include:
+• Perplexity: Modern LLM outputs exhibit characteristi-
+cally low perplexity scores.
+• Sentiment: Machine-generated text shows higher neutral
+sentiment proportions than human-written text.
+• POS Patterns: AI text uses higher NOUN, PRON, DET,
+and ADP ratios; lower PROPN and ADV ratios.
+All responses are labelled with a visible AI disclosure indi-
+cator, operationalising the representational humility principle
+of [1], [9].
+2) Crisis Interception Framework: Prior to every LLM
+inference call, the user’s input is scanned for high-risk crisis
+keywords (e.g., “suicide,” “self-harm,” “die”). Upon detec-
+tion, the LLM processing pipeline is immediately bypassed
+and a hard-coded, professionally reviewed safety response
+is returned, directing the user to seek professional mental
+health support. This deterministic interception ensures that no
+hallucinated or inappropriate AI-generated content is delivered
+during a potential crisis, regardless of the LLM’s output. The
+interception event is logged for monitoring and subsequent
+review.
+IV. IMPLEMENTATION
+A. Technology Stack
+TABLE II
+MEMORYBRIDGE TECHNOLOGY STACK
+Component
+Technology
+Base LLM
+LLaMA-3 8B (via Ollama)
+LLM Serving
+Ollama (local inference)
+Fine-Tuning (Planned)
+LoRA via HuggingFace
+Primary TTS
+XTTS v2 (Coqui TTS)
+Emotion Classifier
+j-hartmann/emotion-english-distilroberta
+Audio Transcription
+Deepgram Nova-2
+MGT Detection
+BERT plus MLP
+Memory Vector Store
+FAISS (faiss-cpu)
+Memory LTM
+Hierarchical topic groups (planned)
+Embedding Model
+all-MiniLM-L6-v2 (Sentence-BERT)
+Backend
+Flask (Python)
+Frontend
+HTML / CSS / JavaScript
+3D Avatar & Lip Sync
+Three.js + Web Audio API
+Deployment (Prototype)
+Local Flask server, WSL/Ubuntu
+Deployment (Production)
+Google Cloud Platform (planned)
+Data Storage
+AES-256 encrypted storage (planned)
+Crisis Interception
+Keyword filter (pre-inference)
+B. Data Onboarding Interface
+An onboarding interface guides the user through four stages:
+(1) Consent Configuration: selection of permitted interaction
+modes, data retention duration, and user access controls, all
+logged immutably consistent with [1], [9]; (2) Data Upload:
+chat export uploads and voice file ingestion following the
+pipeline described in [7]; (3) Profile Verification: user review
+of extracted persona traits and personality dimensions before
+persona activation; and (4) Legal Acknowledgement: clear
+disclosure that MemoryBridge creates a digital imitation and
+not a digital personality [9], with no claim to subjectivity,
+consciousness, or autonomous agency.
+C. Deployment Architecture
+The current prototype is deployed as a locally-hosted edge-
+AI system on Ubuntu/WSL, serving all inference workloads
+on-device. This design eliminates network latency for LLM
+inference and ensures that personal data never leaves the user’s
+machine during the prototype phase. The Flask server handles
+HTTP endpoints for the chat pipeline, audio file serving, and
+static frontend delivery. Audio files are automatically purged
+from disk after one hour to limit storage footprint.
+A cloud-based production deployment following the mi-
+croservices architecture of [2] with Kubernetes orchestration
+on Google Cloud Platform is planned as a future milestone.
+D. Hardware-Aware Graceful Degradation
+Given the multiple concurrent ML models (LLM, TTS,
+emotion classifier, embedding model), initialisation of the
+memory and emotion modules is wrapped in exception-
+handling blocks. If an out-of-memory (OOM) condition is
+detected at startup, these modules degrade gracefully while
+the core Flask–Ollama–XTTS voice pipeline continues to
+serve responses. This design ensures system availability under
+resource-constrained hardware conditions.
+V. EVALUATION FRAMEWORK
+A. Evaluation Dimensions
+MemoryBridge is evaluated across six primary dimensions.
+1) Persona Fidelity:
+• Cosine Similarity: Between generated responses and
+held-out messages from the deceased (target: ≥0.76 [3]).
+• Perplexity: Of generated text under a reference language
+model trained on the deceased’s messages.
+• Human Evaluation: Blind A/B testing by individuals
+who knew the deceased, using a 1 to 10 persona authen-
+ticity scale.
+2) Emotional Alignment: Adapting MSE and Pearson Cor-
+relation metrics from [3] to measure alignment of generated
+emotional tone with expected responses across seven emotion
+categories (Joy, Sadness, Fear, Anger, Surprise, Disgust, Neu-
+tral).
+3) Memory Retrieval Quality: Adapting the REMIND eval-
+uation methodology [8]: GPT-4o-mini as an LLM judge for
+relevance and coherence scoring from 1 to 10; ROUGE-L
+recall for session-specific retrieval; and KDE visualisations
+for score distribution analysis. Additional attention is given
+to FAISS index–fact store consistency, quantified by the mis-
+match rate between stored embeddings and the structured
+persona fact store.
+4) Voice Naturalness: MOS from human raters for synthe-
+sised voice, and Speaker Similarity score between generated
+audio and reference samples, following the TTS evaluation
+criteria of [7]. RTF is additionally reported as an infrastructure
+performance metric.
+5) Avatar Naturalness: Human perceptual evaluation of lip-
+sync accuracy: time-to-mouth alignment offset and a 1–10
+naturalness rating for jaw movement fidelity relative to the
+synthesised audio envelope.
+6) User Experience and Psychological Impact:
+• System Usability Scale scores (target: ≥75 [6]).
+• User Experience Questionnaire across six dimensions:
+Attractiveness,
+Perspicuity,
+Efficiency,
+Dependability,
+Stimulation, and Novelty [6].
+• Validated grief questionnaires (Prolonged Grief Disorder
+scale, PG-13) administered pre- and post-use.
+• Qualitative interviews on perceived comfort, appropriate-
+ness, and emotional impact.
+B. Evaluation Protocol
+A controlled user study with two participant groups:
+Group A—bereaved individuals who have experienced loss
+within the past two years, using MemoryBridge over a four-
+week period; and Group B—individuals who knew the de-
+ceased, assessing persona fidelity without direct grief bias.
+All participants provide informed consent; the protocol is re-
+viewed by an institutional ethics board; psychological support
+resources are available throughout.
+VI. ETHICAL CONSIDERATIONS
+Ethical responsibility is central to MemoryBridge’s design,
+informed by the comprehensive analyses of [1] and [9].
+A. Consent-by-Design
+Pre-mortem consent is strongly preferred: individuals may
+configure their MemoryBridge persona while alive, specify-
+ing permitted use cases, interaction boundaries, authorised
+users, and expiry conditions. Where pre-mortem consent is
+unavailable, post-mortem consent must be obtained from des-
+ignated data executors [9]. All consent records are logged
+immutably [1].
+B. Digital Imitation vs. Digital Personality
+Following [9], MemoryBridge implements a digital imita-
+tion rather than a digital personality. The distinction is en-
+forced architecturally: the system is constrained to reproduce
+attested linguistic patterns and does not generate opinions or
+beliefs absent from the training data.
+C. Representational Humility and AI Disclosure
+Every session begins with a visible disclaimer that Mem-
+oryBridge simulates—but does not replicate—the identity of
+the deceased, with no claim to consciousness or autonomous
+agency [9]. The deepfake text detection module [10] provides
+a technical implementation of AI-generation transparency.
+D. Crisis Interception and Psychological Safeguards
+Informed by research in [1] identifying a 22% incidence
+of prolonged grief disorder alongside a 68% reduction in
+complicated grief symptoms, MemoryBridge implements a
+layered psychological safety framework comprising:
+• Crisis keyword interception (pre-inference): User input
+is scanned for high-risk terms before every LLM call.
+Upon detection, LLM processing is bypassed and a hard-
+coded professional safety response is delivered immedi-
+ately.
+• Session duration limits (default 30 minutes) with grad-
+uated warnings for extended usage.
+• Automatic referral to grief counselling resources upon
+session termination or crisis detection.
+• Mandatory cooling-off periods after significant anniver-
+sary dates.
+• Minor protection: Access by individuals under 18 years
+of age requires parental or guardian consent and is subject
+to additional psychological monitoring [1].
+E. Personal Data and Posthumous Ownership
+All data is encrypted at rest using AES-256 and in transit
+using TLS 1.3. In the current prototype, model weights and
+FAISS indices are stored in isolated, user-specific local direc-
+tories. Anomaly detection for unauthorised access is planned
+for the production deployment [1].
+F. Right to Erasure
+Any authorised user may permanently delete all associated
+data, FAISS indices, and model artefacts at any time, consis-
+tent with GDPR Article 17 [1].
+G. Religious and Cultural Sensitivity
+Perov et al. [9] note that attitudes toward posthumous
+digital representation vary fundamentally across religious and
+cultural traditions. MemoryBridge provides region-specific in-
+teraction guides and recommends cultural consultation before
+deployment in communities with strong traditional mourning
+practices.
+VII. RESULTS AND DISCUSSION
+A. Anticipated Performance Benchmarks
+TABLE III
+ANTICIPATED PERFORMANCE BENCHMARKS
+Metric
+Target
+Ref.
+Persona Cosine Similarity
+≥0.76
+[3]
+Voice MOS Score
+≥4.0
+[11]
+Speaker Similarity
+≥0.65
+[2]
+TTS RTF (CPU)
+≤3.6
+Observed
+TTS RTF (GPU, production)
+< 1.0
+Planned
+Persona Consistency
+≥85%
+[2]
+Emotional Pearson r
+≥0.78
+[3]
+LTM Relevance Score
+≥8.0
+[8]
+MGT Detection Accuracy
+≥88%
+[10]
+SUS Score
+≥75
+[6]
+Crisis Interception Recall
+100%
+Safety requirement
+B. Prototype Observations
+Initial prototype runs confirm successful integration of
+all seven modules. XTTS v2 generates voice output with
+an RTF of approximately 2.7–3.6 on CPU-only inference,
+yielding synthesis times of 6–15 seconds per sentence. GPU-
+accelerated inference is expected to bring the RTF below
+1.0. The FAISS memory module initialises correctly when
+the vector index and structured fact store are synchronised; a
+mismatch detection mechanism has been implemented to flag
+and log index–store inconsistencies at server startup. The 3D
+avatar renders in-browser with smooth jaw animation driven by
+the Web Audio API analyser, with subjective visual coherence
+rated positively in informal testing.
+C. Limitations
+LLM
+Fine-Tuning
+Gap. The current prototype uses
+a
+general-purpose
+Ollama-served
+LLaMA-3
+8B
+without
+persona-specific LoRA fine-tuning. While structured persona
+prompting achieves plausible fidelity, fine-tuned weights are
+expected to yield significantly higher cosine similarity and
+emotional alignment scores [3].
+TTS Latency on CPU. XTTS v2 on CPU-only hardware
+produces an RTF of 2.7–3.6, making real-time voice synthe-
+sis infeasible without GPU acceleration. This is a hardware
+constraint of the prototype environment and does not reflect
+production performance.
+FAISS Index Synchronisation. The vector index can be-
+come desynchronised from the structured fact store across
+sessions, resulting in a mismatch between indexed embeddings
+and retrievable facts. A startup-time consistency check has
+been implemented; a transactional write mechanism is planned
+for production.
+Data Sufficiency. Persona fidelity is constrained by the
+volume and diversity of available personal data.
+Memory Coherence at Scale. As noted in [8], LLM
+variability in grouping quality can degrade LTM retrieval
+coherence over long interaction histories.
+Hallucination Risk. LLMs can generate plausible but fac-
+tually incorrect statements about the deceased. The deepfake
+detection layer [10] provides partial mitigation by flagging
+low-perplexity, high-neutral-sentiment outputs for review.
+Persona Authenticity Limits. The system operates as a
+digital imitation [9]. Generating responses to entirely novel
+scenarios risks misrepresenting the deceased’s views.
+Cultural
+and
+Temporal
+Drift. Communication style
+evolves over time and varies across cultures [9]. Training data
+from different life periods may contain contradictory linguistic
+patterns.
+Grief Prolongation Risk. While digital memorials can
+reduce complicated grief symptoms by up to 68% [1], they
+also carry a 22% risk of prolonged grief disorder.
+VIII. CONCLUSION
+This paper presents MemoryBridge, an AI-based conver-
+sational system addressing the profound communicative void
+left by bereavement. The prototype integrates a locally-served
+LLaMA-3 8B with structured persona prompting, XTTS v2
+zero-shot voice synthesis [11], FAISS-backed memory man-
+agement [8], seven-class emotion-aware response genera-
+tion [12], real-time 3D avatar lip synchronisation, a keyword-
+based crisis interception framework, deepfake text trans-
+parency [10], and a consent-by-design ethical framework [1],
+[9].
+The system explicitly commits to operating as a digital
+imitation—a bounded, data-grounded reconstruction maintain-
+ing representational humility—rather than a digital personality
+claiming autonomous identity [9].
+Future work will focus on: production-grade LoRA fine-
+tuning of LLaMA-3 8B [3]; GPU-accelerated TTS inference
+to achieve sub-second voice latency; longitudinal evaluation of
+psychological impact using validated grief scales; FAISS index
+transactional consistency guarantees; multimodal avatar im-
+provements using blendshape-rigged models; federated learn-
+ing for privacy-preserving personalisation; cloud deployment
+on GCP with Kubernetes orchestration; and cross-cultural
+adaptation of interaction frameworks [9].
+ACKNOWLEDGMENT
+The authors thank the open-source communities behind
+LLaMA, Ollama, HuggingFace Transformers, Coqui XTTS,
+FAISS, Three.js, and Sentence-Transformers, and are grateful
+to the reviewers for their constructive feedback.
+REFERENCES
+[1] S. Syarova, E. Zdravkova, E. Petkova-Gueorguieva, Y. Hadzhiyska,
+V. Angelova, and S. Toleva-Stoimenova, “Digital immortality—a com-
+prehensive survey of technologies, ethics and societal impacts,” in Proc.
+Int. Conf. Automatics and Informatics (ICAI’25), IEEE, Varna, Bulgaria,
+Oct. 2025, pp. 608–612.
+[2] S. Awasare, L. Moolya, S. Khodke, S. Dixit, and V. N. Nayakwadi, “Af-
+terLife Connect: An AI-based platform for interactive digital avatars,”
+in Proc. 2025 Global Conf. Emerging Technology (GINOTECH), IEEE,
+Pune, India, May 2025, pp. 1–12.
+[3] S. Varma, S. Shivam, S. Natarajan, B. Ray, B. Kumar, and O. Dabral,
+“Talk to your brain: Artificial personalized intelligence for emotionally
+adaptive AI interactions,” in Proc. IEEE Int. Conf. Computer Vision and
+Machine Intelligence (CVMI), 2024.
+[4] A. Yorita, S. Egerton, C. Chan, and N. Kubota, “Chatbot persona
+selection methodology for emotional support,” in Proc. 62nd Annu. Conf.
+Society of Instrument and Control Engineers (SICE), IEEE, Tsu City,
+Japan, Sep. 2023, pp. 333–338.
+[5] R. Gody, M. Goudy, and A. Y. Tawfik, “ConvoGen: Enhancing conver-
+sational AI with synthetic data: A multi-agent approach,” in Proc. 2025
+IEEE Conf. Artificial Intelligence (CAI), 2025, pp. 252–257.
+[6] Y. Min and J.-W. Jeong, “Public speaking Q&A practice with LLM-
+generated personas in virtual reality,” in Proc. 2024 IEEE Int. Symp.
+Mixed and Augmented Reality Adjunct (ISMAR-Adjunct), IEEE, 2024,
+pp. 493–496.
+[7] K. V. Rajkumar, Y. Rayudu, N. Jayasree, M. Ikramuddin, L. V. Kom-
+mireddi, and P. K. Aouti, “Voice chat: Bringing chats to life using
+deep learning,” in Proc. 9th Int. Conf. Communication and Electronics
+Systems (ICCES-2024), IEEE, 2024, pp. 2001–2006.
+[8] B.-S. Huang, T. T. Kuo, L.-J. Wang, and C.-Y. Lin, “REMIND: Recall
+enhanced memory integration for natural language dialogue systems,”
+in Proc. 2025 IEEE Conf. Artificial Intelligence (CAI), IEEE, 2025, pp.
+689–694.
+[9] V. Perov, N. Perova, and N. Makarova, “Ethical aspects of digital after-
+life,” in Proc. 2025 IEEE Ural-Siberian Conf. Biomedical Engineering,
+Radioelectronics and Information Technology (USBEREIT), IEEE, 2025,
+pp. 9–12.
+[10] A. T. Y. Chong, H. N. Chua, M. B. Jasser, and R. T. K. Wong, “Bot
+or human? Detection of deepfake text with semantic, emoji, sentiment
+and linguistic features,” in Proc. 2023 IEEE 13th Int. Conf. System
+Engineering and Technology (ICSET), IEEE, Shah Alam, Malaysia, Oct.
+2023, pp. 205–210.
+[11] Coqui AI, “XTTS: A massively multilingual zero-shot text-to-speech
+model,” GitHub Repository, 2023. [Online]. Available: https://github.
+com/coqui-ai/TTS
+[12] J.
+Hartmann,
+“Emotion
+English
+DistilRoBERTa-base,”
+Hugging
+Face Model Hub, 2022. [Online]. Available: https://huggingface.co/
+j-hartmann/emotion-english-distilroberta-base
+[13] Ollama, “Ollama: Get up and running with large language models
+locally,” GitHub Repository, 2023. [Online]. Available: https://github.
+com/ollama/ollama
+[14] J. Johnson, M. Douze, and H. J´egou, “Billion-scale similarity search
+with GPUs,” IEEE Transactions on Big Data, vol. 7, no. 3, pp. 535–
+547, 2021.
+[15] A. Vaswani, N. Shazeer, N. Parmar, J. Uszkoreit, L. Jones, A. N. Gomez,
+Ł. Kaiser, and I. Polosukhin, “Attention is all you need,” arXiv preprint
+arXiv:1706.03762, 2017.
+[16] J. Devlin, M.-W. Chang, K. Lee, and K. Toutanova, “BERT: Pre-training
+of deep bidirectional transformers for language understanding,” arXiv
+preprint arXiv:1810.04805, 2019.
+[17] P. Lewis, E. Perez, A. Piktus, F. Petroni, V. Karpukhin, N. Goyal,
+H. K¨uttler, M. Lewis, W. Yih, and T. Rockt¨aschel, “Retrieval-augmented
+generation for knowledge-intensive NLP tasks,” Advances in Neural
+Information Processing Systems, vol. 33, pp. 9459–9474, 2020.

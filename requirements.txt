@@ -1,8 +1,21 @@
-pyttsx3
-sounddevice
-scipy
-faiss-cpu
-sentence-transformers
-transformers
+flask>=2.3,<4
+flask-cors>=4,<5
+requests>=2.31,<3
+
+# LLM clients (some scripts use OpenAI)
+openai>=1.0,<2
+
+# TTS
+TTS>=0.22,<1
+pyttsx3>=2.90
+
+# ML / embeddings / vector search
+numpy>=1.24,<3
+scipy>=1.10,<2
 torch
-flask-cors
+transformers>=4.38,<5
+sentence-transformers>=2.2,<4
+faiss-cpu
+
+# Optional: used by some local audio scripts
+sounddevice>=0.4,<1

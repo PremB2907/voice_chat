@@ -64,7 +64,7 @@ python -c "from TTS.api import TTS; TTS('tts_models/multilingual/multi-dataset/x
 ### 5. Setup Ollama (Optional)
 ```bash
 # Download from https://ollama.ai
-ollama pull neural-chat  # or any model you prefer
+ollama pull llama3  # or any model you prefer
 ollama serve  # Start Ollama server on localhost:11434
 ```
 
@@ -76,12 +76,13 @@ python setup_prem_knowledge.py
 ```
 
 This creates:
-- `memory_store.py` - Conversation memory management
-- `memory_index.faiss` - Semantic search index
 - `prem_knowledge_base.json` - Knowledge base
+- `memory_index.faiss` - Semantic search index (if/when populated)
 
 ### 2. Start the Server
 ```bash
+# Important: start Ollama first (unless you expect responses to fall back).
+# ollama serve
 python server.py
 ```
 
@@ -129,14 +130,14 @@ voice_chat/
 ### TTS Settings
 Modify in `server.py`:
 ```python
-tts = TTS("tts_models/multilingual/multi-dataset/xtts_v2")
+TTS("tts_models/multilingual/multi-dataset/xtts_v2")
 ```
 
 ### Emotion Model
 Currently uses: `j-hartmann/emotion-english-distilroberta-base`
 
 ### Ollama Model
-Update in API calls - defaults to `neural-chat`
+Update in `server.py` - defaults to `llama3`
 
 ### Memory Settings
 Configure in `memory_store.py`:
@@ -195,12 +196,48 @@ python scripts/test_api.py
 python check_model.py
 ```
 
+## 📊 Logging
+
+The server emits **structured JSON logs** (one JSON object per log line).
+
+### Control verbosity
+
+```bash
+# Linux/macOS
+LOG_LEVEL=DEBUG python server.py
+
+# Windows (PowerShell)
+$env:LOG_LEVEL="DEBUG"; python server.py
+```
+
+Common levels: `DEBUG`, `INFO`, `WARNING`, `ERROR`.
+
+### Pretty-print logs
+
+```bash
+# From a file
+python scripts/parse_logs.py path/to/server.log
+
+# Or from a stream (Linux/macOS)
+python server.py 2>&1 | python scripts/parse_logs.py
+```
+
+### Production aggregation (optional)
+
+Because the payload is JSON, it’s easy to ship logs to tools like **ELK/OpenSearch**, **Datadog**, or **CloudWatch**
+and filter by fields like `"event"`, `"error"`, `"model"`, etc.
+
 ## 🔄 Reset Memory
 
 Clear conversation history and memory index:
 ```bash
 python reset_memory.py
 ```
+
+## 🔊 Voice Samples
+
+Voice cloning uses WAV files in `voice_samples/`. The default configured sample is currently named
+`my_voice.wav.wav` (double `.wav` extension); that’s expected by `server.py` unless you change it.
 
 ## 📊 Performance Tips
 
