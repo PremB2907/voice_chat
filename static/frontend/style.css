@@ -115,6 +115,9 @@ header {
   border-radius: 50%;
   animation: pulse 2s ease infinite;
 }
+.status-dot.offline { background: var(--red); animation: none; }
+.status-dot.warn { background: var(--yellow); animation: none; }
+.status-dot.online { background: var(--teal); }
 @keyframes pulse {
   0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(0,229,195,0.4); }
   50%       { opacity: 0.7; box-shadow: 0 0 0 5px rgba(0,229,195,0); }

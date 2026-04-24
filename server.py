@@ -10,6 +10,9 @@ import glob
 from transformers import pipeline
 import logging
 import json
+import threading
+import sys
+import contextlib
 
 try:
     from memory_store import MemoryStore
@@ -22,15 +25,111 @@ except Exception as e:
 else:
     _bootstrap_memory_error = None
 
-logging.basicConfig(
-    level=os.environ.get("LOG_LEVEL", "INFO").upper(),
-    format="%(asctime)s %(levelname)s %(name)s %(message)s",
-)
+# ── SETUP LOGGING ────────────────────────────────────────────────
+LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO").upper()
+logging.basicConfig(level=LOG_LEVEL)
+
 logger = logging.getLogger("voice_chat.server")
+logger.propagate = False
+
+class EmojiConsoleFormatter(logging.Formatter):
+    EMOJI = {
+        "startup": "🚀",
+        "asset_found": "✅",
+        "asset_missing": "⚠️",
+        "memory_init_failed": "⚠️",
+        "memory_unavailable": "⚠️",
+        "memory_facts_retrieved": "🧠",
+        "memory_no_relevant_facts": "📭",
+        "emotion": "🎭",
+        "emotion_model_failed": "⚠️",
+        "emotion_detection_failed": "⚠️",
+        "ollama_prewarm_start": "⏳",
+        "ollama_prewarm_ok": "✅",
+        "ollama_prewarm_failed": "⚠️",
+        "ollama_error": "❌",
+        "tts": "🔊",
+        "tts_failed": "🔇",
+        "audio_cleanup_failed": "⚠️",
+        "serve_model": "🎭",
+        "serve_model_missing": "⚠️",
+        "shutdown_requested": "🛑",
+        "warmup_start": "⚡",
+        "warmup_ok": "⚡✅",
+        "warmup_failed": "⚡⚠️",
+    }
+
+    def format(self, record: logging.LogRecord) -> str:
+        ts = self.formatTime(record, "%H:%M:%S")
+        try:
+            payload = json.loads(record.getMessage())
+            event = payload.get("event", "log")
+            emoji = self.EMOJI.get(event, "•")
+            # Keep a short, readable summary while preserving key fields.
+            msg = payload.get("msg") or payload.get("hint") or ""
+            extras = []
+            for k in ("model", "asset", "size_kb", "chars", "mode", "path", "error"):
+                if k in payload and payload[k] not in (None, ""):
+                    extras.append(f"{k}={payload[k]}")
+            tail = (" — " + msg) if msg else ""
+            more = (" (" + ", ".join(extras) + ")") if extras else ""
+            return f"{emoji} {ts} {event}{tail}{more}"
+        except Exception:
+            return f"• {ts} {record.levelname} {record.getMessage()}"
+
+
+class EventFilter(logging.Filter):
+    def __init__(self, mode: str):
+        super().__init__()
+        self.mode = (mode or "AB").upper()
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        # Mode B: hide chatty warmup/prewarm events (keep important errors/warnings).
+        if self.mode == "B":
+            try:
+                payload = json.loads(record.getMessage())
+                event = payload.get("event")
+                if event in {
+                    "warmup_start",
+                    "warmup_ok",
+                    "ollama_prewarm_start",
+                    "ollama_prewarm_ok",
+                } and record.levelno < logging.WARNING:
+                    return False
+            except Exception:
+                pass
+        return True
+
+
+_console_mode = os.environ.get("LOG_CONSOLE_MODE", "AB").upper()
+console_level = logging.WARNING if _console_mode == "A" else getattr(logging, LOG_LEVEL, logging.INFO)
+console_handler = logging.StreamHandler(sys.stdout)
+console_handler.setLevel(console_level)
+console_handler.setFormatter(EmojiConsoleFormatter())
+console_handler.addFilter(EventFilter(_console_mode))
+logger.addHandler(console_handler)
+
+# Reduce noisy third-party libs
+for lib in ["werkzeug", "sentence_transformers", "TTS", "urllib3", "transformers", "faiss"]:
+    logging.getLogger(lib).setLevel(logging.WARNING)
+
+
+@contextlib.contextmanager
+def suppress_stdout_stderr(enabled: bool = True):
+    """
+    Some libraries (notably Coqui TTS) print directly to stdout/stderr.
+    Use this around model init/synthesis to keep console output clean.
+    """
+    if not enabled:
+        yield
+        return
+    with open(os.devnull, "w") as devnull:
+        with contextlib.redirect_stdout(devnull), contextlib.redirect_stderr(devnull):
+            yield
 
 def log_event(level: str, event: str, **fields):
     payload = {"event": event, **fields}
-    msg = json.dumps(payload, ensure_ascii=False, default=str)
+    msg = json.dumps(payload, ensure_ascii=False, separators=(",", ":"), default=str)
     getattr(logger, level.lower(), logger.info)(msg)
 
 if _bootstrap_memory_error:
@@ -64,7 +163,8 @@ _tts = None
 def get_tts():
     global _tts
     if _tts is None:
-        _tts = TTS("tts_models/multilingual/multi-dataset/xtts_v2")
+        with suppress_stdout_stderr(True):
+            _tts = TTS("tts_models/multilingual/multi-dataset/xtts_v2")
     return _tts
 
 log_event("info", "emotion", msg="Emotion model will lazy-load on first use")
@@ -97,6 +197,21 @@ def get_voice_samples():
     if configured:
         return configured
     return sorted(glob.glob(os.path.join("voice_samples", "*.wav")))
+
+
+def _warmup_background():
+    # Warm models in the background to reduce first-message latency.
+    # Doesn't block startup and is safe to skip if dependencies aren't available.
+    try:
+        log_event("info", "warmup_start")
+        if memory and hasattr(memory, "warmup"):
+            memory.warmup()
+        get_emotion_classifier()
+        # TTS warmup is expensive; do it last.
+        get_tts()
+        log_event("info", "warmup_ok")
+    except Exception as e:
+        log_event("warning", "warmup_failed", error=str(e))
 
 # ── Ollama config ─────────────────────────────────────────────────
 OLLAMA_URL = "http://localhost:11434/api/chat"
@@ -175,7 +290,8 @@ def chat():
                 speaker_wavs = get_voice_samples()
                 if not speaker_wavs:
                     raise RuntimeError("No voice samples found in voice_samples/")
-                get_tts().tts_to_file(text=prem_reply, speaker_wav=speaker_wavs, language="en", file_path=filepath)
+                with suppress_stdout_stderr(True):
+                    get_tts().tts_to_file(text=prem_reply, speaker_wav=speaker_wavs, language="en", file_path=filepath)
                 result_audio = filename
             except Exception as e:
                 log_event("warning", "tts_failed", mode="crisis", error=str(e))
@@ -286,12 +402,13 @@ def chat():
         speaker_wavs = get_voice_samples()
         if not speaker_wavs:
             raise RuntimeError("No voice samples found in voice_samples/")
-        get_tts().tts_to_file(
-            text=prem_reply,
-            speaker_wav=speaker_wavs,
-            language="en",
-            file_path=filepath
-        )
+        with suppress_stdout_stderr(True):
+            get_tts().tts_to_file(
+                text=prem_reply,
+                speaker_wav=speaker_wavs,
+                language="en",
+                file_path=filepath
+            )
         result_audio = filename
     except Exception as e:
         log_event("warning", "tts_failed", mode="normal", error=str(e))
@@ -402,6 +519,10 @@ def shutdown():
 
 
 if __name__ == "__main__":
+    # Kick off warmup without blocking server start
+    if os.environ.get("WARMUP_ON_STARTUP", "1") == "1":
+        threading.Thread(target=_warmup_background, daemon=True).start()
+
     # Pre-warm the model so first request is instant
     log_event("info", "ollama_prewarm_start", model=OLLAMA_MODEL)
     try:

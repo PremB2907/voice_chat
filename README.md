@@ -212,6 +212,26 @@ $env:LOG_LEVEL="DEBUG"; python server.py
 
 Common levels: `DEBUG`, `INFO`, `WARNING`, `ERROR`.
 
+### Cleaner console modes (A / B)
+
+The server logs are structured JSON internally, but the console is rendered as **emoji one-liners**.
+
+- **Mode A**: only show `WARNING`/`ERROR` (quiet)
+- **Mode B**: show `INFO`, but hide warmup/prewarm noise
+- **Mode AB**: show everything (default)
+
+```bash
+# Linux/macOS
+LOG_CONSOLE_MODE=A  python server.py
+LOG_CONSOLE_MODE=B  python server.py
+LOG_CONSOLE_MODE=AB python server.py
+
+# Windows (PowerShell)
+$env:LOG_CONSOLE_MODE="A";  python server.py
+$env:LOG_CONSOLE_MODE="B";  python server.py
+$env:LOG_CONSOLE_MODE="AB"; python server.py
+```
+
 ### Pretty-print logs
 
 ```bash

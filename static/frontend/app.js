@@ -53,11 +53,14 @@ const themeBtn  = document.getElementById("theme-toggle");
 const clearBtn  = document.getElementById("clear-btn");
 const audioPill = document.getElementById("audio-pill");
 const toastEl   = document.getElementById("toast");
+const statusDot = document.getElementById("status-dot");
+const statusText = document.getElementById("status-text");
 
 const SERVER = window.location.origin;
 let timerInterval = null;
 let isLoading = false;
 let isVoiceOn = true;  // declared here so sendMessage can use it
+let isServerOnline = true;
 
 const HISTORY_KEY = "un-miss-history";
 let chatHistory = [];
@@ -138,6 +141,30 @@ function showToast(msg, ms = 3500) {
   toastEl.textContent = msg;
   toastEl.classList.add("show");
   setTimeout(() => toastEl.classList.remove("show"), ms);
+}
+
+function setServerStatus(state, text) {
+  isServerOnline = state === "online" || state === "warn";
+  if (statusDot) {
+    statusDot.classList.remove("online", "offline", "warn");
+    statusDot.classList.add(state);
+  }
+  if (statusText) statusText.textContent = text;
+}
+
+async function pollServerStatus() {
+  try {
+    const res = await fetch(`${SERVER}/memory-status`, { cache: "no-store" });
+    if (!res.ok) throw new Error("offline");
+    const data = await res.json();
+    if (data && data.mismatch) {
+      setServerStatus("warn", "Memory mismatch");
+    } else {
+      setServerStatus("online", "Online");
+    }
+  } catch {
+    setServerStatus("offline", "Offline");
+  }
 }
 
 function setLoading(on) {
@@ -238,6 +265,10 @@ function visualize() {
 async function sendMessage() {
   const message = userInput.value.trim();
   if (!message || isLoading) return;
+  if (!isServerOnline) {
+    showToast("Server offline. Start server.py first.");
+    return;
+  }
 
   addMessage("Maitree", message, true);
   userInput.value = "";
@@ -274,6 +305,7 @@ async function sendMessage() {
 
   } catch (err) {
     setLoading(false);
+    setServerStatus("offline", "Offline");
     showToast("⚠  " + err.message);
     addMessage("Prem", "Maitree… I can't reach you right now.", false);
   }
@@ -347,6 +379,11 @@ if (shutdownBtn) {
 
 /* Desktop autofocus */
 if (window.innerWidth > 768) userInput.focus();
+
+// Initial status + polling
+setServerStatus("warn", "Connecting…");
+pollServerStatus();
+setInterval(pollServerStatus, 8000);
 
 /* ═══ SPEECH RECOGNITION ═══ */
 const micBtn = document.getElementById("mic-btn");
