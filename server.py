@@ -13,6 +13,13 @@ import json
 import threading
 import sys
 import contextlib
+import datetime
+
+sys.path.append(os.path.join(os.path.dirname(__file__), "scripts"))
+try:
+    from deepfake_detector import detector as df_detector
+except ImportError:
+    df_detector = None
 
 try:
     from memory_store import MemoryStore
@@ -28,7 +35,6 @@ else:
 # ── SETUP LOGGING ────────────────────────────────────────────────
 LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO").upper()
 logging.basicConfig(level=LOG_LEVEL)
-
 logger = logging.getLogger("voice_chat.server")
 logger.propagate = False
 
@@ -126,6 +132,19 @@ def suppress_stdout_stderr(enabled: bool = True):
     with open(os.devnull, "w") as devnull:
         with contextlib.redirect_stdout(devnull), contextlib.redirect_stderr(devnull):
             yield
+
+EMOJI_MAP = {
+    "info": "🔹", "warning": "🔸", "error": "🔺", "debug": "▫️",
+    "startup": "🚀", "asset_found": "📦", "asset_missing": "⚠️",
+    "tts": "🔊", "tts_failed": "⚠️", "emotion": "🎭", 
+    "emotion_detection_failed": "⚠️", "memory_init_failed": "❌",
+    "memory_facts_retrieved": "🧠", "memory_no_relevant_facts": "📭",
+    "memory_unavailable": "⚠️", "serve_model": "🎨",
+    "serve_model_missing": "⚠️", "shutdown_requested": "🛑",
+    "ollama_prewarm_start": "🔥", "ollama_prewarm_ok": "✅",
+    "ollama_prewarm_failed": "❌", "ollama_error": "⚠️",
+    "audio_cleanup_failed": "🧹",
+}
 
 def log_event(level: str, event: str, **fields):
     payload = {"event": event, **fields}
@@ -303,10 +322,16 @@ def chat():
 
     # Normal execution flow
     
-    # 1. Retrieve Prem's Knowledge Base FIRST (highest priority)
+    # 1. Retrieve Prem's Knowledge Base & STM Context (Hybrid Retrieval)
     memory_context = ""
     if memory:
-        retrieved = memory.retrieve_relevant_facts(user_input, top_k=5)
+        retrieved = memory.retrieve_hybrid_context(user_input, top_k=5)
+        
+        # Significant Moment Detection check
+        today = datetime.datetime.now().strftime("%B %d")
+        if today in retrieved:
+            retrieved += f"\n[SYSTEM NOTE: Today ({today}) is a significant date found in the knowledge base. Acknowledge it if appropriate.]\n"
+            
         if retrieved:
             memory_context = f"\n{retrieved}"
             log_event("info", "memory_facts_retrieved", chars=len(retrieved))
@@ -387,10 +412,21 @@ def chat():
             if sentences:
                 prem_reply = sentences[0].strip() + "."
 
+    # Update Short-Term Memory
+    if memory:
+        memory.add_conversation_turn(user_input, prem_reply)
+
+    # Deepfake / AI Transparency check
+    ai_transparency = {}
+    if df_detector:
+        emo_val = emotion_label if 'emotion_label' in locals() else "neutral"
+        ai_transparency = df_detector.analyze_text(prem_reply, emotion_label=emo_val)
+
     if not generate_audio:
         return jsonify({
             "reply": prem_reply,
-            "audio": None
+            "audio": None,
+            "ai_transparency": ai_transparency
         })
 
     # ── Generate voice with XTTS ──────────────────────────────────
@@ -422,7 +458,11 @@ def chat():
     except Exception as e:
         log_event("warning", "audio_cleanup_failed", error=str(e))
 
-    return jsonify({"reply": prem_reply, "audio": result_audio})
+    return jsonify({
+        "reply": prem_reply, 
+        "audio": result_audio,
+        "ai_transparency": ai_transparency
+    })
 
 # ── ADD PREM'S FACTS ENDPOINT ─────────────────────────────────────
 @app.route("/add-fact", methods=["POST"])
