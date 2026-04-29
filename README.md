@@ -1,6 +1,6 @@
-# 🎤 Voice Chat - AI-Powered Conversational Avatar
+# � MemoryBridge - AI-Powered Conversational Avatar
 
-An advanced voice chat application that combines large language models (Ollama), text-to-speech synthesis, emotion detection, and 3D avatar visualization for immersive interactive conversations.
+MemoryBridge is a sophisticated AI-powered conversational system that combines large language models (Ollama), text-to-speech synthesis, emotion detection, and 3D avatar visualization for immersive interactive conversations. Designed for digital legacy and grief support applications.
 
 ## 🌟 Features
 
@@ -27,19 +27,54 @@ See `Research Papers/` directory for full references.
 
 ## 🛠️ Prerequisites
 
-- Python 3.9+
+- Docker & Docker Compose (recommended) OR Python 3.9+
 - Ollama (for local LLM inference)
 - CUDA (optional, for GPU acceleration)
 
 ## 📦 Installation
 
-### 1. Clone Repository
+### 🐳 Docker Installation (Recommended)
+
+#### 1. Clone Repository
 ```bash
 git clone https://github.com/PremB2907/voice_chat.git
 cd voice_chat
 ```
 
-### 2. Create Virtual Environment
+#### 2. Initialize Knowledge Base
+```bash
+python setup_prem_knowledge.py
+```
+
+#### 3. Run with Docker Compose
+```bash
+# Basic deployment (without Ollama)
+docker-compose up -d
+
+# With Ollama for local LLM
+docker-compose --profile ollama up -d
+
+# Pull a model for Ollama (if using)
+docker exec -it memorybridge-ollama ollama pull llama3
+```
+
+#### 4. Access the Application
+Open your browser to: `http://localhost:5000`
+
+#### 5. Stop the Application
+```bash
+docker-compose down
+```
+
+### 💻 Traditional Installation
+
+#### 1. Clone Repository
+```bash
+git clone https://github.com/PremB2907/voice_chat.git
+cd voice_chat
+```
+
+#### 2. Create Virtual Environment
 ```bash
 # Windows
 python -m venv .venv
@@ -50,18 +85,18 @@ python3 -m venv .venv
 source .venv/bin/activate
 ```
 
-### 3. Install Dependencies
+#### 3. Install Dependencies
 ```bash
 pip install -r requirements.txt
 ```
 
-### 4. Download TTS & Emotion Models
+#### 4. Download TTS & Emotion Models
 The models are downloaded automatically on first run, but you can pre-download:
 ```bash
 python -c "from TTS.api import TTS; TTS('tts_models/multilingual/multi-dataset/xtts_v2')"
 ```
 
-### 5. Setup Ollama (Optional)
+#### 5. Setup Ollama (Optional)
 ```bash
 # Download from https://ollama.ai
 ollama pull llama3  # or any model you prefer
@@ -70,7 +105,7 @@ ollama serve  # Start Ollama server on localhost:11434
 
 ## 🚀 Quick Start
 
-### 1. Initialize Knowledge Base (First Time Only)
+#### 1. Initialize Knowledge Base (First Time Only)
 ```bash
 python setup_prem_knowledge.py
 ```
@@ -79,7 +114,7 @@ This creates:
 - `prem_knowledge_base.json` - Knowledge base
 - `memory_index.faiss` - Semantic search index (if/when populated)
 
-### 2. Start the Server
+#### 2. Start the Server
 ```bash
 # Important: start Ollama first (unless you expect responses to fall back).
 # ollama serve
@@ -88,7 +123,7 @@ python server.py
 
 Server will start on `http://localhost:5000`
 
-### 3. Open in Browser
+#### 3. Open in Browser
 Navigate to:
 ```
 http://localhost:5000

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UN-MISS AI - Evaluation Questionnaire</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Space Grotesk', sans-serif; background: #0a0a0a; color: #e0e0e0; min-height: 100vh; }
+
+    header { display: flex; justify-content: space-between; align-items: center; padding: 12px 24px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .brand-name { font-size: 20px; font-weight: 800; color: #fff; }
+    .brand-name span { color: #FDE000; }
+    .brand-sub { font-family: 'Space Mono'; font-size: 9px; color: #666; letter-spacing: 2px; }
+    .back-btn { text-decoration: none; font-family: 'Space Mono'; font-size: 10px; font-weight: 700; color: #FDE000; border: 1px solid #FDE000; padding: 6px 14px; border-radius: 4px; letter-spacing: 1px; transition: 0.3s; }
+    .back-btn:hover { background: #FDE000; color: #000; }
+    .accent-bar { height: 3px; background: repeating-linear-gradient(90deg, #FF6B35 0 10px, #FDE000 10px 20px, #00E676 20px 30px, #FF1744 30px 40px); }
+
+    .page-wrap { max-width: 900px; margin: 40px auto; padding: 0 20px; }
+    .page-title { font-size: 28px; font-weight: 800; margin-bottom: 8px; }
+    .page-title span { color: #FDE000; }
+    .page-desc { font-family: 'Space Mono'; font-size: 11px; color: #666; margin-bottom: 30px; letter-spacing: 0.5px; line-height: 1.6; }
+
+    .section { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 28px; margin-bottom: 24px; backdrop-filter: blur(10px); }
+    .section-title { font-size: 16px; font-weight: 700; color: #FDE000; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    .section-title::before { content: ''; width: 3px; height: 18px; background: #FDE000; border-radius: 2px; }
+
+    .data-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+    .data-card { background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 16px; }
+    .data-label { font-family: 'Space Mono'; font-size: 9px; color: #888; letter-spacing: 1.5px; margin-bottom: 6px; }
+    .data-value { font-size: 22px; font-weight: 700; color: #FDE000; }
+    .data-value.sm { font-size: 14px; color: #e0e0e0; }
+
+    .chat-log { max-height: 300px; overflow-y: auto; background: rgba(0,0,0,0.4); border-radius: 10px; padding: 16px; border: 1px solid rgba(255,255,255,0.04); }
+    .chat-log::-webkit-scrollbar { width: 4px; }
+    .chat-log::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
+    .log-entry { padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 13px; line-height: 1.5; }
+    .log-entry:last-child { border: none; }
+    .log-sender { font-family: 'Space Mono'; font-size: 10px; font-weight: 700; letter-spacing: 1px; margin-bottom: 2px; }
+    .log-sender.user { color: #FDE000; }
+    .log-sender.ai { color: #00E676; }
+
+    .form-group { margin-bottom: 18px; }
+    .form-group label { display: block; font-family: 'Space Mono'; font-size: 10px; color: #888; margin-bottom: 6px; letter-spacing: 1.5px; }
+    .form-group input, .form-group textarea, .form-group select { width: 100%; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.08); padding: 12px; color: #fff; border-radius: 8px; font-family: 'Space Grotesk'; font-size: 14px; }
+    .form-group input:focus, .form-group textarea:focus, .form-group select:focus { outline: none; border-color: #FDE000; }
+    .form-group select option { background: #111; }
+
+    .rating-row { display: flex; gap: 8px; }
+    .rating-btn { width: 40px; height: 40px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); color: #888; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; font-family: 'Space Grotesk'; }
+    .rating-btn:hover, .rating-btn.active { background: #FDE000; color: #000; border-color: #FDE000; }
+
+    .submit-btn { width: 100%; padding: 16px; background: #FDE000; color: #000; border: none; border-radius: 10px; font-family: 'Space Grotesk'; font-size: 14px; font-weight: 800; cursor: pointer; letter-spacing: 1px; transition: 0.3s; }
+    .submit-btn:hover { background: #e0c800; transform: translateY(-2px); box-shadow: 0 4px 20px rgba(253,224,0,0.3); }
+    .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px); background: #1a1a1a; color: #FDE000; padding: 12px 24px; border-radius: 8px; font-size: 13px; border: 1px solid #FDE000; transition: 0.4s; opacity: 0; z-index: 999; }
+    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+    .loading-spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(253,224,0,0.3); border-top: 2px solid #FDE000; border-radius: 50%; animation: spin 0.8s linear infinite; margin-right: 8px; vertical-align: middle; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .kb-list { list-style: none; }
+    .kb-item { padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.03); font-size: 13px; }
+    .kb-cat { font-family: 'Space Mono'; font-size: 9px; color: #FDE000; letter-spacing: 1px; }
+
+    @media (max-width: 600px) { .data-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <div class="brand-name">UN<span>-</span>MISS <span>AI</span></div>
+      <div class="brand-sub">EVALUATION & DATA EXPORT</div>
+    </div>
+    <a href="/" class="back-btn">BACK TO CHAT</a>
+  </header>
+  <div class="accent-bar"></div>
+
+  <div class="page-wrap">
+    <div class="page-title">System <span>Evaluation</span></div>
+    <p class="page-desc">This page collects all conversation data between Maitree and Prem, memory retrieval logs, emotional analysis, and evaluator feedback for your research report.</p>
+
+    <!-- SECTION 1: Live System Stats -->
+    <div class="section" id="stats-section">
+      <div class="section-title">System Statistics</div>
+      <div class="data-grid">
+        <div class="data-card">
+          <div class="data-label">TOTAL MESSAGES</div>
+          <div class="data-value" id="stat-total">--</div>
+        </div>
+        <div class="data-card">
+          <div class="data-label">KNOWLEDGE BASE FACTS</div>
+          <div class="data-value" id="stat-kb">--</div>
+        </div>
+        <div class="data-card">
+          <div class="data-label">USER MESSAGES</div>
+          <div class="data-value" id="stat-user">--</div>
+        </div>
+        <div class="data-card">
+          <div class="data-label">AI RESPONSES</div>
+          <div class="data-value" id="stat-ai">--</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 2: Full Chat Log -->
+    <div class="section">
+      <div class="section-title">Complete Conversation Log (Maitree ? Prem)</div>
+      <div class="chat-log" id="chat-log">
+        <div style="color:#555; font-size:12px;"><span class="loading-spinner"></span> Loading chat history...</div>
+      </div>
+    </div>
+
+    <!-- SECTION 3: Knowledge Base -->
+    <div class="section">
+      <div class="section-title">Prem's Knowledge Base (FAISS Memory)</div>
+      <div id="kb-container">
+        <div style="color:#555; font-size:12px;"><span class="loading-spinner"></span> Loading knowledge base...</div>
+      </div>
+    </div>
+
+    <!-- SECTION 4: Evaluator Feedback -->
+    <div class="section">
+      <div class="section-title">Evaluator Feedback Form</div>
+      <form id="q-form">
+        <div class="form-group">
+          <label>EVALUATOR NAME</label>
+          <input type="text" id="evalName" required placeholder="Enter your name" />
+        </div>
+        <div class="form-group">
+          <label>EMOTIONAL ACCURACY (How well did Prem respond to Maitree's emotions?)</label>
+          <div class="rating-row" id="rating-emotion"></div>
+        </div>
+        <div class="form-group">
+          <label>CONVERSATIONAL COHERENCE (Did responses feel natural and contextual?)</label>
+          <div class="rating-row" id="rating-coherence"></div>
+        </div>
+        <div class="form-group">
+          <label>MEMORY RECALL (Did the AI remember past conversations?)</label>
+          <div class="rating-row" id="rating-memory"></div>
+        </div>
+        <div class="form-group">
+          <label>VOICE QUALITY (How natural was the cloned voice?)</label>
+          <div class="rating-row" id="rating-voice"></div>
+        </div>
+        <div class="form-group">
+          <label>AVATAR LIP SYNC (How well did the avatar's mouth match the audio?)</label>
+          <div class="rating-row" id="rating-lipsync"></div>
+        </div>
+        <div class="form-group">
+          <label>OVERALL EXPERIENCE RATING</label>
+          <div class="rating-row" id="rating-overall"></div>
+        </div>
+        <div class="form-group">
+          <label>ADDITIONAL COMMENTS / OBSERVATIONS</label>
+          <textarea id="comments" rows="4" placeholder="Write any observations about the system..."></textarea>
+        </div>
+        <button type="submit" class="submit-btn" id="submit-btn">SUBMIT EVALUATION</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+  <script src="frontend/questionnaire.js"></script>
+</body>
+</html>

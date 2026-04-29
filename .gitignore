@@ -65,3 +65,8 @@ memory_log_backup.json
 # Data persistence (local only)
 memory_index.faiss
 memory_log.json
+
+PROF SLA TASKS CONTENT.TXT
+report3.md
+report2.md
+report1.md

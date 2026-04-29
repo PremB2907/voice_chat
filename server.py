@@ -518,6 +518,41 @@ def shutdown():
     os._exit(0)
 
 
+
+# QUESTIONNAIRE ENDPOINTS
+@app.route("/questionnaire.html")
+def questionnaire():
+    return app.send_static_file("questionnaire.html")
+
+@app.route("/submit-questionnaire", methods=["POST"])
+def submit_questionnaire():
+    data = request.get_json()
+    logger.info(json.dumps({"event": "log", "msg": f"Questionnaire received"}))
+    try:
+        with open("questionnaire_results.json", "a") as f:
+            f.write(json.dumps(data) + "\n")
+    except Exception as e:
+        logger.error(f"Failed to save questionnaire: {e}")
+    return jsonify({"status": "success", "message": "Feedback recorded."})
+
+@app.route("/chat-export", methods=["GET"])
+def chat_export():
+    """Export all conversation data for the questionnaire/evaluation."""
+    result = {
+        "knowledge_base": [],
+        "memory_status": None
+    }
+    if memory:
+        try:
+            result["knowledge_base"] = memory.list_all_facts()
+        except:
+            pass
+        try:
+            result["memory_status"] = memory.get_memory_status()
+        except:
+            pass
+    return jsonify(result)
+
 if __name__ == "__main__":
     # Kick off warmup without blocking server start
     if os.environ.get("WARMUP_ON_STARTUP", "1") == "1":

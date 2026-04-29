@@ -224,38 +224,99 @@ function visualize() {
   
   if (globalAudio.paused || globalAudio.ended) {
     document.querySelectorAll(".apb").forEach((bar, i) => bar.style.height = [4,10,14,10,4][i] + "px");
+    // Reset morph targets when audio stops
+    if (window.faceMesh && window.faceMesh.morphTargetDictionary) {
+      const dict = window.faceMesh.morphTargetDictionary;
+      for (const key in dict) {
+        window.faceMesh.morphTargetInfluences[dict[key]] *= 0.85;
+      }
+    }
+    // Reset jaw bone smoothly
+    if (window.jawBone) {
+      window.jawBone.rotation.x += (window.jawBoneBaseRotation - window.jawBone.rotation.x) * 0.2;
+    }
+    // Reset head bone
+    if (window.headBone) {
+      window.headBone.rotation.x += (window.headBoneBaseRotation - window.headBone.rotation.x) * 0.15;
+    }
+    // Reset avatar glow
     if (avatarView) {
       avatarView.style.transform = "scale(1)";
       avatarView.style.filter = "none";
     }
     return;
   }
+  
   analyser.getByteFrequencyData(dataArray);
   const bars = document.querySelectorAll(".apb");
-  let sum = 0;
+  
+  // === SALSA-like Frequency Band Analysis ===
+  let bass = 0, mid = 0, treble = 0;
+  const binCount = dataArray.length;
+  const third = Math.max(1, Math.floor(binCount / 3));
+  for (let i = 0; i < binCount; i++) {
+    if (i < third) bass += dataArray[i];
+    else if (i < 2 * third) mid += dataArray[i];
+    else treble += dataArray[i];
+  }
+  const bassNorm = Math.min(1, (bass / third) / 200);
+  const midNorm = Math.min(1, (mid / third) / 200);
+  const trebleNorm = Math.min(1, (treble / Math.max(1, binCount - 2 * third)) / 200);
+  const overallIntensity = (bassNorm * 0.5 + midNorm * 1.0 + trebleNorm * 0.5) / 2.0;
+  
+  // Update UI audio bars
   for (let i = 0; i < bars.length; i++) {
     const val = dataArray[i * 2 + 1] || 0;
-    sum += val;
     const h = 4 + (val / 255) * 16;
     if (bars[i]) bars[i].style.height = h + "px";
   }
+
+  // === TIER 1: Morph Target Viseme Lip Sync (Best Quality) ===
+  if (window.faceMesh && window.faceMesh.morphTargetDictionary) {
+    const dict = window.faceMesh.morphTargetDictionary;
+    const influences = window.faceMesh.morphTargetInfluences;
+    
+    // Smooth decay
+    for (const key in dict) influences[dict[key]] *= 0.65;
+    
+    // Find viseme morph targets by common naming conventions
+    const findIdx = (keywords) => {
+      for (const kw of keywords) {
+        for (const d in dict) {
+          if (d.toLowerCase().includes(kw)) return dict[d];
+        }
+      }
+      return -1;
+    };
+    
+    const idxOh = findIdx(["oh", "ou", "o_", "viseme_o"]);
+    const idxAa = findIdx(["aa", "open", "a_", "viseme_a", "jawopen"]);
+    const idxEe = findIdx(["ee", "smile", "i_", "viseme_e"]);
+    
+    if (idxOh !== -1) influences[idxOh] = Math.min(1, influences[idxOh] + bassNorm * 0.9);
+    if (idxAa !== -1) influences[idxAa] = Math.min(1, influences[idxAa] + midNorm * 0.9);
+    if (idxEe !== -1) influences[idxEe] = Math.min(1, influences[idxEe] + trebleNorm * 0.7);
+  }
   
-  // Avatar amplitude lip-sync (Option 1: Jaw mapping)
-  const avg = sum / (bars.length || 1);
-  const intensity = avg / 255;
-  
+  // === TIER 2: Bone-Driven Jaw Animation ===
   if (window.jawBone) {
-    // Map intensity to jaw rotation (assuming X axis opens mouth down; might need adjustment based on rig)
-    window.jawBone.rotation.x = window.jawBoneBaseRotation + (intensity * 0.35); // Max 0.35 radians drop
-  } else if (window.headBone) {
-    // If no jaw bone, bob the head slightly
-    window.headBone.rotation.x = window.headBoneBaseRotation + (intensity * 0.15);
-  } else if (avatarView) {
-    const scale = 1 + intensity * 0.03;
+    const targetRot = window.jawBoneBaseRotation + (overallIntensity * 0.4);
+    window.jawBone.rotation.x += (targetRot - window.jawBone.rotation.x) * 0.5;
+  }
+  
+  // === TIER 3: Head Bob (Always active when audio plays) ===
+  if (window.headBone) {
+    const headTarget = window.headBoneBaseRotation + (overallIntensity * 0.08);
+    window.headBone.rotation.x += (headTarget - window.headBone.rotation.x) * 0.3;
+  }
+  
+  // === TIER 4: Avatar Visual Pulse (CSS fallback - always works) ===
+  if (avatarView) {
+    const scale = 1 + overallIntensity * 0.025;
     avatarView.style.transform = `scale(${scale})`;
-    const glow = intensity * 15;
+    const glow = overallIntensity * 20;
     if (glow > 2) {
-      avatarView.style.filter = `drop-shadow(0px 0px ${glow}px rgba(253, 224, 0, 0.4))`;
+      avatarView.style.filter = `drop-shadow(0 0 ${glow}px rgba(253, 224, 0, ${0.2 + overallIntensity * 0.4}))`;
     } else {
       avatarView.style.filter = "none";
     }
@@ -491,26 +552,40 @@ function initThreeJS() {
       model.position.set(0, 0, 0);
       model.scale.setScalar(1); // GLB usually already has correct scale
       
-      // Find Jaw or Head bone for lip-sync
+      // Find Jaw or Head bone for lip-sync, and Face mesh for Morph Targets
+      const boneNames = [];
+      const meshNames = [];
       model.traverse((child) => {
         if (child.isBone) {
+          boneNames.push(child.name);
           const name = child.name.toLowerCase();
           if ((name.includes("jaw") || name.includes("mouth")) && !window.jawBone) {
             window.jawBone = child;
             window.jawBoneBaseRotation = child.rotation.x;
-            console.log("🦷 Found Jaw Bone:", child.name);
+            console.log("[SALSA] Found Jaw Bone:", child.name);
           }
           if (name.includes("head") && !window.headBone) {
             window.headBone = child;
             window.headBoneBaseRotation = child.rotation.x;
-            console.log("👤 Found Head Bone:", child.name);
+            console.log("[SALSA] Found Head Bone:", child.name);
           }
         }
-        if (child.isMesh) {
+        if (child.isMesh || child.isSkinnedMesh) {
+          meshNames.push(child.name);
           child.castShadow = true;
           child.receiveShadow = true;
+          if (child.morphTargetDictionary && Object.keys(child.morphTargetDictionary).length > 0) {
+            window.faceMesh = child;
+            console.log("[SALSA] Found Morph Targets:", Object.keys(child.morphTargetDictionary));
+          }
         }
       });
+      console.log("[SALSA] All Bones:", boneNames);
+      console.log("[SALSA] All Meshes:", meshNames);
+      console.log("[SALSA] jawBone:", !!window.jawBone, "| headBone:", !!window.headBone, "| faceMesh:", !!window.faceMesh);
+
+      // Store model reference for lip-sync glow fallback
+      window.avatarModel = model;
 
       scene.add(model);
       console.log("🎭 Character model added to scene");
