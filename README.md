@@ -4,8 +4,9 @@ MemoryBridge is a sophisticated AI-powered conversational system that combines l
 
 ## 🌟 Features
 
-- **Multi-turn Conversations**: Persistent memory system using FAISS for semantic search and conversation history
+- **Multi-turn Conversations**: Implements the REMIND framework with Short-Term Memory (STM) tracking and Long-Term Memory (LTM) via FAISS semantic search
 - **Emotion-Aware Responses**: Real-time emotion detection using DistilRoBERTa model
+- **Ethical AI Safeguards**: Includes Deepfake Text Detection heuristics, "Consent-by-Design" UI, and "Representational Humility" transparency badges
 - **Advanced Text-to-Speech**: XTTS v2 multilingual model for natural voice synthesis
 - **3D Avatar Visualization**: OpenGL-rendered 3D models that respond to conversation
 - **Ollama Integration**: On-device LLM support for privacy-first conversations
@@ -138,6 +139,7 @@ voice_chat/
 ├── scripts/
 │   ├── app.py               # CLI text-to-speech tool
 │   ├── app_emotions.py      # Emotion-aware chat CLI
+│   ├── deepfake_detector.py # Heuristic AI transparency detector
 │   ├── emotion_tts.py       # TTS with emotion integration
 │   ├── emotion_advanced.py  # Advanced emotion analysis
 │   ├── emotion_voice.py     # Voice-based emotion detection
@@ -209,10 +211,15 @@ Analyze emotion of input text
 - Supports 13+ languages
 - Customizable speaker characteristics
 
-### Memory System
-- FAISS for semantic similarity
+### Memory System (REMIND Framework)
+- Short-Term Memory (STM): Sliding window of last 5 conversation turns
+- Long-Term Memory (LTM): FAISS for semantic similarity of core facts
 - Sentence Transformers for embeddings
 - JSON persistence for conversation logs
+
+### Ethical Framework
+- **Transparency**: Every AI-generated message is flagged with a confidence score based on linguistic heuristics.
+- **Disclosure**: UI badges (`[AI GENERATED]`) and persistent disclaimers remind users they are interacting with a Digital Imitation.
 
 ## 🧪 Testing
 

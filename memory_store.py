@@ -20,6 +20,10 @@ class MemoryStore:
         # Format: {"topic": description, "memory": detail, "place": significance, etc.}
         self.knowledge_base = []
         
+        # Short-Term Memory (STM) - sliding window for session-specific conversational data
+        self.stm_window = []
+        self.stm_max_turns = 5
+        
         self.index = self._load_or_create_index()
         self._load_knowledge_base()
         self._ensure_index_consistency(rebuild_if_mismatch=True)
@@ -203,6 +207,34 @@ class MemoryStore:
     def warmup(self):
         """Optional: pre-load embedding model to reduce first-request latency."""
         self._get_model()
+
+    def add_conversation_turn(self, user_msg, prem_reply):
+        """Add a turn to the Short-Term Memory (STM) sliding window (REMIND framework)."""
+        self.stm_window.append({"user": user_msg, "prem": prem_reply})
+        if len(self.stm_window) > self.stm_max_turns:
+            self.stm_window.pop(0)
+
+    def get_stm_context(self):
+        """Format the STM window into a context string."""
+        if not self.stm_window:
+            return ""
+        context = "[RECENT CONVERSATION HISTORY]\n"
+        for turn in self.stm_window:
+            context += f"Maitree: {turn['user']}\nPrem: {turn['prem']}\n"
+        return context + "\n"
+
+    def retrieve_hybrid_context(self, query, top_k=5):
+        """REMIND Hybrid Retrieval: Combines STM context and LTM FAISS retrieval."""
+        stm_context = self.get_stm_context()
+        ltm_context = self.retrieve_relevant_facts(query, top_k)
+        
+        combined = ""
+        if stm_context:
+            combined += stm_context
+        if ltm_context:
+            combined += ltm_context
+            
+        return combined
 
 
 if __name__ == "__main__":

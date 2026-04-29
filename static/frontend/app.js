@@ -91,7 +91,7 @@ function escapeHTML(str) {
   }[tag]));
 }
 
-function addMessage(sender, text, isUser = false, saveItem = true) {
+function addMessage(sender, text, isUser = false, saveItem = true, aiTransparency = null) {
   removeEmpty();
   const div = document.createElement("div");
   div.className = `message ${isUser ? 'user' : 'prem'}`;
@@ -99,14 +99,20 @@ function addMessage(sender, text, isUser = false, saveItem = true) {
   const contentHtml = isUser ? escapeHTML(text) : DOMPurify.sanitize(marked.parse(text));
   
   if (saveItem) {
-    chatHistory.push({ sender, text, isUser });
+    chatHistory.push({ sender, text, isUser, aiTransparency });
     localStorage.setItem(HISTORY_KEY, JSON.stringify(chatHistory));
+  }
+  
+  let transparencyBadge = "";
+  if (aiTransparency && aiTransparency.is_ai_generated) {
+    transparencyBadge = `<span style="font-size:8px; background:rgba(255,255,255,0.1); padding:2px 4px; border-radius:3px; margin-left:6px; color:#aaa; font-family:'Space Mono',monospace;">[AI GENERATED]</span>`;
   }
   
   div.innerHTML = `
     <div class="msg-meta">
       <span class="msg-name">${sender}</span>
       <span class="msg-time">${getTime()}</span>
+      ${transparencyBadge}
     </div>
     <div class="bubble">${contentHtml}</div>
   `;
@@ -348,7 +354,7 @@ async function sendMessage() {
     const data = await res.json();
 
     setLoading(false);
-    const msgEl  = addMessage("Prem", data.reply, false);
+    const msgEl  = addMessage("Prem", data.reply, false, true, data.ai_transparency);
     const bubble = msgEl.querySelector(".bubble");
 
     if (data.audio) {
@@ -486,7 +492,7 @@ if (SpeechRecognition && micBtn) {
 }
 
 /* ═══ RESTORE HISTORY ═══ */
-chatHistory.forEach(msg => addMessage(msg.sender, msg.text, msg.isUser, false));
+chatHistory.forEach(msg => addMessage(msg.sender, msg.text, msg.isUser, false, msg.aiTransparency));
 
 /* ═══════════════════════════════════════════════════
    THREE.JS SETUP & FBX LOADER (3D Avatar)
