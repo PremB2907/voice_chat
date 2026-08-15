@@ -109,7 +109,7 @@ if (exportBtn) {
       system: "MemoryBridge AI",
       timestamp: new Date().toISOString(),
       persona: localStorage.getItem("persona_name") || "Prem",
-      user: localStorage.getItem("user_name") || "Maitree",
+      user: localStorage.getItem("user_name") || "User",
       chat_history: history,
       faiss_knowledge_base: kbFacts,
       evaluator_ratings: ratings,

@@ -14,7 +14,7 @@ class TestBlockchainService(unittest.TestCase):
         blockchain_service.records_path = "blockchain_records_test.json"
         
         self.persona_name = "TestPrem"
-        self.user_name = "TestMaitree"
+        self.user_name = "TestUser"
 
     def tearDown(self):
         if os.path.exists("blockchain_records_test.json"):

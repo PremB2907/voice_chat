@@ -7,12 +7,12 @@ sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 from blockchain_service import blockchain_service
 
 def run_benchmarks():
-    print("📊 --- MemoryBridge Blockchain Refactored Benchmarking Suite ---")
+    print("[BENCHMARK] --- MemoryBridge Blockchain Refactored Benchmarking Suite ---")
     
     # Check blockchain status
     status = blockchain_service.get_status()
     if not status["connected"] or not status["contract_deployed"]:
-        print("❌ ERROR: Blockchain registry not available locally.")
+        print("[ERROR] Blockchain registry not available locally.")
         print("Please ensure Hardhat node is running and contract is deployed.")
         return
 
@@ -24,7 +24,7 @@ def run_benchmarks():
     hash_times = []
     test_dict = {
         "persona_name": "Prem",
-        "user_name": "Maitree",
+        "user_name": "User",
         "response": "Hello, how are you? I am checking the latency impact of blockchain hashes.",
         "timestamp": str(time.time()),
         "model": "llama3"
@@ -57,7 +57,7 @@ def run_benchmarks():
         time.sleep(simulated_llm_inference_s)
         
         # Blocking blockchain registration
-        persona_id = f"persona-Prem-Maitree"
+        persona_id = f"persona-Prem-User"
         persona_hash = blockchain_service.hash_canonical({"persona_id": persona_id})
         resp_hash = blockchain_service.hash_canonical({"response": f"Sync response {i}", "timestamp": str(time.time())})
         model_hash = blockchain_service.hash_canonical({"model_name": "llama3"})
@@ -84,7 +84,7 @@ def run_benchmarks():
         # Non-blocking blockchain registration
         blockchain_service.register_response(
             persona_name="Prem",
-            user_name="Maitree",
+            user_name="User",
             response_text=f"Async response {i}",
             model_name="llama3",
             emotion_label="neutral"
@@ -104,13 +104,13 @@ def run_benchmarks():
     print("  Writing 4 memory facts individually...")
     t0 = time.time()
     for fact in test_facts:
-        blockchain_service.register_memory("Prem", "Maitree", fact["memory_id"], fact["category"], fact["detail"])
+        blockchain_service.register_memory("Prem", "User", fact["memory_id"], fact["category"], fact["detail"])
     indiv_time_ms = (time.time() - t0) * 1000
 
     # Batched Writes (1 batch tx)
     print("  Writing 4 memory facts in a single batch...")
     t0 = time.time()
-    blockchain_service.register_memory_batch("Prem", "Maitree", test_facts)
+    blockchain_service.register_memory_batch("Prem", "User", test_facts)
     batch_time_ms = (time.time() - t0) * 1000
 
     # 4. On-Chain Integrity Verification Read

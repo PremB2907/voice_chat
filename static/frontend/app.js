@@ -150,7 +150,7 @@ setInterval(() => {
 
   // Section VI-D: 30-minute session duration warning
   if (elapsedSec === 1800) {
-    showToast("⏱ Session duration limit (30 mins) reached. Remember to take a break and care for yourself.");
+    showToast("[SESSION] Session duration limit (30 mins) reached. Remember to take a break and care for yourself.");
   }
 }, 1000);
 
@@ -158,7 +158,7 @@ function getPersonaName() {
   return localStorage.getItem("persona_name") || "Prem";
 }
 function getUserName() {
-  return localStorage.getItem("user_name") || "Maitree";
+  return localStorage.getItem("user_name") || "User";
 }
 
 function getTime() {
@@ -201,18 +201,18 @@ function addMessage(sender, text, isUser = false, saveItem = true, aiTransparenc
     const hash = blockchainProvenance.response_hash || "";
     
     let badgeClass = "status-unknown";
-    let badgeText = "⏳ Verification Pending";
+    let badgeText = "Verification Pending";
     if (status === "CONFIRMED") {
       badgeClass = "status-verified";
-      badgeText = "✓ Blockchain Verified";
+      badgeText = "Blockchain Verified";
     } else if (status === "FAILED") {
       badgeClass = "status-failed";
-      badgeText = "❌ Verification Failed";
+      badgeText = "Verification Failed";
     }
     
     provenanceBadge = `
       <div class="provenance-badge ${badgeClass}" id="prov-${evId}" data-hash="${hash}" title="On-Chain Response Hash: ${hash}">
-        🛡️ <span class="badge-text">${badgeText}</span>
+        [TRUST] <span class="badge-text">${badgeText}</span>
       </div>
     `;
   }
@@ -477,7 +477,7 @@ async function sendMessage() {
       audio.onerror  = () => { bubble.classList.remove("playing"); showAudioPill(false); };
 
       audio.play().catch(() => {
-        showToast(`▶ TAP ${personaName.toUpperCase()}'S MESSAGE TO PLAY`);
+        showToast(`TAP ${personaName.toUpperCase()}'S MESSAGE TO PLAY`);
         bubble.style.cursor = "pointer";
         bubble.onclick = () => { audio.play(); bubble.onclick = null; bubble.style.cursor = ""; };
       });
@@ -486,7 +486,7 @@ async function sendMessage() {
   } catch (err) {
     setLoading(false);
     setServerStatus("offline", "Offline");
-    showToast("⚠ " + err.message);
+    showToast("[ERROR] " + err.message);
     addMessage(personaName, `${userName}… I can't reach you right now.`, false);
   }
 }
@@ -555,7 +555,7 @@ if (eraseBtn) {
       showToast(data.message || "All user data permanently deleted.");
       setTimeout(() => location.reload(), 1500);
     } catch (err) {
-      showToast("❌ Erasure failed: " + err.message);
+      showToast("[ERROR] Erasure failed: " + err.message);
     }
   });
 }
@@ -602,13 +602,13 @@ if (SpeechRecognition && micBtn) {
     sendMessage();
   };
   recognition.onerror = (e) => {
-    showToast("⚠ Mic Error: " + e.error);
+    showToast("[ERROR] Mic Error: " + e.error);
     micBtn.classList.remove("recording");
-    userInput.placeholder = "Talk to Prem...";
+    userInput.placeholder = "Talk to User...";
   };
   recognition.onend = () => {
     micBtn.classList.remove("recording");
-    userInput.placeholder = "Talk to Prem...";
+    userInput.placeholder = "Talk to User...";
   };
 
   micBtn.addEventListener("click", () => {
@@ -913,13 +913,13 @@ async function updateBlockchainStatus() {
     const data = await res.json();
     
     if (data.connected) {
-      trustBlockchainStatus.textContent = "🟢 CONNECTED";
+      trustBlockchainStatus.textContent = "CONNECTED";
       trustBlockchainStatus.className = "status-val status-verified";
       trustContractAddress.textContent = data.contract_address;
       trustContractAddress.title = data.contract_address;
       
       // Update status of components based on state
-      trustPersonaStatus.textContent = "✓ VERIFIED";
+      trustPersonaStatus.textContent = "VERIFIED";
       trustPersonaStatus.className = "status-val status-verified";
       
       // Auto verify consent
@@ -937,25 +937,25 @@ async function updateBlockchainStatus() {
 
 function setBlockchainOffline() {
   if (trustBlockchainStatus) {
-    trustBlockchainStatus.textContent = "⚠️ OFFLINE";
+    trustBlockchainStatus.textContent = "OFFLINE";
     trustBlockchainStatus.className = "status-val status-failed";
   }
   if (trustContractAddress) trustContractAddress.textContent = "N/A";
   
   if (trustConsentStatus) {
-    trustConsentStatus.textContent = "⚠️ UNKNOWN";
+    trustConsentStatus.textContent = "UNKNOWN";
     trustConsentStatus.className = "status-val status-unknown";
   }
   if (trustPersonaStatus) {
-    trustPersonaStatus.textContent = "⚠️ UNKNOWN";
+    trustPersonaStatus.textContent = "UNKNOWN";
     trustPersonaStatus.className = "status-val status-unknown";
   }
   if (trustMemoryStatus) {
-    trustMemoryStatus.textContent = "⚠️ UNKNOWN";
+    trustMemoryStatus.textContent = "UNKNOWN";
     trustMemoryStatus.className = "status-val status-unknown";
   }
   if (trustResponseStatus) {
-    trustResponseStatus.textContent = "⚠️ UNKNOWN";
+    trustResponseStatus.textContent = "UNKNOWN";
     trustResponseStatus.className = "status-val status-unknown";
   }
 }
@@ -993,7 +993,7 @@ async function verifyConsentOnChain(showToasts = true) {
     
     if (hasConsent && !isRevoked) {
       if (trustConsentStatus) {
-        trustConsentStatus.textContent = "✓ VERIFIED";
+        trustConsentStatus.textContent = "VERIFIED";
         trustConsentStatus.className = "status-val status-verified";
       }
       
@@ -1008,16 +1008,16 @@ async function verifyConsentOnChain(showToasts = true) {
         trustLatestTx.title = lastConsentTx.tx_hash;
       }
       
-      if (showToasts) showToast("✓ Consent provenance verified on-chain!");
+      if (showToasts) showToast("[SUCCESS] Consent provenance verified on-chain!");
     } else if (isRevoked) {
       if (trustConsentStatus) {
-        trustConsentStatus.textContent = "❌ REVOKED";
+        trustConsentStatus.textContent = "REVOKED";
         trustConsentStatus.className = "status-val status-failed";
       }
-      if (showToasts) showToast("⚠ Consent has been revoked on-chain.");
+      if (showToasts) showToast("[REVOKED] Consent has been revoked on-chain.");
     } else {
       if (trustConsentStatus) {
-        trustConsentStatus.textContent = "⚡ UNVERIFIED";
+        trustConsentStatus.textContent = "UNVERIFIED";
         trustConsentStatus.className = "status-val status-unknown";
       }
       if (showToasts) showToast("No on-chain consent record found. Please complete setup onboarding.");
@@ -1162,7 +1162,7 @@ setInterval(async () => {
         const textSpan = badge.querySelector(".badge-text");
         if (entry.status === "CONFIRMED" || entry.status === "success") {
           badge.className = "provenance-badge status-verified";
-          if (textSpan) textSpan.textContent = "✓ Blockchain Verified";
+          if (textSpan) textSpan.textContent = "Blockchain Verified";
           badge.title = `On-Chain Response Hash: ${badge.getAttribute("data-hash")}\nTx: ${entry.transaction_hash}\nBlock: ${entry.block_number}`;
           
           const historyIndex = chatHistory.findIndex(h => h.blockchainProvenance && h.blockchainProvenance.event_id === evId);
@@ -1172,7 +1172,7 @@ setInterval(async () => {
           }
         } else if (entry.status === "FAILED") {
           badge.className = "provenance-badge status-failed";
-          if (textSpan) textSpan.textContent = "❌ Verification Failed";
+          if (textSpan) textSpan.textContent = "Verification Failed";
           
           const historyIndex = chatHistory.findIndex(h => h.blockchainProvenance && h.blockchainProvenance.event_id === evId);
           if (historyIndex !== -1) {

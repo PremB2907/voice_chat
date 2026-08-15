@@ -22,7 +22,7 @@ class TestVoiceChatAPI(unittest.TestCase):
         # Mock ollama response
         mock_post.return_value.json.return_value = {
             "message": {
-                "content": "I am here, Maitree."
+                "content": "I am here, User."
             }
         }
         mock_post.return_value.status_code = 200
@@ -40,7 +40,7 @@ class TestVoiceChatAPI(unittest.TestCase):
         data = json.loads(response.data)
         self.assertIn("reply", data)
         self.assertIn("audio", data)
-        self.assertEqual(data["reply"], "I am here, Maitree.")
+        self.assertEqual(data["reply"], "I am here, User.")
         
         # Check if tts was called
         self.assertTrue(mock_get_tts.return_value.tts_to_file.called)

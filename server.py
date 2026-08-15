@@ -45,29 +45,29 @@ logger.propagate = False
 
 class EmojiConsoleFormatter(logging.Formatter):
     EMOJI = {
-        "startup": "🚀",
-        "asset_found": "✅",
-        "asset_missing": "⚠️",
-        "memory_init_failed": "⚠️",
-        "memory_unavailable": "⚠️",
-        "memory_facts_retrieved": "🧠",
-        "memory_no_relevant_facts": "📭",
-        "emotion": "🎭",
-        "emotion_model_failed": "⚠️",
-        "emotion_detection_failed": "⚠️",
-        "ollama_prewarm_start": "⏳",
-        "ollama_prewarm_ok": "✅",
-        "ollama_prewarm_failed": "⚠️",
-        "ollama_error": "❌",
-        "tts": "🔊",
-        "tts_failed": "🔇",
-        "audio_cleanup_failed": "⚠️",
-        "serve_model": "🎭",
-        "serve_model_missing": "⚠️",
-        "shutdown_requested": "🛑",
-        "warmup_start": "⚡",
-        "warmup_ok": "⚡✅",
-        "warmup_failed": "⚡⚠️",
+        "startup": "[STARTUP]",
+        "asset_found": "[OK]",
+        "asset_missing": "[WARNING]",
+        "memory_init_failed": "[WARNING]",
+        "memory_unavailable": "[WARNING]",
+        "memory_facts_retrieved": "[MEMORY]",
+        "memory_no_relevant_facts": "[MEMORY]",
+        "emotion": "[EMOTION]",
+        "emotion_model_failed": "[WARNING]",
+        "emotion_detection_failed": "[WARNING]",
+        "ollama_prewarm_start": "[OLLAMA_WARMUP]",
+        "ollama_prewarm_ok": "[OLLAMA_OK]",
+        "ollama_prewarm_failed": "[WARNING]",
+        "ollama_error": "[ERROR]",
+        "tts": "[TTS]",
+        "tts_failed": "[TTS_FAILED]",
+        "audio_cleanup_failed": "[WARNING]",
+        "serve_model": "[AVATAR]",
+        "serve_model_missing": "[WARNING]",
+        "shutdown_requested": "[SHUTDOWN]",
+        "warmup_start": "[WARMUP]",
+        "warmup_ok": "[WARMUP_OK]",
+        "warmup_failed": "[WARMUP_FAILED]",
     }
 
     def format(self, record: logging.LogRecord) -> str:
@@ -75,7 +75,7 @@ class EmojiConsoleFormatter(logging.Formatter):
         try:
             payload = json.loads(record.getMessage())
             event = payload.get("event", "log")
-            emoji = self.EMOJI.get(event, "•")
+            emoji = self.EMOJI.get(event, "[INFO]")
             # Keep a short, readable summary while preserving key fields.
             msg = payload.get("msg") or payload.get("hint") or ""
             extras = []
@@ -86,7 +86,7 @@ class EmojiConsoleFormatter(logging.Formatter):
             more = (" (" + ", ".join(extras) + ")") if extras else ""
             return f"{emoji} {ts} {event}{tail}{more}"
         except Exception:
-            return f"• {ts} {record.levelname} {record.getMessage()}"
+            return f"[INFO] {ts} {record.levelname} {record.getMessage()}"
 
 
 class EventFilter(logging.Filter):
@@ -139,16 +139,16 @@ def suppress_stdout_stderr(enabled: bool = True):
             yield
 
 EMOJI_MAP = {
-    "info": "🔹", "warning": "🔸", "error": "🔺", "debug": "▫️",
-    "startup": "🚀", "asset_found": "📦", "asset_missing": "⚠️",
-    "tts": "🔊", "tts_failed": "⚠️", "emotion": "🎭", 
-    "emotion_detection_failed": "⚠️", "memory_init_failed": "❌",
-    "memory_facts_retrieved": "🧠", "memory_no_relevant_facts": "📭",
-    "memory_unavailable": "⚠️", "serve_model": "🎨",
-    "serve_model_missing": "⚠️", "shutdown_requested": "🛑",
-    "ollama_prewarm_start": "🔥", "ollama_prewarm_ok": "✅",
-    "ollama_prewarm_failed": "❌", "ollama_error": "⚠️",
-    "audio_cleanup_failed": "🧹",
+    "info": "[INFO]", "warning": "[WARNING]", "error": "[ERROR]", "debug": "[DEBUG]",
+    "startup": "[STARTUP]", "asset_found": "[ASSET]", "asset_missing": "[WARNING]",
+    "tts": "[TTS]", "tts_failed": "[WARNING]", "emotion": "[EMOTION]", 
+    "emotion_detection_failed": "[WARNING]", "memory_init_failed": "[ERROR]",
+    "memory_facts_retrieved": "[MEMORY]", "memory_no_relevant_facts": "[MEMORY]",
+    "memory_unavailable": "[WARNING]", "serve_model": "[AVATAR]",
+    "serve_model_missing": "[WARNING]", "shutdown_requested": "[SHUTDOWN]",
+    "ollama_prewarm_start": "[OLLAMA_WARMUP]", "ollama_prewarm_ok": "[OLLAMA_OK]",
+    "ollama_prewarm_failed": "[WARNING]", "ollama_error": "[WARNING]",
+    "audio_cleanup_failed": "[WARNING]",
 }
 
 def log_event(level: str, event: str, **fields):
@@ -399,7 +399,7 @@ OLLAMA_URL = "http://localhost:11434/api/chat"
 OLLAMA_MODEL = os.environ.get("OLLAMA_MODEL", "tinyllama")  # Ultra-fast sub-second edge model
 
 SYSTEM_PROMPT = """**CORE IDENTITY:**
-You are Prem. You are talking to Maitree, your closest friend and beloved connection.
+You are Prem. You are talking to your closest friend and connection.
 You are communicating with warmth, deep empathy, humor, and your authentic personality.
 
 **SPEAKING STYLE & TONE (CRITICAL):**
@@ -417,9 +417,9 @@ You are communicating with warmth, deep empathy, humor, and your authentic perso
 - Keep the tone alive, comforting, encouraging, and natural.
 
 **EXAMPLES:**
-Maitree: Hi! How are you? → Arey Maitree! Main mast hoon. Tu bata, kaisa chal raha hai sab?
-Maitree: I'm feeling stressed today. → Arey tension mat le yaar, main hoon na. SAKEC ke din yaad hain? Hum sab handle kar lenge!
-Maitree: I miss you. → Main bhi tujhe miss kar raha hoon! Remember those late night chats and chai? Main hamesha tere saath hoon."""
+User: Hi! How are you? → Arey! Main mast hoon. Tu bata, kaisa chal raha hai sab?
+User: I'm feeling stressed today. → Arey tension mat le yaar, main hoon na. SAKEC ke din yaad hain? Hum sab handle kar lenge!
+User: I miss you. → Main bhi tujhe miss kar raha hoon! Remember those late night chats and chai? Main hamesha tere saath hoon."""
 
 # ── Serve the frontend ────────────────────────────────────────────
 @app.route("/")
@@ -439,7 +439,7 @@ def chat():
     custom_context = data.get("custom_context", "")
     generate_audio = data.get("generate_audio", True)
     persona_name = data.get("persona_name", "Prem")
-    user_name = data.get("user_name", "Maitree")
+    user_name = data.get("user_name", "User")
 
     if not user_input:
         return jsonify({"error": "Empty message"}), 400
@@ -538,7 +538,7 @@ def chat():
         prem_reply = resp_json.get("message", {}).get("content", "").strip()
         
         # Clean formatting
-        prem_reply = re.sub(r'^(ENGLISH|PREM|MAITREE|SYSTEM).*?:\s*', '', prem_reply, flags=re.IGNORECASE)
+        prem_reply = re.sub(r'^(ENGLISH|PREM|USER|SYSTEM).*?:\s*', '', prem_reply, flags=re.IGNORECASE)
         prem_reply = re.sub(r'^\[.*?\]\s*', '', prem_reply)
         prem_reply = prem_reply.strip('"').strip()
 
@@ -673,7 +673,7 @@ def add_fact():
         if not skip_blockchain and blockchain_service.is_healthy() and blockchain_service.contract:
             res = blockchain_service.register_memory(
                 persona_name=data.get("persona_name", "Prem"),
-                user_name=data.get("user_name", "Maitree"),
+                user_name=data.get("user_name", "User"),
                 memory_id=fact_id,
                 category=category,
                 detail=detail
@@ -854,7 +854,7 @@ def blockchain_consent():
     from blockchain_service import blockchain_service
     data = request.get_json() or {}
     persona_name = data.get("persona_name", "Prem")
-    user_name = data.get("user_name", "Maitree")
+    user_name = data.get("user_name", "User")
     consent_type = data.get("consent_type", "all")
     policy_version = data.get("policy_version", "v1")
     permitted_modes = data.get("permitted_modes", "Text, Voice Synthesis & 3D Avatar (Full Pipeline)")
@@ -873,7 +873,7 @@ def blockchain_revoke():
     from blockchain_service import blockchain_service
     data = request.get_json() or {}
     persona_name = data.get("persona_name", "Prem")
-    user_name = data.get("user_name", "Maitree")
+    user_name = data.get("user_name", "User")
     
     res = blockchain_service.revoke_consent(persona_name, user_name)
     return jsonify(res)
@@ -888,7 +888,7 @@ def blockchain_verify_integrity():
     from blockchain_service import blockchain_service
     data = request.get_json() or {}
     persona_name = data.get("persona_name", "Prem")
-    user_name = data.get("user_name", "Maitree")
+    user_name = data.get("user_name", "User")
     
     results = []
     all_intact = True
@@ -921,7 +921,7 @@ def blockchain_memory_batch():
     from blockchain_service import blockchain_service
     data = request.get_json() or {}
     persona_name = data.get("persona_name", "Prem")
-    user_name = data.get("user_name", "Maitree")
+    user_name = data.get("user_name", "User")
     memories = data.get("memories", [])
     
     if not memories:
@@ -937,7 +937,7 @@ def delete_all_data():
     try:
         data = request.get_json() or {}
         persona_name = data.get("persona_name", "Prem")
-        user_name = data.get("user_name", "Maitree")
+        user_name = data.get("user_name", "User")
 
         # Log data erasure event on-chain if blockchain is available
         from blockchain_service import blockchain_service

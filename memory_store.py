@@ -190,7 +190,7 @@ class MemoryStore:
         return status
 
     def retrieve_relevant_facts(self, query, top_k=5):
-        """Retrieve facts about Prem relevant to Maitree's question."""
+        """Retrieve facts about Prem relevant to User's question."""
         if self.index.ntotal == 0:
             return ""
             
@@ -238,7 +238,7 @@ class MemoryStore:
             return ""
         context = "[RECENT CONVERSATION HISTORY]\n"
         for turn in self.stm_window:
-            context += f"Maitree: {turn['user']}\nPrem: {turn['prem']}\n"
+            context += f"User: {turn['user']}\nPrem: {turn['prem']}\n"
         return context + "\n"
 
     def retrieve_hybrid_context(self, query, top_k=5):
@@ -274,7 +274,7 @@ if __name__ == "__main__":
     mem.add_fact("memory", "Prem loved watching sunsets at the lake")
     mem.add_fact("personality", "Prem was deeply empathetic and always listened")
     mem.add_fact("likes", "Prem's favorite color was blue")
-    mem.add_fact("relationship", "Prem and Maitree shared an unbreakable bond of love")
+    mem.add_fact("relationship", "Prem and User shared an unbreakable bond of love")
     print("\n--- Test Retrieval ---")
     print(mem.retrieve_relevant_facts("What did Prem enjoy doing?"))
 

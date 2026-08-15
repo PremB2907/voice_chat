@@ -132,7 +132,7 @@
 
                 <!-- STAGE 1: CONSENT CONFIGURATION -->
                 <div class="stage-card">
-                    <div class="stage-title"><span>🔒</span> Stage 1: Consent & Privacy Controls</div>
+                    <div class="stage-title">Stage 1: Consent & Privacy Controls</div>
                     <div class="form-group">
                         <label>PERMITTED INTERACTION MODES</label>
                         <select id="consent-mode">
@@ -152,18 +152,18 @@
 
                 <!-- STAGE 2: DATA UPLOADS -->
                 <div class="stage-card">
-                    <div class="stage-title"><span>📂</span> Stage 2: Multimodal Data Ingestion</div>
+                    <div class="stage-title">Stage 2: Multimodal Data Ingestion</div>
                     <div class="form-group">
                         <label>CHAT EXPORT FILE (.TXT, .JSON, .CSV)</label>
                         <div class="file-upload-box" onclick="document.getElementById('chat-file-input').click()">
-                            <span id="chat-file-label">📄 Click to Upload Chat Messages Export</span>
+                            <span id="chat-file-label">Click to Upload Chat Messages Export</span>
                             <input type="file" id="chat-file-input" accept=".txt,.json,.csv" style="display:none;" onchange="handleChatFileUpload(this)">
                         </div>
                     </div>
                     <div class="form-group">
                         <label>VOICE REFERENCE SAMPLE (.WAV, .MP3 — min 6 seconds)</label>
                         <div class="file-upload-box" onclick="document.getElementById('voice-file-input').click()">
-                            <span id="voice-file-label">🎙️ Click to Upload Clean Reference Audio</span>
+                            <span id="voice-file-label">Click to Upload Clean Reference Audio</span>
                             <input type="file" id="voice-file-input" accept=".wav,.mp3" style="display:none;" onchange="handleVoiceFileUpload(this)">
                         </div>
                     </div>
@@ -171,7 +171,7 @@
 
                 <!-- STAGE 3: PROFILE VERIFICATION -->
                 <div class="stage-card">
-                    <div class="stage-title"><span>👤</span> Stage 3: Profile & Trait Calibration</div>
+                    <div class="stage-title">Stage 3: Profile & Trait Calibration</div>
                     <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
                         <div class="form-group">
                             <label>DECEASED'S NAME</label>
@@ -179,7 +179,7 @@
                         </div>
                         <div class="form-group">
                             <label>YOUR NAME</label>
-                            <input type="text" id="user-name-input" placeholder="e.g. Maitree" required>
+                            <input type="text" id="user-name-input" placeholder="e.g. User" required>
                         </div>
                     </div>
                     <div class="form-group">
@@ -210,7 +210,7 @@
 
                 <!-- STAGE 4: LEGAL ACKNOWLEDGEMENT -->
                 <div class="stage-card">
-                    <div class="stage-title"><span>⚖️</span> Stage 4: Ethical & Legal Governance</div>
+                    <div class="stage-title">Stage 4: Ethical & Legal Governance</div>
                     <div class="form-group" style="display: flex; align-items: start; gap: 10px; margin:0;">
                         <input type="checkbox" id="consent-check" required style="width: 22px; height: 22px; margin-top: 2px; cursor: pointer;">
                         <label for="consent-check" style="font-size: 11px; font-weight: 600; margin: 0; line-height: 1.5; text-transform:none;">
@@ -219,7 +219,7 @@
                     </div>
                 </div>
                 
-                <button type="submit" class="save-btn" id="submit-btn">CALIBRATE MEMORYBRIDGE ➔</button>
+                <button type="submit" class="save-btn" id="submit-btn">CALIBRATE MEMORYBRIDGE -></button>
             </form>
         </div>
 
@@ -237,7 +237,7 @@
     <script>
         // Load existing configurations from localStorage
         document.getElementById('persona-name-input').value = localStorage.getItem('persona_name') || 'Prem';
-        document.getElementById('user-name-input').value = localStorage.getItem('user_name') || 'Maitree';
+        document.getElementById('user-name-input').value = localStorage.getItem('user_name') || 'User';
         document.getElementById('mbti-input').value = localStorage.getItem('mbti') || 'INFJ';
         document.getElementById('rel-input').value = localStorage.getItem('rel_context') || '';
         document.getElementById('memory-input').value = localStorage.getItem('mem_context') || '';

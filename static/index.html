@@ -29,7 +29,7 @@
     </div>
     <div class="header-right">
       <div class="session-timer-badge" id="session-timer-badge" title="Session duration">
-        ⏱ <span id="session-clock">00:00</span>
+        TIME: <span id="session-clock">00:00</span>
       </div>
       <a href="/questionnaire.html" class="hdr-btn" title="Evaluation Framework" style="text-decoration:none; font-size:8px; font-weight:600; letter-spacing:1px; width:auto; padding: 0 10px;">EVAL</a>
       <a href="/step1.html" class="hdr-btn" title="Persona Onboarding" style="text-decoration:none; font-size:8px; font-weight:600; letter-spacing:1px; width:auto; padding: 0 10px;">SETUP</a>
@@ -37,12 +37,12 @@
         <div class="status-dot" id="status-dot"></div>
         <span class="status-text" id="status-text">Connecting…</span>
       </div>
-      <button class="hdr-btn" id="trust-toggle" title="Trust & Provenance" aria-label="Trust & Provenance">🛡️</button>
-      <button class="hdr-btn" id="theme-toggle" title="Toggle Light/Dark" aria-label="Toggle theme">☀</button>
-      <button class="hdr-btn" id="voice-toggle" title="Toggle Voice" aria-label="Toggle Voice">🔊</button>
-      <button class="hdr-btn" id="clear-btn" title="Clear Chat History" aria-label="Clear chat">⌫</button>
-      <button class="hdr-btn" id="erase-btn" title="Erase All Data (GDPR)" aria-label="Wipe Data" style="color: #E8C87A; border-color: rgba(212,168,83,0.3);">🗑</button>
-      <button class="hdr-btn" id="shutdown-btn" title="Stop Server" aria-label="Stop Server" style="color: #E85D6F; border-color: rgba(232,93,111,0.3);">⏻</button>
+      <button class="hdr-btn" id="trust-toggle" title="Trust & Provenance" aria-label="Trust & Provenance">TRUST</button>
+      <button class="hdr-btn" id="theme-toggle" title="Toggle Light/Dark" aria-label="Toggle theme">THEME</button>
+      <button class="hdr-btn" id="voice-toggle" title="Toggle Voice" aria-label="Toggle Voice">VOICE</button>
+      <button class="hdr-btn" id="clear-btn" title="Clear Chat History" aria-label="Clear chat">CLEAR</button>
+      <button class="hdr-btn" id="erase-btn" title="Erase All Data (GDPR)" aria-label="Wipe Data" style="color: #E8C87A; border-color: rgba(212,168,83,0.3);">ERASE</button>
+      <button class="hdr-btn" id="shutdown-btn" title="Stop Server" aria-label="Stop Server" style="color: #E85D6F; border-color: rgba(232,93,111,0.3);">SHUTDOWN</button>
     </div>
   </header>
 
@@ -103,7 +103,7 @@
       enterkeyhint="send"
       inputmode="text"
     />
-    <button id="mic-btn" title="Voice Input" aria-label="Voice Input">🎤</button>
+    <button id="mic-btn" title="Voice Input" aria-label="Voice Input">MIC</button>
     <button id="send-btn"><span>SEND</span></button>
   </div>
 
@@ -113,29 +113,29 @@
 <div class="trust-drawer" id="trust-drawer">
   <div class="drawer-header">
     <h3>TRUST &amp; PROVENANCE</h3>
-    <button class="close-drawer-btn" id="close-trust-btn">✕</button>
+    <button class="close-drawer-btn" id="close-trust-btn">X</button>
   </div>
   <div class="drawer-content">
     <div class="trust-status-section">
       <div class="trust-status-item">
         <span class="status-label">Blockchain Connection:</span>
-        <span class="status-val status-unknown" id="trust-blockchain-status">🟠 CONNECTING</span>
+        <span class="status-val status-unknown" id="trust-blockchain-status">CONNECTING</span>
       </div>
       <div class="trust-status-item">
         <span class="status-label">Consent Provenance:</span>
-        <span class="status-val status-unknown" id="trust-consent-status">⚡ UNVERIFIED</span>
+        <span class="status-val status-unknown" id="trust-consent-status">UNVERIFIED</span>
       </div>
       <div class="trust-status-item">
         <span class="status-label">Persona Integrity:</span>
-        <span class="status-val status-unknown" id="trust-persona-status">⚡ UNVERIFIED</span>
+        <span class="status-val status-unknown" id="trust-persona-status">UNVERIFIED</span>
       </div>
       <div class="trust-status-item">
         <span class="status-label">Memory Integrity:</span>
-        <span class="status-val status-unknown" id="trust-memory-status">⚡ UNVERIFIED</span>
+        <span class="status-val status-unknown" id="trust-memory-status">UNVERIFIED</span>
       </div>
       <div class="trust-status-item">
         <span class="status-label">AI Response Traceability:</span>
-        <span class="status-val status-unknown" id="trust-response-status">⚡ UNVERIFIED</span>
+        <span class="status-val status-unknown" id="trust-response-status">UNVERIFIED</span>
       </div>
     </div>
 

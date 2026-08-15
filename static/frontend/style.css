@@ -216,15 +216,18 @@ header {
 }
 
 .hdr-btn {
-  width: 34px; height: 34px;
+  width: auto;
+  padding: 0 8px;
+  height: 34px;
   display: flex; align-items: center; justify-content: center;
   background: transparent;
   border: 1px solid var(--border-subtle);
   color: var(--text-secondary);
   cursor: pointer;
-  font-size: 13px;
+  font-size: 8px;
   font-family: var(--mono);
-  font-weight: 500;
+  font-weight: 700;
+  letter-spacing: 0.5px;
   border-radius: var(--radius-xs);
   transition: all 0.25s ease;
   -webkit-tap-highlight-color: transparent;
