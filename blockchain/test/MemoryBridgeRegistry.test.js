@@ -136,4 +136,56 @@ describe("MemoryBridgeRegistry", function () {
       ).to.be.revertedWith("Only owner can call this function");
     });
   });
+
+  describe("Memory Batch Registration", function () {
+    it("Should register batch of memories in a single transaction", async function () {
+      const memoryIds = ["mem-batch-1", "mem-batch-2"];
+      const memoryHashes = [
+        ethers.keccak256(ethers.toUtf8Bytes("batch-fact-1")),
+        ethers.keccak256(ethers.toUtf8Bytes("batch-fact-2"))
+      ];
+      const personaHash = ethers.keccak256(ethers.toUtf8Bytes("prem-persona-1"));
+
+      await expect(registry.registerMemoryBatch(memoryIds, memoryHashes, personaHash))
+        .to.emit(registry, "MemoryBatchRegistered")
+        .withArgs(memoryIds, memoryHashes, personaHash, anyValue => true);
+
+      expect(await registry.getMemoryVersionCount("mem-batch-1")).to.equal(1);
+      expect(await registry.getMemoryVersionCount("mem-batch-2")).to.equal(1);
+
+      const mem1 = await registry.getMemory("mem-batch-1", 1);
+      expect(mem1.memoryHash).to.equal(memoryHashes[0]);
+
+      const mem2 = await registry.getMemory("mem-batch-2", 1);
+      expect(mem2.memoryHash).to.equal(memoryHashes[1]);
+    });
+
+    it("Should revert if arrays length mismatch", async function () {
+      const memoryIds = ["mem-batch-1"];
+      const memoryHashes = [
+        ethers.keccak256(ethers.toUtf8Bytes("batch-fact-1")),
+        ethers.keccak256(ethers.toUtf8Bytes("batch-fact-2"))
+      ];
+      const personaHash = ethers.keccak256(ethers.toUtf8Bytes("prem-persona-1"));
+
+      await expect(
+        registry.registerMemoryBatch(memoryIds, memoryHashes, personaHash)
+      ).to.be.revertedWith("Arrays length mismatch");
+    });
+  });
+
+  describe("Data Erasure Recording", function () {
+    it("Should record data erasure events", async function () {
+      const personaHash = ethers.keccak256(ethers.toUtf8Bytes("prem-persona-1"));
+      const erasureHash = ethers.keccak256(ethers.toUtf8Bytes("wipe-event-1"));
+
+      await expect(registry.registerDataErasure(personaHash, erasureHash))
+        .to.emit(registry, "DataErasureRecorded")
+        .withArgs(personaHash, erasureHash, anyValue => true);
+
+      const erasure = await registry.getErasure(erasureHash);
+      expect(erasure.personaHash).to.equal(personaHash);
+      expect(erasure.erasureHash).to.equal(erasureHash);
+    });
+  });
 });

@@ -37,6 +37,12 @@ contract MemoryBridgeRegistry {
         uint256 timestamp;
     }
 
+    struct ErasureRecord {
+        bytes32 personaHash;
+        bytes32 erasureHash;
+        uint256 timestamp;
+    }
+
     // Mapping from personaHash to ConsentRecord
     mapping(bytes32 => ConsentRecord) public consentRecords;
 
@@ -49,12 +55,17 @@ contract MemoryBridgeRegistry {
     // Mapping from versionIdentifier to VersionRecord
     mapping(string => VersionRecord) public versionRecords;
 
+    // Mapping from erasureHash to ErasureRecord
+    mapping(bytes32 => ErasureRecord) public erasureRecords;
+
     // Events
     event ConsentRecorded(bytes32 indexed personaHash, string consentType, ConsentStatus status, string policyVersion, bytes32 metadataHash, uint256 timestamp);
     event ConsentRevoked(bytes32 indexed personaHash, uint256 timestamp);
     event MemoryRegistered(string indexed memoryId, uint256 indexed memoryVersion, bytes32 memoryHash, bytes32 indexed personaHash, uint256 timestamp);
+    event MemoryBatchRegistered(string[] memoryIds, bytes32[] memoryHashes, bytes32 indexed personaHash, uint256 timestamp);
     event ResponseRegistered(bytes32 indexed responseHash, bytes32 modelHash, bytes32 personaHash, uint256 memoryVersion, uint256 timestamp);
     event VersionRegistered(string versionIdentifier, bytes32 configHash, uint256 timestamp);
+    event DataErasureRecorded(bytes32 indexed personaHash, bytes32 erasureHash, uint256 timestamp);
 
     modifier onlyOwner() {
         require(msg.sender == owner, "Only owner can call this function");
@@ -107,6 +118,28 @@ contract MemoryBridgeRegistry {
         emit MemoryRegistered(_memoryId, nextVersion, _memoryHash, _personaHash, block.timestamp);
     }
 
+    function registerMemoryBatch(
+        string[] calldata _memoryIds,
+        bytes32[] calldata _memoryHashes,
+        bytes32 _personaHash
+    ) external onlyOwner {
+        require(_memoryIds.length == _memoryHashes.length, "Arrays length mismatch");
+        for (uint256 i = 0; i < _memoryIds.length; i++) {
+            string memory memId = _memoryIds[i];
+            bytes32 memHash = _memoryHashes[i];
+            uint256 nextVersion = memoryRecords[memId].length + 1;
+            MemoryRecord memory rec = MemoryRecord({
+                memoryId: memId,
+                memoryVersion: nextVersion,
+                memoryHash: memHash,
+                timestamp: block.timestamp,
+                personaHash: _personaHash
+            });
+            memoryRecords[memId].push(rec);
+        }
+        emit MemoryBatchRegistered(_memoryIds, _memoryHashes, _personaHash, block.timestamp);
+    }
+
     function registerResponse(
         bytes32 _responseHash,
         bytes32 _modelHash,
@@ -133,6 +166,18 @@ contract MemoryBridgeRegistry {
             timestamp: block.timestamp
         });
         emit VersionRegistered(_versionIdentifier, _configHash, block.timestamp);
+    }
+
+    function registerDataErasure(
+        bytes32 _personaHash,
+        bytes32 _erasureHash
+    ) external onlyOwner {
+        erasureRecords[_erasureHash] = ErasureRecord({
+            personaHash: _personaHash,
+            erasureHash: _erasureHash,
+            timestamp: block.timestamp
+        });
+        emit DataErasureRecorded(_personaHash, _erasureHash, block.timestamp);
     }
 
     // Getters for off-chain verification
@@ -182,5 +227,14 @@ contract MemoryBridgeRegistry {
     ) {
         VersionRecord memory rec = versionRecords[_versionIdentifier];
         return (rec.versionIdentifier, rec.configHash, rec.timestamp);
+    }
+
+    function getErasure(bytes32 _erasureHash) external view returns (
+        bytes32 personaHash,
+        bytes32 erasureHash,
+        uint256 timestamp
+    ) {
+        ErasureRecord memory rec = erasureRecords[_erasureHash];
+        return (rec.personaHash, rec.erasureHash, rec.timestamp);
     }
 }

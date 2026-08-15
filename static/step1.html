@@ -335,17 +335,44 @@
                 if (mem) facts.push({ category: 'memory', detail: mem });
                 if (quirks) facts.push({ category: 'personality', detail: `${personaName}'s quirks: ${quirks}` });
                 
+                const memoriesToBatch = [];
                 for (const fact of facts) {
-                    await fetch('/add-fact', {
+                    const res = await fetch('/add-fact', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             category: fact.category,
                             detail: fact.detail,
                             persona_name: personaName,
-                            user_name: userName
+                            user_name: userName,
+                            skip_blockchain: true
                         })
                     });
+                    const resData = await res.json();
+                    if (resData.fact_id) {
+                        memoriesToBatch.push({
+                            memory_id: resData.fact_id,
+                            category: fact.category,
+                            detail: fact.detail
+                        });
+                    }
+                }
+                
+                if (memoriesToBatch.length > 0) {
+                    document.getElementById('status-text').innerText = 'RECORDING MEMORY BATCH ON BLOCKCHAIN...';
+                    try {
+                        await fetch('/blockchain/memory/batch', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                persona_name: personaName,
+                                user_name: userName,
+                                memories: memoriesToBatch
+                            })
+                        });
+                    } catch (batchErr) {
+                        console.warn("Blockchain batch registration failed/offline:", batchErr);
+                    }
                 }
                 
                 document.getElementById('status-text').innerText = 'MEMORYBRIDGE PERSONA ACTIVE ✓';

@@ -176,7 +176,7 @@ function escapeHTML(str) {
   }[tag]));
 }
 
-function addMessage(sender, text, isUser = false, saveItem = true, aiTransparency = null) {
+function addMessage(sender, text, isUser = false, saveItem = true, aiTransparency = null, blockchainProvenance = null) {
   removeEmpty();
   const div = document.createElement("div");
   div.className = `message ${isUser ? 'user' : 'prem'}`;
@@ -184,7 +184,7 @@ function addMessage(sender, text, isUser = false, saveItem = true, aiTransparenc
   const contentHtml = isUser ? escapeHTML(text) : DOMPurify.sanitize(marked.parse(text));
   
   if (saveItem) {
-    chatHistory.push({ sender, text, isUser, aiTransparency });
+    chatHistory.push({ sender, text, isUser, aiTransparency, blockchainProvenance });
     localStorage.setItem(HISTORY_KEY, JSON.stringify(chatHistory));
   }
   
@@ -193,6 +193,29 @@ function addMessage(sender, text, isUser = false, saveItem = true, aiTransparenc
     const confidence = (aiTransparency && aiTransparency.confidence_score) ? `${aiTransparency.confidence_score}%` : 'AI';
     transparencyBadge = `<span class="ai-badge" title="MemoryBridge AI Transparency Disclosure">[AI · ${confidence}]</span>`;
   }
+
+  let provenanceBadge = "";
+  if (!isUser && blockchainProvenance) {
+    const status = blockchainProvenance.status || "PENDING";
+    const evId = blockchainProvenance.event_id || "";
+    const hash = blockchainProvenance.response_hash || "";
+    
+    let badgeClass = "status-unknown";
+    let badgeText = "⏳ Verification Pending";
+    if (status === "CONFIRMED") {
+      badgeClass = "status-verified";
+      badgeText = "✓ Blockchain Verified";
+    } else if (status === "FAILED") {
+      badgeClass = "status-failed";
+      badgeText = "❌ Verification Failed";
+    }
+    
+    provenanceBadge = `
+      <div class="provenance-badge ${badgeClass}" id="prov-${evId}" data-hash="${hash}" title="On-Chain Response Hash: ${hash}">
+        🛡️ <span class="badge-text">${badgeText}</span>
+      </div>
+    `;
+  }
   
   div.innerHTML = `
     <div class="msg-meta">
@@ -200,7 +223,10 @@ function addMessage(sender, text, isUser = false, saveItem = true, aiTransparenc
       <span class="msg-time">${getTime()}</span>
       ${transparencyBadge}
     </div>
-    <div class="bubble">${contentHtml}</div>
+    <div class="bubble">
+      ${contentHtml}
+      ${provenanceBadge}
+    </div>
   `;
   chatBox.appendChild(div);
   requestAnimationFrame(() => { chatBox.scrollTop = chatBox.scrollHeight; });
@@ -437,7 +463,7 @@ async function sendMessage() {
     const data = await res.json();
 
     setLoading(false);
-    const msgEl = addMessage(personaName, data.reply, false, true, data.ai_transparency);
+    const msgEl = addMessage(personaName, data.reply, false, true, data.ai_transparency, data.blockchain_provenance);
     const bubble = msgEl.querySelector(".bubble");
 
     if (data.rtf) {
@@ -597,7 +623,7 @@ if (SpeechRecognition && micBtn) {
 }
 
 /* ═══ RESTORE HISTORY ═══ */
-chatHistory.forEach(msg => addMessage(msg.sender, msg.text, msg.isUser, false, msg.aiTransparency));
+chatHistory.forEach(msg => addMessage(msg.sender, msg.text, msg.isUser, false, msg.aiTransparency, msg.blockchainProvenance));
 
 /* ═══════════════════════════════════════════════════
    THREE.JS SETUP & GLB LOADER (3D Avatar)
@@ -1115,5 +1141,50 @@ if (btnViewAudit) btnViewAudit.addEventListener("click", renderAuditTrail);
 
 // Check blockchain status automatically on load
 setTimeout(updateBlockchainStatus, 1500);
+
+// Polling background loop to resolve PENDING blockchain response provenance registrations
+setInterval(async () => {
+  const pendingBadges = document.querySelectorAll(".provenance-badge.status-unknown");
+  if (pendingBadges.length === 0) return;
+  
+  try {
+    const res = await fetch(`${SERVER}/blockchain/audit`);
+    if (!res.ok) return;
+    const auditLogs = await res.json();
+    
+    pendingBadges.forEach(badge => {
+      const idAttr = badge.getAttribute("id");
+      if (!idAttr) return;
+      const evId = idAttr.replace("prov-", "");
+      
+      const entry = auditLogs.find(log => log.event_id === evId);
+      if (entry) {
+        const textSpan = badge.querySelector(".badge-text");
+        if (entry.status === "CONFIRMED" || entry.status === "success") {
+          badge.className = "provenance-badge status-verified";
+          if (textSpan) textSpan.textContent = "✓ Blockchain Verified";
+          badge.title = `On-Chain Response Hash: ${badge.getAttribute("data-hash")}\nTx: ${entry.transaction_hash}\nBlock: ${entry.block_number}`;
+          
+          const historyIndex = chatHistory.findIndex(h => h.blockchainProvenance && h.blockchainProvenance.event_id === evId);
+          if (historyIndex !== -1) {
+            chatHistory[historyIndex].blockchainProvenance.status = "CONFIRMED";
+            localStorage.setItem(HISTORY_KEY, JSON.stringify(chatHistory));
+          }
+        } else if (entry.status === "FAILED") {
+          badge.className = "provenance-badge status-failed";
+          if (textSpan) textSpan.textContent = "❌ Verification Failed";
+          
+          const historyIndex = chatHistory.findIndex(h => h.blockchainProvenance && h.blockchainProvenance.event_id === evId);
+          if (historyIndex !== -1) {
+            chatHistory[historyIndex].blockchainProvenance.status = "FAILED";
+            localStorage.setItem(HISTORY_KEY, JSON.stringify(chatHistory));
+          }
+        }
+      }
+    });
+  } catch (err) {
+    console.error("Error polling transactions:", err);
+  }
+}, 3000);
 
 window.addEventListener("DOMContentLoaded", initThreeJS);

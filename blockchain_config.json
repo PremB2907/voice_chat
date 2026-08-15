@@ -1,5 +1,5 @@
 {
-  "contract_address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+  "contract_address": "0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82",
   "abi": [
     {
       "inputs": [],
@@ -66,6 +66,62 @@
         }
       ],
       "name": "ConsentRevoked",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "personaHash",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes32",
+          "name": "erasureHash",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "DataErasureRecorded",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "string[]",
+          "name": "memoryIds",
+          "type": "string[]"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes32[]",
+          "name": "memoryHashes",
+          "type": "bytes32[]"
+        },
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "personaHash",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "MemoryBatchRegistered",
       "type": "event"
     },
     {
@@ -215,6 +271,35 @@
       "inputs": [
         {
           "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "name": "erasureRecords",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "personaHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "erasureHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
           "name": "_personaHash",
           "type": "bytes32"
         }
@@ -244,6 +329,35 @@
         {
           "internalType": "bytes32",
           "name": "metadataHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "_erasureHash",
+          "type": "bytes32"
+        }
+      ],
+      "name": "getErasure",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "personaHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "erasureHash",
           "type": "bytes32"
         },
         {
@@ -479,6 +593,24 @@
     {
       "inputs": [
         {
+          "internalType": "bytes32",
+          "name": "_personaHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "_erasureHash",
+          "type": "bytes32"
+        }
+      ],
+      "name": "registerDataErasure",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
           "internalType": "string",
           "name": "_memoryId",
           "type": "string"
@@ -495,6 +627,29 @@
         }
       ],
       "name": "registerMemory",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string[]",
+          "name": "_memoryIds",
+          "type": "string[]"
+        },
+        {
+          "internalType": "bytes32[]",
+          "name": "_memoryHashes",
+          "type": "bytes32[]"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "_personaHash",
+          "type": "bytes32"
+        }
+      ],
+      "name": "registerMemoryBatch",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"

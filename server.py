@@ -574,12 +574,29 @@ def chat():
     if df_detector:
         ai_transparency = df_detector.analyze_text(prem_reply, emotion_label=emotion_label)
 
+    # Register AI response provenance on the blockchain if available (non-blocking)
+    from blockchain_service import blockchain_service
+    prov_data = None
+    if blockchain_service.is_healthy() and blockchain_service.contract:
+        try:
+            prov_data = blockchain_service.register_response(
+                persona_name=persona_name,
+                user_name=user_name,
+                response_text=prem_reply,
+                model_name=OLLAMA_MODEL,
+                emotion_label=emotion_label,
+                memory_version=blockchain_service.get_memory_version_count(f"mem-{persona_name}-{user_name}")
+            )
+        except Exception as e:
+            log_event("warning", "blockchain_response_provenance_failed", error=str(e))
+
     if not generate_audio:
         return jsonify({
             "reply": prem_reply,
             "audio": None,
             "rtf": None,
-            "ai_transparency": ai_transparency
+            "ai_transparency": ai_transparency,
+            "blockchain_provenance": prov_data
         })
 
     # ── XTTS v2 Voice Synthesis ───────────────────────────────────
@@ -621,26 +638,12 @@ def chat():
     except Exception as e:
         log_event("warning", "audio_cleanup_failed", error=str(e))
 
-    # Register AI response provenance on the blockchain if available
-    from blockchain_service import blockchain_service
-    if blockchain_service.is_healthy() and blockchain_service.contract:
-        try:
-            blockchain_service.register_response(
-                persona_name=persona_name,
-                user_name=user_name,
-                response_text=prem_reply,
-                model_name=OLLAMA_MODEL,
-                emotion_label=emotion_label,
-                memory_version=blockchain_service.get_memory_version_count(f"mem-{persona_name}-{user_name}")
-            )
-        except Exception as e:
-            log_event("warning", "blockchain_response_provenance_failed", error=str(e))
-
     return jsonify({
         "reply": prem_reply, 
         "audio": result_audio,
         "rtf": rtf_score,
-        "ai_transparency": ai_transparency
+        "ai_transparency": ai_transparency,
+        "blockchain_provenance": prov_data
     })
 
 # ── ADD PREM'S FACTS ENDPOINT ─────────────────────────────────────
@@ -664,8 +667,10 @@ def add_fact():
         fact_id = memory.add_fact(category, detail)
         from blockchain_service import blockchain_service
         tx_hash = None
-        blockchain_status = "offline"
-        if blockchain_service.is_healthy() and blockchain_service.contract:
+        blockchain_status = "skipped"
+        skip_blockchain = data.get("skip_blockchain", False)
+        
+        if not skip_blockchain and blockchain_service.is_healthy() and blockchain_service.contract:
             res = blockchain_service.register_memory(
                 persona_name=data.get("persona_name", "Prem"),
                 user_name=data.get("user_name", "Maitree"),
@@ -911,6 +916,20 @@ def blockchain_verify_integrity():
         "results": results
     })
 
+@app.route("/blockchain/memory/batch", methods=["POST"])
+def blockchain_memory_batch():
+    from blockchain_service import blockchain_service
+    data = request.get_json() or {}
+    persona_name = data.get("persona_name", "Prem")
+    user_name = data.get("user_name", "Maitree")
+    memories = data.get("memories", [])
+    
+    if not memories:
+        return jsonify({"error": "No memory facts provided for batch"}), 400
+        
+    res = blockchain_service.register_memory_batch(persona_name, user_name, memories)
+    return jsonify(res)
+
 # ── GDPR ARTICLE 17 RIGHT TO ERASURE (Section VI-F) ───────────────
 @app.route("/delete-all-data", methods=["POST"])
 def delete_all_data():
@@ -920,13 +939,13 @@ def delete_all_data():
         persona_name = data.get("persona_name", "Prem")
         user_name = data.get("user_name", "Maitree")
 
-        # Revoke consent on-chain if blockchain is available
+        # Log data erasure event on-chain if blockchain is available
         from blockchain_service import blockchain_service
         if blockchain_service.is_healthy() and blockchain_service.contract:
             try:
-                blockchain_service.revoke_consent(persona_name, user_name)
+                blockchain_service.register_data_erasure(persona_name, user_name)
             except Exception as ex:
-                log_event("warning", "blockchain_revocation_failed", error=str(ex))
+                log_event("warning", "blockchain_erasure_failed", error=str(ex))
 
         if memory:
             memory.wipe_all_data()

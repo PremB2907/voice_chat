@@ -9,7 +9,7 @@ from blockchain_service import blockchain_service
 from memory_store import MemoryStore
 
 def run_tampering_demo():
-    print("🔒 --- MemoryBridge Blockchain Tamper Detection Demo ---")
+    print("🔒 --- MemoryBridge Blockchain Batching & Tamper Detection Demo ---")
     
     # 1. Connect to Blockchain
     status = blockchain_service.get_status()
@@ -24,63 +24,64 @@ def run_tampering_demo():
     print("🧠 Initializing Memory Store...")
     memory = MemoryStore()
     
-    # 2. Add memory segment
-    category = "memory"
-    detail = "Prem loved listening to poetry on rainy afternoons."
+    # 2. Add multiple memory segments locally
     persona_name = "Prem"
     user_name = "Maitree"
     
-    print(f"➕ Adding fact: [{category.upper()}] \"{detail}\"")
-    fact_id = memory.add_fact(category, detail)
-    if not fact_id:
-        print("❌ Failed to add fact.")
-        return
-        
-    print(f"ℹ️ Assigned Local Memory ID: {fact_id}")
+    memories = [
+        {"category": "memory", "detail": "Prem loved listening to poetry on rainy afternoons."},
+        {"category": "likes", "detail": "Prem preferred strong ginger tea over sweet coffee."}
+    ]
     
-    # 3. Register on-chain
-    print("⛓️ Registering memory hash on-chain...")
-    reg_res = blockchain_service.register_memory(
+    fact_ids = []
+    memories_to_batch = []
+    
+    for mem in memories:
+        print(f"➕ Adding local fact: [{mem['category'].upper()}] \"{mem['detail']}\"")
+        fid = memory.add_fact(mem["category"], mem["detail"])
+        if not fid:
+            print("❌ Failed to add fact.")
+            return
+        fact_ids.append(fid)
+        memories_to_batch.append({
+            "memory_id": fid,
+            "category": mem["category"],
+            "detail": mem["detail"]
+        })
+        print(f"   Assigned Local ID: {fid}")
+        
+    # 3. Register batch on-chain in a SINGLE transaction
+    print("\n⛓️ Registering memory facts in a SINGLE batch transaction...")
+    batch_res = blockchain_service.register_memory_batch(
         persona_name=persona_name,
         user_name=user_name,
-        memory_id=fact_id,
-        category=category,
-        detail=detail
+        memories=memories_to_batch
     )
-    print(f"✓ Transaction submitted. Tx Hash: {reg_res.get('tx_hash')}")
+    print(f"✓ Batch transaction submitted successfully!")
+    print(f"  Tx Hash:    {batch_res.get('tx_hash')}")
+    print(f"  Batch Hash: {batch_res.get('batch_hash')}")
     
     # 4. Verify Integrity (BEFORE)
     print("\n🔍 --- STEP 4: VERIFY INTEGRITY (BEFORE TAMPERING) ---")
-    verify_before = blockchain_service.verify_memory_integrity(fact_id, category, detail)
-    print(f"Local Hash:      {verify_before['local_hash']}")
-    print(f"Blockchain Hash: {verify_before['blockchain_hash']}")
-    
-    if verify_before["status"] == "VERIFIED":
-        print("✅ RESULT: ✓ MEMORY INTEGRITY VERIFIED")
-    else:
-        print(f"❌ RESULT: Unexpected status: {verify_before['status']}")
+    for fid, mem in zip(fact_ids, memories):
+        verify_before = blockchain_service.verify_memory_integrity(fid, mem["category"], mem["detail"])
+        print(f"Memory ID: {fid}")
+        print(f"  Local Hash:      {verify_before['local_hash']}")
+        print(f"  Blockchain Hash: {verify_before['blockchain_hash']}")
+        print(f"  Status:          {verify_before['status']}")
         
-    # 5. Tamper with local data directly in JSON
-    print("\n🛡️ --- STEP 5: SIMULATING UNLAWFUL TAMPERING (DIRECT JSON EDIT) ---")
-    print(f"Editing {memory.log_path} directly to alter memory...")
+    # 5. Tamper with one local fact directly in JSON
+    print("\n🛡️ --- STEP 5: SIMULATING UNLAWFUL TAMPERING (DIRECT JSON EDIT OF FACT #1) ---")
+    print(f"Editing {memory.log_path} directly to alter Fact 1...")
     
-    # Load raw JSON
     with open(memory.log_path, "r", encoding="utf-8") as f:
         kb_data = json.load(f)
         
-    # Modify the fact's detail
-    original_detail = None
     for fact in kb_data:
-        if fact.get("id") == fact_id:
-            original_detail = fact["detail"]
-            fact["detail"] = "Prem hated listening to poetry and preferred silence."
+        if fact.get("id") == fact_ids[0]:
+            fact["detail"] = "Prem hated poetry and always turned off the radio."
             break
             
-    if not original_detail:
-        print("❌ Could not find fact in JSON database.")
-        return
-        
-    # Save modified JSON
     with open(memory.log_path, "w", encoding="utf-8") as f:
         json.dump(kb_data, f, indent=4, ensure_ascii=False)
         
@@ -88,38 +89,53 @@ def run_tampering_demo():
     
     # 6. Verify Integrity (AFTER)
     print("\n🔍 --- STEP 6: VERIFY INTEGRITY (AFTER TAMPERING) ---")
-    # Load facts again using a fresh MemoryStore instance to simulate server reading the file
     tampered_memory = MemoryStore()
-    tampered_fact = next((f for f in tampered_memory.list_all_facts() if f.get("id") == fact_id), None)
     
-    if tampered_fact:
-        verify_after = blockchain_service.verify_memory_integrity(
-            fact_id, 
-            tampered_fact["category"], 
-            tampered_fact["detail"]
-        )
-        print(f"Local Hash (Tampered): {verify_after['local_hash']}")
-        print(f"Blockchain Hash:       {verify_after['blockchain_hash']}")
-        
-        if verify_after["status"] == "TAMPERING_DETECTED":
-            print("🚨 RESULT: ⚠ MEMORY INTEGRITY FAILURE - TAMPERING DETECTED")
+    for fid, mem in zip(fact_ids, memories):
+        tampered_fact = next((f for f in tampered_memory.list_all_facts() if f.get("id") == fid), None)
+        if tampered_fact:
+            verify_after = blockchain_service.verify_memory_integrity(
+                fid, 
+                tampered_fact["category"], 
+                tampered_fact["detail"]
+            )
+            print(f"Memory ID: {fid}")
+            print(f"  Local Hash:      {verify_after['local_hash']}")
+            print(f"  Blockchain Hash: {verify_after['blockchain_hash']}")
+            
+            if verify_after["status"] == "TAMPERING_DETECTED":
+                print("  🚨 RESULT: ⚠ MEMORY INTEGRITY FAILURE - TAMPERING DETECTED")
+            elif verify_after["status"] == "VERIFIED":
+                print("  ✅ RESULT: ✓ MEMORY INTEGRITY SECURE - NO TAMPERING")
         else:
-            print(f"❌ RESULT: Unexpected verification outcome: {verify_after['status']}")
+            print(f"❌ Error: Could not load fact {fid}")
+            
+    # 7. Record Data Erasure event on-chain
+    print("\n🧼 --- STEP 7: RECORDING DATA ERASURE ON-CHAIN & WIPING LOCAL CACHES ---")
+    erasure_res = blockchain_service.register_data_erasure(persona_name, user_name)
+    print(f"✓ Erasure transaction submitted. Tx Hash: {erasure_res.get('tx_hash')}")
+    print(f"  Erasure Hash on contract: {erasure_res.get('erasure_hash')}")
+    
+    # Query Erasure Proof from contract
+    proof = blockchain_service.get_erasure(erasure_res["erasure_hash"])
+    if proof:
+        print(f"🔍 Blockchain Erasure Proof Query SUCCESS:")
+        print(f"  Persona Hash: {proof['persona_hash']}")
+        print(f"  Erasure Hash: {proof['erasure_hash']}")
+        print(f"  Timestamp:    {proof['timestamp']}")
     else:
-        print("❌ Error: Could not load the tampered fact.")
-        
-    # 7. Restore Database to Clean State
-    print("\n🧼 --- STEP 7: RESTORING CLEAN DATA & REBUILDING FAISS INDEX ---")
+        print("❌ Failed to query erasure proof from contract.")
+
+    # 8. Restore Database to Clean State
+    print("\n🧼 --- STEP 8: RESTORING CLEAN DATA & REBUILDING FAISS INDEX ---")
     with open(memory.log_path, "r", encoding="utf-8") as f:
         kb_data = json.load(f)
         
-    # Remove the added fact entirely to revert DB state
-    clean_kb = [f for f in kb_data if f.get("id") != fact_id]
+    clean_kb = [f for f in kb_data if f.get("id") not in fact_ids]
     
     with open(memory.log_path, "w", encoding="utf-8") as f:
         json.dump(clean_kb, f, indent=4, ensure_ascii=False)
         
-    # Force rebuild FAISS index from the cleaned JSON
     restored_memory = MemoryStore()
     restored_memory.rebuild_index()
     print("✅ System successfully restored to clean state.")

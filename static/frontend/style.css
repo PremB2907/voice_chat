@@ -1013,3 +1013,28 @@ header {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+/* Provenance badge inside message bubble */
+.provenance-badge {
+  font-size: 9px;
+  font-family: var(--mono);
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: help;
+}
+
+.provenance-badge.status-verified {
+  color: #10B981;
+}
+
+.provenance-badge.status-failed {
+  color: #EF4444;
+}
+
+.provenance-badge.status-unknown {
+  color: #F59E0B;
+}
