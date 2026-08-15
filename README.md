@@ -366,8 +366,19 @@ python reset_memory.py
 
 ## 🔊 Voice Samples
 
-Voice cloning uses WAV files in `voice_samples/`. The default configured sample is currently named
-`my_voice.wav.wav` (double `.wav` extension); that’s expected by `server.py` unless you change it.
+Zero-shot voice cloning via XTTS v2 uses voice reference files placed in the `voice_samples/` directory.
+
+### Requirements for Best Cloning Quality:
+- **Format:** WAV (preferred) or MP3.
+- **Duration:** 6–30 seconds per audio clip.
+- **Quality:** High-fidelity clean audio, strictly free from background noise, music, echo, or overlapping speech.
+- **Quantity:** 3–5 short clips are recommended for rich zero-shot cloning.
+- **Content:** Natural speech with diverse sentence structures and varied emotional registers.
+
+### How to Add Reference Samples:
+1. **Via Web App:** Navigate to the Onboarding UI (`/step1.html` or `/step2.html`) and upload files through the Voice configuration wizard.
+2. **Manually:** Drop `.wav` files directly into the [voice_samples/](file:///home/prem/Prem%20Projects/Memory%20Bridge/voice_samples/) directory.
+   - *Note: The server will dynamically pick up and combine all `.wav` samples found in this folder for cloning.*
 
 ## 📊 Performance Tips
 
