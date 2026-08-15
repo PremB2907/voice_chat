@@ -30,8 +30,10 @@ class MemoryStore:
 
     def _get_model(self):
         if self._model is None:
-            logger.info("Loading SentenceTransformer model for memory", extra={"model": self.model_name})
-            self._model = SentenceTransformer(self.model_name)
+            import torch
+            device = "cuda" if torch.cuda.is_available() else "cpu"
+            logger.info("Loading SentenceTransformer model for memory", extra={"model": self.model_name, "device": device})
+            self._model = SentenceTransformer(self.model_name, device=device)
         return self._model
 
     def _load_or_create_index(self):
@@ -47,7 +49,18 @@ class MemoryStore:
             try:
                 with open(self.log_path, 'r', encoding='utf-8') as f:
                     self.knowledge_base = json.load(f)
-            except:
+                # Ensure all facts have an id
+                import hashlib
+                updated = False
+                for fact in self.knowledge_base:
+                    if "id" not in fact:
+                        detail = fact.get("detail", "")
+                        fact["id"] = "mem-" + hashlib.sha256(detail.encode("utf-8")).hexdigest()[:12]
+                        updated = True
+                if updated:
+                    self._save_knowledge_base()
+            except Exception as e:
+                logger.error(f"Error loading knowledge base: {e}")
                 self.knowledge_base = []
                 self._initialize_default_kb()
         else:
@@ -129,7 +142,10 @@ class MemoryStore:
         detail: description of the fact
         """
         try:
+            import hashlib
+            fact_id = "mem-" + hashlib.sha256(detail.encode("utf-8")).hexdigest()[:12]
             fact_dict = {
+                "id": fact_id,
                 "category": category,
                 "detail": detail,
                 "timestamp": str(np.datetime64('now'))
@@ -150,8 +166,10 @@ class MemoryStore:
                 "Fact added",
                 extra={"category": category, "total": len(self.knowledge_base)},
             )
+            return fact_id
         except Exception as e:
             logger.exception("Failed to add fact", extra={"error": str(e)})
+            return None
 
     def get_memory_status(self):
         """Verify memory integrity - useful for debugging."""
@@ -233,8 +251,21 @@ class MemoryStore:
             combined += stm_context
         if ltm_context:
             combined += ltm_context
-            
         return combined
+            
+    def wipe_all_data(self):
+        """GDPR Article 17 Right to Erasure (Section VI-F): Permanently delete all stored facts, FAISS index, and STM."""
+        try:
+            self.knowledge_base = []
+            self.stm_window = []
+            self.index = faiss.IndexFlatL2(self.dimension)
+            self.save_index()
+            self._save_knowledge_base()
+            logger.info("Permanently wiped all memory and FAISS index data")
+            return True
+        except Exception as e:
+            logger.exception("Failed to wipe data", extra={"error": str(e)})
+            return False
 
 
 if __name__ == "__main__":

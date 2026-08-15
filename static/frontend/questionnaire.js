@@ -5,6 +5,7 @@ const ratings = {};
 // Build rating buttons
 function buildRating(containerId, key) {
   const container = document.getElementById(containerId);
+  if (!container) return;
   for (let i = 1; i <= 10; i++) {
     const btn = document.createElement("button");
     btn.type = "button";
@@ -19,12 +20,12 @@ function buildRating(containerId, key) {
   }
 }
 
-buildRating("rating-emotion", "emotional_accuracy");
-buildRating("rating-coherence", "conversational_coherence");
-buildRating("rating-memory", "memory_recall");
-buildRating("rating-voice", "voice_quality");
-buildRating("rating-lipsync", "lip_sync_quality");
-buildRating("rating-overall", "overall_experience");
+buildRating("rating-persona", "persona_fidelity");
+buildRating("rating-emotion", "emotional_alignment");
+buildRating("rating-memory", "memory_retrieval");
+buildRating("rating-voice", "voice_naturalness");
+buildRating("rating-lipsync", "lip_sync");
+buildRating("rating-overall", "overall_sus");
 
 // Load chat history from localStorage
 function loadChatHistory() {
@@ -36,7 +37,7 @@ function loadChatHistory() {
   } catch { history = []; }
 
   if (history.length === 0) {
-    logEl.innerHTML = '<div style="color:#555; font-size:12px;">No conversation data found. Chat with Prem first!</div>';
+    logEl.innerHTML = '<div style="color:#666; font-size:12px;">No conversation turns logged yet. Start a chat with MemoryBridge!</div>';
     document.getElementById("stat-total").textContent = "0";
     document.getElementById("stat-user").textContent = "0";
     document.getElementById("stat-ai").textContent = "0";
@@ -63,14 +64,14 @@ async function loadKnowledgeBase() {
   const kbEl = document.getElementById("kb-container");
   const statKb = document.getElementById("stat-kb");
   try {
-    const res = await fetch(`${SERVER}/chat-export`);
+    const res = await fetch(`${SERVER}/get-knowledge-base`);
     if (!res.ok) throw new Error("Failed");
     const data = await res.json();
-    const facts = data.knowledge_base || [];
+    const facts = data.facts || [];
     statKb.textContent = facts.length;
 
     if (facts.length === 0) {
-      kbEl.innerHTML = '<div style="color:#555; font-size:12px;">No knowledge base entries found.</div>';
+      kbEl.innerHTML = '<div style="color:#666; font-size:12px;">No knowledge base entries in FAISS vector store.</div>';
       return;
     }
 
@@ -83,9 +84,46 @@ async function loadKnowledgeBase() {
     html += '</ul>';
     kbEl.innerHTML = html;
   } catch (e) {
-    kbEl.innerHTML = '<div style="color:#555; font-size:12px;">Could not load knowledge base. Is the server running?</div>';
+    kbEl.innerHTML = '<div style="color:#666; font-size:12px;">Could not connect to memory store backend.</div>';
     statKb.textContent = "--";
   }
+}
+
+// JSON Dataset Export
+const exportBtn = document.getElementById("export-json-btn");
+if (exportBtn) {
+  exportBtn.addEventListener("click", async () => {
+    let history = [];
+    try { history = JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]"); } catch {}
+    
+    let kbFacts = [];
+    try {
+      const res = await fetch(`${SERVER}/get-knowledge-base`);
+      if (res.ok) {
+        const data = await res.json();
+        kbFacts = data.facts || [];
+      }
+    } catch {}
+
+    const exportDataset = {
+      system: "MemoryBridge AI",
+      timestamp: new Date().toISOString(),
+      persona: localStorage.getItem("persona_name") || "Prem",
+      user: localStorage.getItem("user_name") || "Maitree",
+      chat_history: history,
+      faiss_knowledge_base: kbFacts,
+      evaluator_ratings: ratings,
+      evaluator_comments: document.getElementById("comments").value
+    };
+
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportDataset, null, 2));
+    const downloadAnchor = document.createElement('a');
+    downloadAnchor.setAttribute("href", dataStr);
+    downloadAnchor.setAttribute("download", `memorybridge_eval_${Date.now()}.json`);
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+  });
 }
 
 // Submit form
@@ -93,7 +131,7 @@ document.getElementById("q-form").addEventListener("submit", async (e) => {
   e.preventDefault();
   const btn = document.getElementById("submit-btn");
   btn.disabled = true;
-  btn.innerHTML = '<span class="loading-spinner"></span> SUBMITTING...';
+  btn.innerHTML = 'SUBMITTING...';
 
   let history = [];
   try { history = JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]"); } catch {}
@@ -115,7 +153,7 @@ document.getElementById("q-form").addEventListener("submit", async (e) => {
     });
     if (res.ok) {
       const toast = document.getElementById("toast");
-      toast.textContent = "Evaluation submitted successfully!";
+      toast.textContent = "MemoryBridge Evaluation submitted successfully!";
       toast.classList.add("show");
       setTimeout(() => toast.classList.remove("show"), 3500);
       document.getElementById("q-form").reset();

@@ -3,56 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Persona Setup · UN-MISS AI</title>
+    <title>MemoryBridge · 4-Stage Persona Onboarding</title>
     <link rel="stylesheet" href="frontend/presentation.css">
     <link rel="preconnect" href="https://fonts.googleapis.com"/>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
     <style>
-        .form-group {
+        .stage-indicator {
+            display: flex;
+            gap: 8px;
             margin-bottom: 20px;
+        }
+        .stage-badge {
+            flex: 1;
+            padding: 8px;
+            background: rgba(0,0,0,0.1);
+            border: 2px solid var(--black);
+            font-family: 'Space Mono', monospace;
+            font-size: 11px;
+            font-weight: 700;
+            text-align: center;
+            text-transform: uppercase;
+        }
+        .stage-badge.active {
+            background: var(--black);
+            color: var(--yellow);
+        }
+        .stage-card {
+            background: rgba(255,255,255,0.7);
+            border: 3px solid var(--black);
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 4px 4px 0 var(--black);
+        }
+        .stage-title {
+            font-size: 18px;
+            font-weight: 800;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-transform: uppercase;
+        }
+        .form-group {
+            margin-bottom: 16px;
         }
         .form-group label {
             display: block;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 700;
-            margin-bottom: 8px;
-            letter-spacing: 1px;
+            margin-bottom: 6px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
         }
         .form-group input, .form-group textarea, .form-group select {
             width: 100%;
-            background: var(--white);
-            border: 3px solid var(--black);
-            padding: 12px;
+            background: #fff;
+            border: 2px solid var(--black);
+            padding: 10px;
             font-family: inherit;
-            font-size: 16px;
+            font-size: 14px;
             color: var(--black);
             font-weight: 600;
         }
         .form-group textarea {
             resize: vertical;
-            min-height: 100px;
+            min-height: 80px;
+        }
+        .file-upload-box {
+            border: 2px dashed var(--black);
+            padding: 16px;
+            background: #fff;
+            text-align: center;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .file-upload-box:hover {
+            background: #fdf8d5;
         }
         .save-btn {
             background: var(--black);
             color: var(--yellow);
-            border: none;
+            border: 3px solid var(--black);
             padding: 16px 24px;
-            font-size: 20px;
+            font-size: 18px;
             font-weight: 800;
             font-family: 'Space Grotesk', sans-serif;
             cursor: pointer;
             width: 100%;
             text-transform: uppercase;
             transition: transform 0.2s, box-shadow 0.2s;
-            margin-top: 20px;
+            margin-top: 10px;
         }
         .save-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 4px 4px 0 var(--white);
+            box-shadow: 4px 4px 0 var(--black);
         }
         .scrollable-left {
             overflow-y: auto;
             max-height: 100%;
+            padding-right: 15px;
         }
     </style>
 </head>
@@ -62,141 +111,252 @@
         <!-- LEFT PANE -->
         <div class="left-pane bg-yellow scrollable-left">
             <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
-                <div class="step-label">STEP 01 — PERSONA SETUP</div>
+                <div class="step-label">MEMORYBRIDGE · ONBOARDING</div>
                 <a href="/" style="font-family:'Space Mono',monospace; font-size:11px; font-weight:700; color:#0a0a0a; text-decoration:none; border:2px solid #0a0a0a; padding:6px 12px; letter-spacing:2px;">← BACK TO CHAT</a>
             </div>
             
-            <h1 class="title-huge" style="font-size: 60px; margin-bottom: 20px;">PERSONA<br>INGESTION</h1>
+            <h1 class="title-huge" style="font-size: 48px; margin-bottom: 12px;">PERSONA<br>INGESTION</h1>
             
-            <div class="text-reason" style="margin-bottom: 25px; font-size: 14px;">
-                Calibrate the AI persona by providing memories and context.<br>
-                The more details you provide, the more realistic the response.
+            <p style="margin-bottom: 20px; font-size: 13px; line-height: 1.5; font-weight: 600;">
+                Complete the 4-stage data onboarding process (Section IV-B) to calibrate the MemoryBridge digital imitation persona.
+            </p>
+            
+            <div class="stage-indicator">
+                <div class="stage-badge active">1. CONSENT</div>
+                <div class="stage-badge active">2. DATA</div>
+                <div class="stage-badge active">3. PROFILE</div>
+                <div class="stage-badge active">4. LEGAL</div>
             </div>
             
-            <form id="persona-form">
-                <div class="form-group">
-                    <label>MBTI PERSONALITY</label>
-                    <select id="mbti-input">
-                        <option value="INFJ">INFJ (Advocate - warm, insightful)</option>
-                        <option value="ENTP">ENTP (Debater - witty, clever)</option>
-                        <option value="ISFP">ISFP (Adventurer - gentle, artistic)</option>
-                        <option value="ESTJ">ESTJ (Executive - direct, caring but firm)</option>
-                        <option value="ESFP">ESFP (Entertainer - energetic, loving)</option>
-                        <option value="INTP">INTP (Logician - philosophical, quiet)</option>
-                        <option value="ENFJ">ENFJ (Protagonist - charismatic, inspiring)</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label>RELATIONSHIP TO YOU</label>
-                    <input type="text" id="rel-input" placeholder="e.g. Husband, Brother, Best Friend" required>
-                </div>
-                
-                <div class="form-group">
-                    <label>FAVORITE MEMORY</label>
-                    <textarea id="memory-input" placeholder="e.g. That time we got lost in Kyoto..."></textarea>
+            <form id="onboarding-form">
+
+                <!-- STAGE 1: CONSENT CONFIGURATION -->
+                <div class="stage-card">
+                    <div class="stage-title"><span>🔒</span> Stage 1: Consent & Privacy Controls</div>
+                    <div class="form-group">
+                        <label>PERMITTED INTERACTION MODES</label>
+                        <select id="consent-mode">
+                            <option value="all">Text, Voice Synthesis & 3D Avatar (Full Pipeline)</option>
+                            <option value="text_voice">Text & Voice Synthesis Only</option>
+                            <option value="text_only">Text Chat Only</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>DATA RETENTION POLICY</label>
+                        <select id="retention-policy">
+                            <option value="local_encrypted">Local AES-256 Encrypted Store (Recommended)</option>
+                            <option value="session_only">Session Only (Purge on Server Restart)</option>
+                        </select>
+                    </div>
                 </div>
 
-                <div class="form-group">
-                    <label>CATCHPHRASES & QUIRKS</label>
-                    <textarea id="quirks-input" placeholder="e.g. Always said 'Right on!', used a lot of puns..."></textarea>
+                <!-- STAGE 2: DATA UPLOADS -->
+                <div class="stage-card">
+                    <div class="stage-title"><span>📂</span> Stage 2: Multimodal Data Ingestion</div>
+                    <div class="form-group">
+                        <label>CHAT EXPORT FILE (.TXT, .JSON, .CSV)</label>
+                        <div class="file-upload-box" onclick="document.getElementById('chat-file-input').click()">
+                            <span id="chat-file-label">📄 Click to Upload Chat Messages Export</span>
+                            <input type="file" id="chat-file-input" accept=".txt,.json,.csv" style="display:none;" onchange="handleChatFileUpload(this)">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>VOICE REFERENCE SAMPLE (.WAV, .MP3 — min 6 seconds)</label>
+                        <div class="file-upload-box" onclick="document.getElementById('voice-file-input').click()">
+                            <span id="voice-file-label">🎙️ Click to Upload Clean Reference Audio</span>
+                            <input type="file" id="voice-file-input" accept=".wav,.mp3" style="display:none;" onchange="handleVoiceFileUpload(this)">
+                        </div>
+                    </div>
                 </div>
 
-                <div class="form-group">
-                    <label>OTHER CONTEXT (RAW DATA DUMP)</label>
-                    <textarea id="other-input" placeholder="Paste chat histories, emails, or deeply personal info here..."></textarea>
+                <!-- STAGE 3: PROFILE VERIFICATION -->
+                <div class="stage-card">
+                    <div class="stage-title"><span>👤</span> Stage 3: Profile & Trait Calibration</div>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                        <div class="form-group">
+                            <label>DECEASED'S NAME</label>
+                            <input type="text" id="persona-name-input" placeholder="e.g. Prem" required>
+                        </div>
+                        <div class="form-group">
+                            <label>YOUR NAME</label>
+                            <input type="text" id="user-name-input" placeholder="e.g. Maitree" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>MBTI PERSONALITY DIMENSION</label>
+                        <select id="mbti-input">
+                            <option value="INFJ">INFJ (Advocate - warm, deeply empathetic)</option>
+                            <option value="ENTP">ENTP (Debater - witty, clever)</option>
+                            <option value="ISFP">ISFP (Adventurer - gentle, poetic)</option>
+                            <option value="ESTJ">ESTJ (Executive - direct, caring but firm)</option>
+                            <option value="ESFP">ESFP (Entertainer - energetic, loving)</option>
+                            <option value="INTP">INTP (Logician - philosophical, quiet)</option>
+                            <option value="ENFJ">ENFJ (Protagonist - charismatic, inspiring)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>RELATIONSHIP TO USER</label>
+                        <input type="text" id="rel-input" placeholder="e.g. Husband, Sister, Best Friend" required>
+                    </div>
+                    <div class="form-group">
+                        <label>FAVORITE SHARED MEMORIES</label>
+                        <textarea id="memory-input" placeholder="e.g. That rainy evening by the lake, watching the stars..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>CATCHPHRASES, QUIRKS & VOCABULARY</label>
+                        <textarea id="quirks-input" placeholder="e.g. Always called me 'sunshine', used puns, warm laughter..."></textarea>
+                    </div>
                 </div>
-                <div class="form-group" style="display: flex; align-items: start; gap: 10px; background: rgba(0,0,0,0.05); padding: 15px; border: 2px solid var(--black);">
-                    <input type="checkbox" id="consent-check" required style="width: 20px; height: 20px; margin-top: 2px; cursor: pointer;">
-                    <label for="consent-check" style="font-size: 12px; font-weight: 500; margin: 0; line-height: 1.4;">
-                        <strong>LEGAL ACKNOWLEDGEMENT:</strong> I understand that MemoryBridge creates a "Digital Imitation" and not a digital personality. The system possesses no subjectivity, consciousness, or autonomous agency.
-                    </label>
+
+                <!-- STAGE 4: LEGAL ACKNOWLEDGEMENT -->
+                <div class="stage-card">
+                    <div class="stage-title"><span>⚖️</span> Stage 4: Ethical & Legal Governance</div>
+                    <div class="form-group" style="display: flex; align-items: start; gap: 10px; margin:0;">
+                        <input type="checkbox" id="consent-check" required style="width: 22px; height: 22px; margin-top: 2px; cursor: pointer;">
+                        <label for="consent-check" style="font-size: 11px; font-weight: 600; margin: 0; line-height: 1.5; text-transform:none;">
+                            <strong>DIGITAL IMITATION DISCLOSURE:</strong> I acknowledge that MemoryBridge constructs a <em>digital imitation</em> (Perov et al., 2025) reproducing attested linguistic patterns. The system possesses no subjectivity, consciousness, or autonomous agency, and operates with embedded ethical safeguards.
+                        </label>
+                    </div>
                 </div>
                 
-                <button type="submit" class="save-btn">SAVE & CONTINUE ➔</button>
+                <button type="submit" class="save-btn" id="submit-btn">CALIBRATE MEMORYBRIDGE ➔</button>
             </form>
         </div>
 
         <!-- RIGHT PANE -->
         <div class="right-pane bg-black">
-            <div class="rp-text yellow huge" style="font-size: 50px;">DATA<br>UPLOAD</div>
+            <div class="rp-text yellow huge" style="font-size: 42px;">MEMORYBRIDGE</div>
             <div class="divider"></div>
-            <div class="rp-text white large" style="font-size: 30px;">BUILD<br>THE<br>SOUL</div>
+            <div class="rp-text white large" style="font-size: 24px;">ETHICAL AI<br>PERSONA<br>PIPELINE</div>
             <div class="divider"></div>
-            <div class="rp-text yellow medium" id="status-text" style="letter-spacing: 2px; font-size:20px;">WAITING...</div>
+            <div class="rp-text yellow medium" id="status-text" style="letter-spacing: 2px; font-size:16px;">READY FOR CALIBRATION</div>
         </div>
         
     </div>
 
     <script>
-        // Load existing
+        // Load existing configurations from localStorage
+        document.getElementById('persona-name-input').value = localStorage.getItem('persona_name') || 'Prem';
+        document.getElementById('user-name-input').value = localStorage.getItem('user_name') || 'Maitree';
         document.getElementById('mbti-input').value = localStorage.getItem('mbti') || 'INFJ';
         document.getElementById('rel-input').value = localStorage.getItem('rel_context') || '';
         document.getElementById('memory-input').value = localStorage.getItem('mem_context') || '';
         document.getElementById('quirks-input').value = localStorage.getItem('quirks_context') || '';
-        document.getElementById('other-input').value = localStorage.getItem('other_context') || '';
 
-        document.getElementById('persona-form').addEventListener('submit', async (e) => {
+        async function handleChatFileUpload(input) {
+            if (!input.files || !input.files[0]) return;
+            const file = input.files[0];
+            document.getElementById('chat-file-label').innerText = `📄 Uploading ${file.name}...`;
+            const formData = new FormData();
+            formData.append("file", file);
+
+            try {
+                const res = await fetch('/upload-chat-export', { method: 'POST', body: formData });
+                const data = await res.json();
+                if (res.ok) {
+                    document.getElementById('chat-file-label').innerText = `✅ Ingested ${data.facts_count} chat turns`;
+                    document.getElementById('status-text').innerText = `INGESTED ${data.facts_count} CHAT FACTS ✓`;
+                } else {
+                    document.getElementById('chat-file-label').innerText = `❌ Ingestion failed: ${data.error}`;
+                }
+            } catch (err) {
+                document.getElementById('chat-file-label').innerText = `❌ Upload error: ${err.message}`;
+            }
+        }
+
+        async function handleVoiceFileUpload(input) {
+            if (!input.files || !input.files[0]) return;
+            const file = input.files[0];
+            document.getElementById('voice-file-label').innerText = `🎙️ Uploading ${file.name}...`;
+            const formData = new FormData();
+            formData.append("file", file);
+
+            try {
+                const res = await fetch('/upload-voice-sample', { method: 'POST', body: formData });
+                const data = await res.json();
+                if (res.ok) {
+                    document.getElementById('voice-file-label').innerText = `✅ Cloned voice sample: ${file.name}`;
+                    document.getElementById('status-text').innerText = `VOICE SAMPLE STORED ✓`;
+                } else {
+                    document.getElementById('voice-file-label').innerText = `❌ Upload failed: ${data.error}`;
+                }
+            } catch (err) {
+                document.getElementById('voice-file-label').innerText = `❌ Voice upload error: ${err.message}`;
+            }
+        }
+
+        document.getElementById('onboarding-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             
+            const personaName = document.getElementById('persona-name-input').value.trim();
+            const userName = document.getElementById('user-name-input').value.trim();
             const mbti = document.getElementById('mbti-input').value;
-            const rel = document.getElementById('rel-input').value;
-            const mem = document.getElementById('memory-input').value;
-            const quirks = document.getElementById('quirks-input').value;
-            const other = document.getElementById('other-input').value;
+            const rel = document.getElementById('rel-input').value.trim();
+            const mem = document.getElementById('memory-input').value.trim();
+            const quirks = document.getElementById('quirks-input').value.trim();
 
-            // Save raw data to localStorage
+            localStorage.setItem('persona_name', personaName);
+            localStorage.setItem('user_name', userName);
             localStorage.setItem('mbti', mbti);
             localStorage.setItem('rel_context', rel);
             localStorage.setItem('mem_context', mem);
             localStorage.setItem('quirks_context', quirks);
-            localStorage.setItem('other_context', other);
 
-            // Compile into customContext for legacy support
-            const compiledContext = `
-Relationship: ${rel}
-Favorite Memories: ${mem}
-Catchphrases or Quirks: ${quirks}
-Additional Chat/Background Info: ${other}
-            `.trim();
+            const compiledContext = `Relationship: ${rel}\nMemories: ${mem}\nQuirks: ${quirks}`;
             localStorage.setItem('customContext', compiledContext);
 
-            // NEW: Send facts to server's knowledge base
-            document.getElementById('status-text').innerText = 'UPLOADING TO PREM\'S SOUL...';
+            document.getElementById('status-text').innerText = 'REGISTERING CONSENT ON BLOCKCHAIN...';
+            try {
+                const consentMode = document.getElementById('consent-mode').value;
+                const retentionPolicy = document.getElementById('retention-policy').value;
+                
+                await fetch('/blockchain/consent', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        persona_name: personaName,
+                        user_name: userName,
+                        consent_type: consentMode,
+                        policy_version: "v1",
+                        permitted_modes: `Modes: ${consentMode}, Retention: ${retentionPolicy}`
+                    })
+                });
+            } catch (blockchainErr) {
+                console.warn("Blockchain consent registration offline/failed:", blockchainErr);
+            }
+
+            document.getElementById('status-text').innerText = 'CALIBRATING FAISS MEMORY INDEX...';
             try {
                 const facts = [
-                    { category: 'personality', detail: `Prem's MBTI type is ${mbti}` },
-                    { category: 'relationship', detail: `Prem was ${rel} to Maitree` },
+                    { category: 'personality', detail: `${personaName}'s MBTI personality dimension is ${mbti}` },
+                    { category: 'relationship', detail: `${personaName} had relationship "${rel}" with ${userName}` },
                 ];
                 
-                if (mem && mem.trim()) {
-                    facts.push({ category: 'memory', detail: mem });
-                }
-                if (quirks && quirks.trim()) {
-                    facts.push({ category: 'personality', detail: `Prem's quirks: ${quirks}` });
-                }
-                if (other && other.trim()) {
-                    facts.push({ category: 'memory', detail: other });
-                }
+                if (mem) facts.push({ category: 'memory', detail: mem });
+                if (quirks) facts.push({ category: 'personality', detail: `${personaName}'s quirks: ${quirks}` });
                 
-                // Send each fact to server
                 for (const fact of facts) {
                     await fetch('/add-fact', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(fact)
+                        body: JSON.stringify({
+                            category: fact.category,
+                            detail: fact.detail,
+                            persona_name: personaName,
+                            user_name: userName
+                        })
                     });
                 }
                 
-                document.getElementById('status-text').innerText = 'PERSONA LOCKED IN ✓';
+                document.getElementById('status-text').innerText = 'MEMORYBRIDGE PERSONA ACTIVE ✓';
                 document.getElementById('status-text').style.color = '#0f0';
 
                 setTimeout(() => {
                     window.location.href = '/';
                 }, 1000);
             } catch (err) {
-                console.error('Error uploading facts:', err);
-                document.getElementById('status-text').innerText = 'ERROR UPLOADING';
+                console.error('Error saving onboarding data:', err);
+                document.getElementById('status-text').innerText = 'CALIBRATION ERROR';
                 document.getElementById('status-text').style.color = '#f00';
             }
         });

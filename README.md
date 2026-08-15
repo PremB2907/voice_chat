@@ -199,6 +199,74 @@ Stream generated audio files
 ### POST `/emotion`
 Analyze emotion of input text
 
+## ⛓️ Blockchain Trust & Provenance Layer
+
+MemoryBridge integrates a local, blockchain-backed trust and provenance registry to ensure consent auditability, memory integrity, and AI output traceability. 
+
+### Privacy & Data Off-Chain Model
+
+To protect user privacy and comply with data deletion requirements (GDPR Right to Erasure):
+* **ON-CHAIN (Hardhat Blockchain):** Cryptographic hashes (SHA-256), pseudonymous IDs, event types, and timestamps. No private details, audio, or text are ever stored on-chain.
+* **OFF-CHAIN (Local Node Storage):** Raw chat messages, user/persona profiles, voice cloning WAV samples, and FAISS vector indices.
+
+### Architecture Workflow
+
+```mermaid
+graph TD
+    User([User / Client]) -->|1. Ingest / Chat| Backend[Flask Server]
+    Backend -->|2. Encrypt & Embed| LocalStore[(FAISS Index & JSON DB)]
+    Backend -->|3. Hashing SHA-256| Hashing[Provenance Generator]
+    Hashing -->|4. Signed Transaction| LocalChain[Local Hardhat Blockchain]
+    LocalChain -->|5. Emit Audit Event| Registry[MemoryBridgeRegistry.sol]
+```
+
+### Local Blockchain Setup
+
+1. **Start the local Hardhat Node:**
+   ```bash
+   cd blockchain
+   npm install
+   npx hardhat node
+   ```
+
+2. **Deploy the Smart Registry Contract:**
+   Open a separate terminal window and run:
+   ```bash
+   cd blockchain
+   npx hardhat run scripts/deploy.js --network localhost
+   ```
+   *Note: This automatically writes contract ABI & Address to `blockchain_config.json` in the project root.*
+
+3. **Configure Environment (`.env`):**
+   Copy the template:
+   ```bash
+   cp .env.example .env
+   ```
+   Keep the default Hardhat pre-funded Account #0 private key for local development.
+
+### Verification & Tamper Detection Demo
+
+Run the automated simulation script to witness blockchain verification and tamper detection:
+```bash
+.venv/bin/python scripts/demonstrate_tampering.py
+```
+This script creates a test memory fact, registers it on-chain, alters the local JSON database directly (simulating database tampering), and verifies it again to show `🚨 TAMPERING DETECTED`.
+
+### Performance Evaluation & Benchmarks
+
+Run the benchmark suite to analyze overhead metrics (hashing latency, transaction write speeds, and read/verification times):
+```bash
+.venv/bin/python scripts/benchmark_blockchain.py
+```
+
+### New Blockchain Endpoints
+
+* **`GET /blockchain/status`** - Verify connectivity, latest block, and contract deployment.
+* **`POST /blockchain/consent`** - Record pseudonymous user consent configurations on-chain.
+* **`POST /blockchain/revoke`** - Update consent state on-chain to `REVOKED`.
+* **`GET /blockchain/audit`** - Retrieve the human-readable audit trail logs.
+* **`POST /blockchain/verify-integrity`** - Audit all local memories against their on-chain hashes.
+
 ## 🔗 Integration Points
 
 ### Ollama

@@ -1,0 +1,632 @@
+{
+  "contract_address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+  "abi": [
+    {
+      "inputs": [],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "personaHash",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "consentType",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "enum MemoryBridgeRegistry.ConsentStatus",
+          "name": "status",
+          "type": "uint8"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "policyVersion",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes32",
+          "name": "metadataHash",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "ConsentRecorded",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "personaHash",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "ConsentRevoked",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "string",
+          "name": "memoryId",
+          "type": "string"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "memoryVersion",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes32",
+          "name": "memoryHash",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "personaHash",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "MemoryRegistered",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "responseHash",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes32",
+          "name": "modelHash",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes32",
+          "name": "personaHash",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "memoryVersion",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "ResponseRegistered",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "versionIdentifier",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes32",
+          "name": "configHash",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "VersionRegistered",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "name": "consentRecords",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "personaHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "string",
+          "name": "consentType",
+          "type": "string"
+        },
+        {
+          "internalType": "enum MemoryBridgeRegistry.ConsentStatus",
+          "name": "status",
+          "type": "uint8"
+        },
+        {
+          "internalType": "string",
+          "name": "policyVersion",
+          "type": "string"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "metadataHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "_personaHash",
+          "type": "bytes32"
+        }
+      ],
+      "name": "getConsent",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "personaHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "string",
+          "name": "consentType",
+          "type": "string"
+        },
+        {
+          "internalType": "enum MemoryBridgeRegistry.ConsentStatus",
+          "name": "status",
+          "type": "uint8"
+        },
+        {
+          "internalType": "string",
+          "name": "policyVersion",
+          "type": "string"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "metadataHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_memoryId",
+          "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_version",
+          "type": "uint256"
+        }
+      ],
+      "name": "getMemory",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "memoryId",
+          "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "memoryVersion",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "memoryHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "personaHash",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_memoryId",
+          "type": "string"
+        }
+      ],
+      "name": "getMemoryVersionCount",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "_responseHash",
+          "type": "bytes32"
+        }
+      ],
+      "name": "getResponse",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "responseHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "modelHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "personaHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint256",
+          "name": "memoryVersion",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_versionIdentifier",
+          "type": "string"
+        }
+      ],
+      "name": "getVersion",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "versionIdentifier",
+          "type": "string"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "configHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "memoryRecords",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "memoryId",
+          "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "memoryVersion",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "memoryHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "personaHash",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "_personaHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "string",
+          "name": "_consentType",
+          "type": "string"
+        },
+        {
+          "internalType": "enum MemoryBridgeRegistry.ConsentStatus",
+          "name": "_status",
+          "type": "uint8"
+        },
+        {
+          "internalType": "string",
+          "name": "_policyVersion",
+          "type": "string"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "_metadataHash",
+          "type": "bytes32"
+        }
+      ],
+      "name": "registerConsent",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_memoryId",
+          "type": "string"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "_memoryHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "_personaHash",
+          "type": "bytes32"
+        }
+      ],
+      "name": "registerMemory",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "_responseHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "_modelHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "_personaHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_memoryVersion",
+          "type": "uint256"
+        }
+      ],
+      "name": "registerResponse",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_versionIdentifier",
+          "type": "string"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "_configHash",
+          "type": "bytes32"
+        }
+      ],
+      "name": "registerVersion",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "name": "responseRecords",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "responseHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "modelHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "personaHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint256",
+          "name": "memoryVersion",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "_personaHash",
+          "type": "bytes32"
+        }
+      ],
+      "name": "revokeConsent",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "name": "versionRecords",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "versionIdentifier",
+          "type": "string"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "configHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "deployer": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+  "chain_id": 1337
+}

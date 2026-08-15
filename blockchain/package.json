@@ -1,0 +1,14 @@
+{
+  "name": "memorybridge-blockchain",
+  "version": "1.0.0",
+  "description": "Smart contracts and local Hardhat environment for MemoryBridge",
+  "main": "hardhat.config.js",
+  "scripts": {
+    "test": "hardhat test"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "hardhat": "^2.22.3"
+  }
+}

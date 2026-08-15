@@ -1,0 +1,197 @@
+[
+    {
+        "id": "1786787631010",
+        "event_type": "MEMORY_CREATED",
+        "hash": "0x88afd428804d74cbf2fe11d3adab48a32bc1b3d8d0bfc6edae2a73f2807f137e",
+        "tx_hash": "0x45bc9d63164eb412103c0dcfaeedd0480f17038c0c0c833a43f51f3762acf257",
+        "status": "VERIFIED",
+        "timestamp": "2026-08-15 15:23:51",
+        "details": {
+            "memory_id": "mem-c8f557745505",
+            "category": "memory",
+            "persona_name": "Prem"
+        }
+    },
+    {
+        "id": "1786787631025",
+        "event_type": "MEMORY_VERIFIED",
+        "hash": "0x88afd428804d74cbf2fe11d3adab48a32bc1b3d8d0bfc6edae2a73f2807f137e",
+        "tx_hash": "N/A",
+        "status": "VERIFIED",
+        "timestamp": "2026-08-15 15:23:51",
+        "details": {
+            "memory_id": "mem-c8f557745505",
+            "blockchain_hash": "0x88afd428804d74cbf2fe11d3adab48a32bc1b3d8d0bfc6edae2a73f2807f137e",
+            "local_hash": "0x88afd428804d74cbf2fe11d3adab48a32bc1b3d8d0bfc6edae2a73f2807f137e"
+        }
+    },
+    {
+        "id": "1786787631041",
+        "event_type": "MEMORY_VERIFIED",
+        "hash": "0xe5414e0815999be0e899ed6c3f3e5e88ff24d3e2ca8278a6df04917b7c4fe057",
+        "tx_hash": "N/A",
+        "status": "TAMPERING_DETECTED",
+        "timestamp": "2026-08-15 15:23:51",
+        "details": {
+            "memory_id": "mem-c8f557745505",
+            "blockchain_hash": "0x88afd428804d74cbf2fe11d3adab48a32bc1b3d8d0bfc6edae2a73f2807f137e",
+            "local_hash": "0xe5414e0815999be0e899ed6c3f3e5e88ff24d3e2ca8278a6df04917b7c4fe057"
+        }
+    },
+    {
+        "id": "1786787647360",
+        "event_type": "RESPONSE_PROVENANCE_RECORDED",
+        "hash": "0xdc52b9b92aca5dcc5d8b95d0ad39379151a0a3c91d2d5585d6c6b0217f90d71b",
+        "tx_hash": "0x47892fc2211daa0cd0062cf310568cc33919d9fa3e02769cf745efcf33cbe59e",
+        "status": "VERIFIED",
+        "timestamp": "2026-08-15 15:24:07",
+        "details": {
+            "model_name": "tinyllama",
+            "emotion": "neutral",
+            "memory_version": 0
+        }
+    },
+    {
+        "id": "1786787647381",
+        "event_type": "RESPONSE_PROVENANCE_RECORDED",
+        "hash": "0xadeecfdd8cfa09887863dcdbbbd8bac82851e32f478a29c604d9a790aebda46f",
+        "tx_hash": "0x66771d5ec66a7f549e3fd4c9259e2aa6f6cee8f6a2c4556834e9ff780ebac846",
+        "status": "VERIFIED",
+        "timestamp": "2026-08-15 15:24:07",
+        "details": {
+            "model_name": "tinyllama",
+            "emotion": "neutral",
+            "memory_version": 0
+        }
+    },
+    {
+        "id": "1786787647399",
+        "event_type": "RESPONSE_PROVENANCE_RECORDED",
+        "hash": "0x58f4212a680a34f56ad6c3f2a0d18451da010fdd5812e46c9a10c70e050b917a",
+        "tx_hash": "0xb141a29665c3311fcca713f0b00fe7eb47b57a4a58fb84277ea542c8def17758",
+        "status": "VERIFIED",
+        "timestamp": "2026-08-15 15:24:07",
+        "details": {
+            "model_name": "tinyllama",
+            "emotion": "neutral",
+            "memory_version": 0
+        }
+    },
+    {
+        "id": "1786787647420",
+        "event_type": "RESPONSE_PROVENANCE_RECORDED",
+        "hash": "0x09112ffe1b0739159ebe4bdf22c8078cad26a9fdb753fb7607b7f7717283d961",
+        "tx_hash": "0xe378480fcbb26b7f44a451559653bfde5ecdfdebe7d1cdc72924fd396d322bf3",
+        "status": "VERIFIED",
+        "timestamp": "2026-08-15 15:24:07",
+        "details": {
+            "model_name": "tinyllama",
+            "emotion": "neutral",
+            "memory_version": 0
+        }
+    },
+    {
+        "id": "1786787647445",
+        "event_type": "RESPONSE_PROVENANCE_RECORDED",
+        "hash": "0x0a2e0d63313d4eddb9837df062a55d74941ca2fc9847ecd63dd68cccb42a7642",
+        "tx_hash": "0x74964e5b6d65998711bc87515e6055551f3aec0924766f045926539d4776bc54",
+        "status": "VERIFIED",
+        "timestamp": "2026-08-15 15:24:07",
+        "details": {
+            "model_name": "tinyllama",
+            "emotion": "neutral",
+            "memory_version": 0
+        }
+    },
+    {
+        "id": "1786787647467",
+        "event_type": "MEMORY_CREATED",
+        "hash": "0x99d67b20a945e0ec13d889d7b483ed1da56317debe699338ae4a96ad20516797",
+        "tx_hash": "0x76be3eeac1dacc01018f88766e31e04e3cb5742c2879d1562a25c1fa2968ceec",
+        "status": "VERIFIED",
+        "timestamp": "2026-08-15 15:24:07",
+        "details": {
+            "memory_id": "bench-mem-1786787647",
+            "category": "memory",
+            "persona_name": "Prem"
+        }
+    },
+    {
+        "id": "1786787647480",
+        "event_type": "MEMORY_VERIFIED",
+        "hash": "0x99d67b20a945e0ec13d889d7b483ed1da56317debe699338ae4a96ad20516797",
+        "tx_hash": "N/A",
+        "status": "VERIFIED",
+        "timestamp": "2026-08-15 15:24:07",
+        "details": {
+            "memory_id": "bench-mem-1786787647",
+            "blockchain_hash": "0x99d67b20a945e0ec13d889d7b483ed1da56317debe699338ae4a96ad20516797",
+            "local_hash": "0x99d67b20a945e0ec13d889d7b483ed1da56317debe699338ae4a96ad20516797"
+        }
+    },
+    {
+        "id": "1786787647494",
+        "event_type": "MEMORY_VERIFIED",
+        "hash": "0x99d67b20a945e0ec13d889d7b483ed1da56317debe699338ae4a96ad20516797",
+        "tx_hash": "N/A",
+        "status": "VERIFIED",
+        "timestamp": "2026-08-15 15:24:07",
+        "details": {
+            "memory_id": "bench-mem-1786787647",
+            "blockchain_hash": "0x99d67b20a945e0ec13d889d7b483ed1da56317debe699338ae4a96ad20516797",
+            "local_hash": "0x99d67b20a945e0ec13d889d7b483ed1da56317debe699338ae4a96ad20516797"
+        }
+    },
+    {
+        "id": "1786787647507",
+        "event_type": "MEMORY_VERIFIED",
+        "hash": "0x99d67b20a945e0ec13d889d7b483ed1da56317debe699338ae4a96ad20516797",
+        "tx_hash": "N/A",
+        "status": "VERIFIED",
+        "timestamp": "2026-08-15 15:24:07",
+        "details": {
+            "memory_id": "bench-mem-1786787647",
+            "blockchain_hash": "0x99d67b20a945e0ec13d889d7b483ed1da56317debe699338ae4a96ad20516797",
+            "local_hash": "0x99d67b20a945e0ec13d889d7b483ed1da56317debe699338ae4a96ad20516797"
+        }
+    },
+    {
+        "id": "1786787647522",
+        "event_type": "MEMORY_VERIFIED",
+        "hash": "0x99d67b20a945e0ec13d889d7b483ed1da56317debe699338ae4a96ad20516797",
+        "tx_hash": "N/A",
+        "status": "VERIFIED",
+        "timestamp": "2026-08-15 15:24:07",
+        "details": {
+            "memory_id": "bench-mem-1786787647",
+            "blockchain_hash": "0x99d67b20a945e0ec13d889d7b483ed1da56317debe699338ae4a96ad20516797",
+            "local_hash": "0x99d67b20a945e0ec13d889d7b483ed1da56317debe699338ae4a96ad20516797"
+        }
+    },
+    {
+        "id": "1786787647537",
+        "event_type": "MEMORY_VERIFIED",
+        "hash": "0x99d67b20a945e0ec13d889d7b483ed1da56317debe699338ae4a96ad20516797",
+        "tx_hash": "N/A",
+        "status": "VERIFIED",
+        "timestamp": "2026-08-15 15:24:07",
+        "details": {
+            "memory_id": "bench-mem-1786787647",
+            "blockchain_hash": "0x99d67b20a945e0ec13d889d7b483ed1da56317debe699338ae4a96ad20516797",
+            "local_hash": "0x99d67b20a945e0ec13d889d7b483ed1da56317debe699338ae4a96ad20516797"
+        }
+    },
+    {
+        "id": "1786787667238",
+        "event_type": "RESPONSE_PROVENANCE_RECORDED",
+        "hash": "0xa6e085f2a6bdb650072068130a4966b156c35d1a8cc18c824bc1dcb8a9b05ea9",
+        "tx_hash": "0xedef34399eab90ea8b1e480100475951632300c55653a65dbcb0a02319f26f6d",
+        "status": "VERIFIED",
+        "timestamp": "2026-08-15 15:24:27",
+        "details": {
+            "model_name": "tinyllama",
+            "emotion": "sadness",
+            "memory_version": 0
+        }
+    }
+]
