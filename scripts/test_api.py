@@ -21,9 +21,7 @@ class TestVoiceChatAPI(unittest.TestCase):
     def test_chat_endpoint_success(self, mock_post, mock_get_tts):
         # Mock ollama response
         mock_post.return_value.json.return_value = {
-            "message": {
-                "content": "I am here, User."
-            }
+            "response": "I am here, User."
         }
         mock_post.return_value.status_code = 200
         mock_get_tts.return_value.tts_to_file.return_value = None

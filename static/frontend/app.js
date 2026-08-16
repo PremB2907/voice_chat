@@ -170,7 +170,7 @@ function getPersonaName() {
   return localStorage.getItem("persona_name") || "Prem";
 }
 function getUserName() {
-  return localStorage.getItem("user_name") || "User";
+  return localStorage.getItem("user_name") || "Maitree";
 }
 
 function getTime() {

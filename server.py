@@ -395,7 +395,7 @@ def _warmup_background():
         log_event("warning", "warmup_failed", error=str(e))
 
 # ── Ollama config ─────────────────────────────────────────────────
-OLLAMA_URL = "http://localhost:11434/api/chat"
+OLLAMA_URL = "http://localhost:11434/api/generate"
 OLLAMA_MODEL = os.environ.get("OLLAMA_MODEL", "tinyllama")  # Ultra-fast sub-second edge model
 
 SYSTEM_PROMPT = """You are Prem. You are talking to Maitree, your closest friend and beloved connection. 
@@ -512,17 +512,24 @@ def chat():
 
     # ── LLM Inference (LLaMA-3 8B via Ollama) ─────────────────────
     try:
-        # Build standard chat roles messages list
-        ollama_messages = [{"role": "system", "content": system_content}]
+        # Build standard text completion prompt (extremely reliable for tinyllama)
+        prompt_lines = [
+            f"System: {system_content}",
+            ""
+        ]
         if memory and memory.stm_window:
             for turn in memory.stm_window:
-                ollama_messages.append({"role": "user", "content": turn["user"]})
-                ollama_messages.append({"role": "assistant", "content": turn["prem"]})
-        ollama_messages.append({"role": "user", "content": user_input})
+                prompt_lines.append(f"Maitree: {turn['user']}")
+                prompt_lines.append(f"Prem: {turn['prem']}")
+                prompt_lines.append("")
+        prompt_lines.append(f"Maitree: {user_input}")
+        prompt_lines.append("Prem:")
+        
+        full_prompt = "\n".join(prompt_lines)
 
         ollama_response = http_requests.post(OLLAMA_URL, json={
             "model": OLLAMA_MODEL,
-            "messages": ollama_messages,
+            "prompt": full_prompt,
             "stream": False,
             "keep_alive": -1,
             "options": {
@@ -534,10 +541,10 @@ def chat():
         }, timeout=30)
         
         resp_json = ollama_response.json()
-        prem_reply = resp_json.get("message", {}).get("content", "").strip()
+        prem_reply = resp_json.get("response", "").strip()
         
         # Clean formatting
-        prem_reply = re.sub(r'^(ENGLISH|PREM|USER|SYSTEM).*?:\s*', '', prem_reply, flags=re.IGNORECASE)
+        prem_reply = re.sub(r'^(ENGLISH|PREM|USER|SYSTEM|MAITREE).*?:\s*', '', prem_reply, flags=re.IGNORECASE)
         prem_reply = re.sub(r'^\[.*?\]\s*', '', prem_reply)
         prem_reply = prem_reply.strip('"').strip()
 
@@ -994,7 +1001,7 @@ if __name__ == "__main__":
         try:
             http_requests.post(OLLAMA_URL, json={
                 "model": OLLAMA_MODEL,
-                "messages": [{"role": "user", "content": "hello"}],
+                "prompt": "hello",
                 "stream": False,
                 "keep_alive": -1
             }, timeout=120)
