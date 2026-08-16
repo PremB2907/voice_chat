@@ -123,6 +123,7 @@ a {
   justify-content: space-between;
   z-index: 5;
   flex-shrink: 0;
+  height: 100vh;
 }
 
 .sidebar-header {
@@ -251,6 +252,7 @@ a {
   flex-direction: column;
   position: relative;
   overflow: hidden;
+  height: 100vh;
 }
 
 .avatar-view {

@@ -60,18 +60,19 @@
     </nav>
 
     <div class="sidebar-footer">
-      <a href="/step1.html" style="font-family: var(--font-mono); font-size: 8px; font-weight: bold; letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent); border: 1px solid var(--border-subtle); padding: 8px; text-align: center;">← SETUP ONBOARDING</a>
-      <div class="session-duration">
+      <button class="shutdown-btn" id="voice-toggle" style="width: 100%; text-align: center; border-color: var(--accent); color: var(--accent); margin-bottom: 8px; font-weight: bold;">Voice: ON</button>
+      <a href="/step1.html" style="font-family: var(--font-mono); font-size: 8px; font-weight: bold; letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent); border: 1px solid var(--border-subtle); padding: 8px; text-align: center; margin-bottom: 12px; display: block;">← SETUP ONBOARDING</a>
+      <div class="session-duration" style="margin-bottom: 12px;">
         DURATION: <span id="session-clock">00:00</span>
       </div>
-      <button class="shutdown-btn" id="shutdown-btn" title="Stop Server">Shutdown</button>
+      <button class="shutdown-btn" id="shutdown-btn" title="Stop Server" style="width: 100%;">Shutdown</button>
     </div>
   </aside>
 
   <!-- ═══ COLUMN 2: CENTERPIECE 3D AVATAR ═══ -->
   <main class="middle-panel">
     <div class="avatar-view" id="avatar-view">
-      <div id="three-canvas-container"></div>
+      <div id="three-canvas-container" style="width: 100%; height: 100%;"></div>
       <div class="avatar-hint" id="avatar-hint-label">3D Avatar · Lip Synced</div>
       
       <!-- COLLAPSIBLE DEV DEBUG PANEL -->
@@ -375,7 +376,7 @@
           <span class="config-title">Speech Synthesis (XTTS v2)</span>
           <div style="display:flex; justify-content:space-between; align-items:center;">
             <span>Voice Voice Cloner:</span>
-            <button class="trust-btn" id="voice-toggle" style="max-width:120px; padding:6px 12px; margin:0;">Voice: ON</button>
+            <span style="font-family: var(--font-mono); font-size: 11px; color: var(--accent);">Managed in sidebar</span>
           </div>
         </div>
 

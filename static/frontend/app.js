@@ -566,7 +566,7 @@ const voiceToggle = document.getElementById("voice-toggle");
 if (voiceToggle) {
   voiceToggle.addEventListener("click", () => {
     isVoiceOn = !isVoiceOn;
-    voiceToggle.textContent = isVoiceOn ? "🔊" : "🔇";
+    voiceToggle.textContent = isVoiceOn ? "Voice: ON" : "Voice: OFF";
     voiceToggle.title = isVoiceOn ? "Voice Output ON" : "Voice Output OFF";
     showToast(isVoiceOn ? "Voice Output Enabled" : "Voice Output Disabled");
   });
@@ -699,8 +699,8 @@ function initThreeJS() {
   console.log("📐 Container dimensions:", width, "x", height);
   
   scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x060911);
-  scene.fog = new THREE.FogExp2(0x060911, 0.02);
+  scene.background = new THREE.Color(0x0A0A0B);
+  scene.fog = new THREE.FogExp2(0x0A0A0B, 0.02);
 
   camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
   camera.position.set(0, 1.5, 3);
