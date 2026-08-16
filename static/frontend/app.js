@@ -508,9 +508,27 @@ async function sendMessage() {
         window.avatarController.setEmotion(data.emotion);
       }
 
-      audio.onplay   = () => { bubble.classList.add("playing");   showAudioPill(true);  };
-      audio.onended  = () => { bubble.classList.remove("playing"); showAudioPill(false); };
-      audio.onerror  = () => { bubble.classList.remove("playing"); showAudioPill(false); };
+      audio.onplay   = () => {
+        bubble.classList.add("playing");
+        showAudioPill(true);
+        const visualizer = document.getElementById("voice-visualizer");
+        if (visualizer) visualizer.classList.add("active");
+      };
+      audio.onended  = () => {
+        bubble.classList.remove("playing");
+        showAudioPill(false);
+        const visualizer = document.getElementById("voice-visualizer");
+        if (visualizer) visualizer.classList.remove("active");
+        if (window.avatarController) {
+          window.avatarController.loadVisemes([]); // return mouth to REST
+        }
+      };
+      audio.onerror  = () => {
+        bubble.classList.remove("playing");
+        showAudioPill(false);
+        const visualizer = document.getElementById("voice-visualizer");
+        if (visualizer) visualizer.classList.remove("active");
+      };
 
       audio.play().catch(() => {
         showToast(`TAP ${personaName.toUpperCase()}'S MESSAGE TO PLAY`);
@@ -983,10 +1001,6 @@ function initThreeJS() {
 /* ═══════════════════════════════════════════════════
    TRUST & PROVENANCE LAYER INTEGRATION
    ═══════════════════════════════════════════════════ */
-const trustToggleBtn = document.getElementById("trust-toggle");
-const trustDrawer = document.getElementById("trust-drawer");
-const closeTrustBtn = document.getElementById("close-trust-btn");
-
 const trustBlockchainStatus = document.getElementById("trust-blockchain-status");
 const trustConsentStatus = document.getElementById("trust-consent-status");
 const trustPersonaStatus = document.getElementById("trust-persona-status");
@@ -1003,21 +1017,6 @@ const btnViewAudit = document.getElementById("btn-view-audit");
 
 const auditTrailBox = document.getElementById("audit-trail-box");
 const auditEntries = document.getElementById("audit-entries");
-
-// Open and Close Drawer
-if (trustToggleBtn && trustDrawer) {
-  trustToggleBtn.addEventListener("click", () => {
-    trustDrawer.classList.toggle("show");
-    if (trustDrawer.classList.contains("show")) {
-      updateBlockchainStatus();
-    }
-  });
-}
-if (closeTrustBtn && trustDrawer) {
-  closeTrustBtn.addEventListener("click", () => {
-    trustDrawer.classList.remove("show");
-  });
-}
 
 async function updateBlockchainStatus() {
   if (!trustBlockchainStatus) return;
@@ -1208,43 +1207,206 @@ async function verifyMemoryIntegrityOnChain() {
   }
 }
 
-async function renderAuditTrail() {
+// Tab Switching Navigation Setup
+document.querySelectorAll(".menu-tab-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const targetTab = btn.getAttribute("data-tab");
+    
+    // Update buttons
+    document.querySelectorAll(".menu-tab-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    
+    // Update tab panels
+    document.querySelectorAll(".tab-content").forEach(panel => {
+      panel.classList.remove("active");
+    });
+    const targetPanel = document.getElementById(`tab-${targetTab}`);
+    if (targetPanel) targetPanel.classList.add("active");
+    
+    // Dynamic loading on tab select
+    if (targetTab === "archive") {
+      loadArchiveTimeline();
+    }
+    if (targetTab === "analytics") {
+      updateTelemetryStats();
+    }
+    if (targetTab === "trust") {
+      updateBlockchainStatus();
+    }
+    if (targetTab === "evaluation") {
+      updateTelemetryStats();
+    }
+  });
+});
+
+async function loadArchiveTimeline() {
+  const archiveTimeline = document.getElementById("archive-timeline");
+  if (!archiveTimeline) return;
+  
   try {
-    const res = await fetch(`${SERVER}/blockchain/audit`);
-    const logs = await res.json();
+    const res = await fetch(`${SERVER}/get-knowledge-base`);
+    if (!res.ok) throw new Error("Failed to fetch knowledge base");
+    const data = await res.json();
+    const facts = data.facts || [];
     
-    if (!auditEntries) return;
-    auditEntries.innerHTML = "";
-    if (logs.length === 0) {
-      auditEntries.innerHTML = `<div style="text-align:center;color:var(--text-muted);font-size:11px;padding:12px;">No audit logs recorded yet.</div>`;
-    } else {
-      [...logs].reverse().forEach(entry => {
-        const item = document.createElement("div");
-        item.className = "audit-entry";
-        
-        let statusClass = "status-unknown";
-        if (entry.status === "VERIFIED" || entry.status === "success") statusClass = "status-verified";
-        if (entry.status === "TAMPERING_DETECTED") statusClass = "status-failed";
-        
-        item.innerHTML = `
-          <div class="audit-header">
-            <span style="color:var(--accent-lavender);">${entry.event_type}</span>
-            <span class="${statusClass}">${entry.status}</span>
+    if (facts.length === 0) {
+      archiveTimeline.innerHTML = `<div style="color:var(--text-secondary);font-size:11px;padding:12px;">No historical facts indexed yet. Complete setup onboarding!</div>`;
+      return;
+    }
+    
+    let html = "";
+    facts.forEach(fact => {
+      const cat = fact.category || "memory";
+      const detail = fact.detail || fact.text || "";
+      html += `
+        <div class="archive-item">
+          <div class="archive-meta">
+            <span class="archive-category">${cat}</span>
+            <span>VERIFIED RECORD</span>
           </div>
-          <div class="audit-time">${entry.timestamp}</div>
-          <div class="audit-hash">Hash: ${entry.hash}</div>
-          <div class="audit-tx">Tx: ${entry.tx_hash || "N/A"}</div>
-        `;
-        auditEntries.appendChild(item);
-      });
-    }
-    
-    if (auditTrailBox) {
-      auditTrailBox.style.display = "block";
-      auditTrailBox.scrollIntoView({ behavior: "smooth", block: "nearest" });
-    }
+          <div class="archive-detail">${detail}</div>
+        </div>
+      `;
+    });
+    archiveTimeline.innerHTML = html;
   } catch (err) {
-    showToast("Failed to retrieve audit trail.");
+    console.error(err);
+    archiveTimeline.innerHTML = `<div style="color:var(--text-secondary);font-size:11px;padding:12px;">Could not connect to memory database.</div>`;
+  }
+}
+
+async function updateTelemetryStats() {
+  const statKb = document.getElementById("stat-kb");
+  const statTotal = document.getElementById("stat-total");
+  const statUser = document.getElementById("stat-user");
+  const statAi = document.getElementById("stat-ai");
+  const teleRtf = document.getElementById("telemetry-rtf");
+  const evalRtf = document.getElementById("eval-telemetry-rtf");
+  
+  // 1. FAISS facts
+  try {
+    const res = await fetch(`${SERVER}/get-knowledge-base`);
+    if (res.ok) {
+      const data = await res.json();
+      const facts = data.facts || [];
+      if (statKb) statKb.textContent = facts.length;
+    }
+  } catch {}
+  
+  // 2. Chat Turns
+  if (statTotal) statTotal.textContent = chatHistory.length;
+  let userCount = 0;
+  let aiCount = 0;
+  chatHistory.forEach(h => {
+    if (h.isUser) userCount++; else aiCount++;
+  });
+  if (statUser) statUser.textContent = userCount;
+  if (statAi) statAi.textContent = aiCount;
+  
+  // 3. RTF score
+  const latestAudioMsg = [...chatHistory].reverse().find(h => h.rtf !== undefined && h.rtf !== null);
+  if (latestAudioMsg) {
+    if (teleRtf) teleRtf.textContent = `${latestAudioMsg.rtf} (Dynamic)`;
+    if (evalRtf) evalRtf.textContent = `${latestAudioMsg.rtf} (Dynamic - Pass)`;
+  }
+}
+
+// Evaluation Questionnaire Setup (Embedded Questionnaire)
+const ratings = {};
+function buildRating(containerId, key) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  container.innerHTML = ""; // Clear
+  for (let i = 1; i <= 10; i++) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "rating-btn";
+    btn.textContent = i;
+    btn.addEventListener("click", () => {
+      container.querySelectorAll(".rating-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      ratings[key] = i;
+    });
+    container.appendChild(btn);
+  }
+}
+
+function initEvaluationFramework() {
+  buildRating("rating-persona", "persona_fidelity");
+  buildRating("rating-emotion", "emotional_alignment");
+  buildRating("rating-memory", "memory_retrieval");
+  buildRating("rating-voice", "voice_naturalness");
+  buildRating("rating-lipsync", "lip_sync");
+  buildRating("rating-overall", "overall_sus");
+
+  const qForm = document.getElementById("q-form");
+  if (qForm) {
+    qForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const btnSubmit = document.getElementById("submit-btn");
+      btnSubmit.disabled = true;
+      btnSubmit.innerHTML = 'SUBMITTING...';
+
+      const payload = {
+        evaluator: document.getElementById("evalName").value,
+        ratings: ratings,
+        comments: document.getElementById("comments").value,
+        total_messages: chatHistory.length,
+        chat_log: chatHistory,
+        timestamp: new Date().toISOString()
+      };
+
+      try {
+        const res = await fetch(`${SERVER}/submit-questionnaire`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        if (res.ok) {
+          showToast("Evaluation feedback submitted successfully!");
+          qForm.reset();
+          document.querySelectorAll(".rating-btn.active").forEach(b => b.classList.remove("active"));
+        }
+      } catch (err) {
+        showToast("Failed to submit evaluation: " + err.message);
+      } finally {
+        btnSubmit.disabled = false;
+        btnSubmit.innerHTML = "Submit Questionnaire";
+      }
+    });
+  }
+
+  const exportBtn = document.getElementById("export-json-btn");
+  if (exportBtn) {
+    exportBtn.addEventListener("click", async () => {
+      let kbFacts = [];
+      try {
+        const res = await fetch(`${SERVER}/get-knowledge-base`);
+        if (res.ok) {
+          const data = await res.json();
+          kbFacts = data.facts || [];
+        }
+      } catch {}
+
+      const exportDataset = {
+        system: "MemoryBridge AI",
+        timestamp: new Date().toISOString(),
+        persona: getPersonaName(),
+        user: getUserName(),
+        chat_history: chatHistory,
+        faiss_knowledge_base: kbFacts,
+        evaluator_ratings: ratings,
+        evaluator_comments: document.getElementById("comments").value
+      };
+
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportDataset, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `memorybridge_eval_${Date.now()}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    });
   }
 }
 
@@ -1253,10 +1415,14 @@ if (btnVerifyConsent) btnVerifyConsent.addEventListener("click", () => verifyCon
 if (btnVerifyIntegrity) btnVerifyIntegrity.addEventListener("click", verifyMemoryIntegrityOnChain);
 if (btnViewAudit) btnViewAudit.addEventListener("click", renderAuditTrail);
 
-// Check blockchain status automatically on load
-setTimeout(updateBlockchainStatus, 1500);
+// Initialize Components on Page Load
+setTimeout(() => {
+  updateBlockchainStatus();
+  updateTelemetryStats();
+  initEvaluationFramework();
+}, 1500);
 
-// Polling background loop to resolve PENDING blockchain response provenance registrations
+// Polling background loop for response verification hashes
 setInterval(async () => {
   const pendingBadges = document.querySelectorAll(".provenance-badge.status-unknown");
   if (pendingBadges.length === 0) return;

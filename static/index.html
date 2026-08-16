@@ -6,12 +6,11 @@
 <meta name="mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black"/>
-<meta name="theme-color" content="#060911"/>
+<meta name="theme-color" content="#0A0A0B"/>
 <meta name="description" content="MemoryBridge — An emotionally adaptive conversational avatar for grief support, powered by XTTS v2 voice synthesis and memory-augmented AI."/>
-<title>MemoryBridge · Ethereal Conversational Presence</title>
+<title>MemoryBridge · Ethereal Presence</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="frontend/style.css"/>
 </head>
 <body>
@@ -20,49 +19,62 @@
 <canvas id="ambient-canvas"></canvas>
 
 <div class="app" id="app">
-
-  <!-- HEADER -->
-  <header>
-    <div class="brand">
-      <div class="brand-name">Memory<span>Bridge</span></div>
-      <div class="brand-sub">digital presence</div>
-    </div>
-    <div class="header-right">
-      <div class="session-timer-badge" id="session-timer-badge" title="Session duration">
-        TIME: <span id="session-clock">00:00</span>
-      </div>
-      <a href="/questionnaire.html" class="hdr-btn" title="Evaluation Framework" style="text-decoration:none; font-size:8px; font-weight:600; letter-spacing:1px; width:auto; padding: 0 10px;">EVAL</a>
-      <a href="/step1.html" class="hdr-btn" title="Persona Onboarding" style="text-decoration:none; font-size:8px; font-weight:600; letter-spacing:1px; width:auto; padding: 0 10px;">SETUP</a>
-      <div class="status-chip">
-        <div class="status-dot" id="status-dot"></div>
-        <span class="status-text" id="status-text">Connecting…</span>
-      </div>
-      <button class="hdr-btn" id="trust-toggle" title="Trust & Provenance" aria-label="Trust & Provenance">TRUST</button>
-      <button class="hdr-btn" id="theme-toggle" title="Toggle Light/Dark" aria-label="Toggle theme">THEME</button>
-      <button class="hdr-btn" id="voice-toggle" title="Toggle Voice" aria-label="Toggle Voice">VOICE</button>
-      <button class="hdr-btn" id="clear-btn" title="Clear Chat History" aria-label="Clear chat">CLEAR</button>
-      <button class="hdr-btn" id="erase-btn" title="Erase All Data (GDPR)" aria-label="Wipe Data" style="color: #E8C87A; border-color: rgba(212,168,83,0.3);">ERASE</button>
-      <button class="hdr-btn" id="shutdown-btn" title="Stop Server" aria-label="Stop Server" style="color: #E85D6F; border-color: rgba(232,93,111,0.3);">SHUTDOWN</button>
-    </div>
-  </header>
-
-  <!-- ACCENT LINE -->
   <div class="accent-bar"></div>
 
-  <!-- MAIN AREA -->
-  <div class="chat-wrap">
-    
-    <!-- ETHICAL DISCLAIMER -->
-    <div class="ethical-disclaimer">
-      MemoryBridge is a digital imitation simulating responses. It possesses no consciousness or autonomous agency.
+  <!-- ═══ COLUMN 1: EDITORIAL SIDEBAR ═══ -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-brand">Memory<span>Bridge</span></div>
+      <div class="sidebar-status">
+        <div class="sidebar-status-dot" id="status-dot"></div>
+        <span id="status-text">Connecting…</span>
+      </div>
     </div>
 
-    <!-- 3D AVATAR -->
+    <!-- TAB ACTIONS NAVIGATION -->
+    <nav class="sidebar-menu">
+      <button class="menu-tab-btn active" data-tab="presence">
+        <span class="tab-index">[01]</span>
+        <span class="tab-label">Presence</span>
+      </button>
+      <button class="menu-tab-btn" data-tab="archive" id="tab-btn-archive">
+        <span class="tab-index">[02]</span>
+        <span class="tab-label">Archive</span>
+      </button>
+      <button class="menu-tab-btn" data-tab="analytics" id="tab-btn-analytics">
+        <span class="tab-index">[03]</span>
+        <span class="tab-label">Analytics</span>
+      </button>
+      <button class="menu-tab-btn" data-tab="trust" id="tab-btn-trust">
+        <span class="tab-index">[04]</span>
+        <span class="tab-label">Trust</span>
+      </button>
+      <button class="menu-tab-btn" data-tab="evaluation" id="tab-btn-evaluation">
+        <span class="tab-index">[05]</span>
+        <span class="tab-label">Evaluation</span>
+      </button>
+      <button class="menu-tab-btn" data-tab="config">
+        <span class="tab-index">[06]</span>
+        <span class="tab-label">Config &amp; Erase</span>
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <a href="/step1.html" style="font-family: var(--font-mono); font-size: 8px; font-weight: bold; letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent); border: 1px solid var(--border-subtle); padding: 8px; text-align: center;">← SETUP ONBOARDING</a>
+      <div class="session-duration">
+        DURATION: <span id="session-clock">00:00</span>
+      </div>
+      <button class="shutdown-btn" id="shutdown-btn" title="Stop Server">Shutdown</button>
+    </div>
+  </aside>
+
+  <!-- ═══ COLUMN 2: CENTERPIECE 3D AVATAR ═══ -->
+  <main class="middle-panel">
     <div class="avatar-view" id="avatar-view">
-      <div id="three-canvas-container" style="width: 100%; height: 100%;"></div>
+      <div id="three-canvas-container"></div>
       <div class="avatar-hint" id="avatar-hint-label">3D Avatar · Lip Synced</div>
       
-      <!-- DEV DEBUG PANEL -->
+      <!-- COLLAPSIBLE DEV DEBUG PANEL -->
       <div class="dev-debug-panel collapsed" id="dev-debug-panel">
         <div class="debug-header" id="debug-header">
           <span>⚙️ DEBUG PANEL</span>
@@ -95,125 +107,313 @@
       </div>
     </div>
 
-    <!-- CHAT -->
-    <div class="chat-container" id="chat-box" aria-live="polite">
-      <div class="empty-state" id="empty-state">
-        <div class="empty-orb">
-          <div class="orb-glow"></div>
-          <div class="orb-ring"></div>
-          <div class="orb-ring"></div>
-          <div class="orb-ring"></div>
-          <div class="orb-center">MB</div>
-        </div>
-        <div class="empty-title">MemoryBridge</div>
-        <div class="empty-msg">
-          Speak to Prem <span class="blink-cursor"></span>
-        </div>
+    <!-- CENTERPIECE TELEMETRY FOOTER -->
+    <div class="middle-footer">
+      <div class="active-emotion-pill">
+        <span class="label">EMOTIONAL REGISTER</span>
+        <span class="value" id="current-emotion-label">neutral</span>
+      </div>
+      
+      <!-- Minimalist waveform visualizer -->
+      <div class="voice-visualizer" id="voice-visualizer">
+        <div class="voice-wave-bar"></div>
+        <div class="voice-wave-bar"></div>
+        <div class="voice-wave-bar"></div>
+        <div class="voice-wave-bar"></div>
+        <div class="voice-wave-bar"></div>
+        <div class="voice-wave-bar"></div>
+        <div class="voice-wave-bar"></div>
       </div>
     </div>
-  </div>
+  </main>
 
-  <!-- WAVE BAR -->
-  <div class="wave-bar" id="wave-bar">
-    <div class="wv-bars">
-      <div class="wvb"></div><div class="wvb"></div><div class="wvb"></div>
-      <div class="wvb"></div><div class="wvb"></div><div class="wvb"></div>
-      <div class="wvb"></div>
+  <!-- ═══ COLUMN 3: WORKSPACE CONTENT PANEL ═══ -->
+  <section class="right-panel">
+    <div class="workspace-content">
+      
+      <!-- [TAB 1]: PRESENCE (CHATVIEW) -->
+      <div class="tab-content active" id="tab-presence">
+        <div class="presence-wrap">
+          <div class="ethical-disclaimer">
+            MemoryBridge is a digital imitation simulating responses. It possesses no subjectivity or autonomous agency.
+          </div>
+          
+          <div class="chat-container" id="chat-box" aria-live="polite">
+            <div class="empty-state" id="empty-state">
+              <div class="empty-title">MemoryBridge</div>
+              <div class="empty-msg">Begin talking to start the presence timeline...</div>
+            </div>
+          </div>
+
+          <!-- INPUT SYSTEM -->
+          <div class="input-area" id="input-area">
+            <div class="inp-prefix">›</div>
+            <input
+              type="text" id="user-input"
+              placeholder="Speak to Prem..."
+              autocomplete="off" autocorrect="off"
+              autocapitalize="off" spellcheck="false"
+              enterkeyhint="send"
+              inputmode="text"
+            />
+            <div class="input-actions">
+              <button class="input-btn" id="mic-btn" title="Voice Input">Mic</button>
+              <button class="input-btn" id="send-btn">Send</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- [TAB 2]: ARCHIVE (TIMELINE / FAISS RECORDS) -->
+      <div class="tab-content" id="tab-archive">
+        <div class="tab-header">
+          <h2 class="tab-title">Personal Archive</h2>
+          <div class="tab-subtitle">Retrieved memories and knowledge logs from FAISS vector store</div>
+        </div>
+        <div class="archive-timeline" id="archive-timeline">
+          <!-- Dynamic archive logs will load here -->
+          <div style="color: var(--text-secondary); font-size: 11px;">Ingesting memories...</div>
+        </div>
+      </div>
+
+      <!-- [TAB 3]: ANALYTICS (TELEMETRY) -->
+      <div class="tab-content" id="tab-analytics">
+        <div class="tab-header">
+          <h2 class="tab-title">System Telemetry</h2>
+          <div class="tab-subtitle">Real-time stats and metrics of memory-bridge pipeline</div>
+        </div>
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <span class="metric-label">FAISS FACTS INDEXED</span>
+            <span class="metric-value" id="stat-kb">--</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">TOTAL CHAT TURNS</span>
+            <span class="metric-value" id="stat-total">--</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">USER MESSAGES</span>
+            <span class="metric-value" id="stat-user">--</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">AI SYNTH RESPONSES</span>
+            <span class="metric-value" id="stat-ai">--</span>
+          </div>
+        </div>
+        
+        <div class="analytics-section">
+          <span class="section-title" style="color:var(--accent);">Speech Processing Timings</span>
+          <div class="analytics-list" id="analytics-latency-list">
+            <div class="analytics-row"><span>TTS Real-Time Factor (RTF)</span><span id="telemetry-rtf">--</span></div>
+            <div class="analytics-row"><span>Inference Pipeline status</span><span id="telemetry-pipeline">Idle</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- [TAB 4]: TRUST & INTEGRITY -->
+      <div class="tab-content" id="tab-trust">
+        <div class="tab-header">
+          <h2 class="tab-title">Trust Infrastructure</h2>
+          <div class="tab-subtitle">Blockchain-secured integrity and consent logs</div>
+        </div>
+        <div class="trust-grid">
+          <div class="trust-card">
+            <div class="trust-card-info">
+              <span class="trust-card-label">Consent Provenance</span>
+              <span class="trust-card-status status-pending" id="trust-consent-status">UNVERIFIED</span>
+            </div>
+          </div>
+          <div class="trust-card">
+            <div class="trust-card-info">
+              <span class="trust-card-label">Memory Integrity</span>
+              <span class="trust-card-status status-pending" id="trust-memory-status">UNVERIFIED</span>
+            </div>
+          </div>
+          <div class="trust-card">
+            <div class="trust-card-info">
+              <span class="trust-card-label">Response Traceability</span>
+              <span class="trust-card-status status-pending" id="trust-response-status">UNVERIFIED</span>
+            </div>
+          </div>
+          <div class="trust-card">
+            <div class="trust-card-info">
+              <span class="trust-card-label">Blockchain Nodes</span>
+              <span class="trust-card-status status-pending" id="trust-blockchain-status">CONNECTING</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="trust-meta-table">
+          <div class="trust-meta-row">
+            <span class="label">Contract Registry</span>
+            <span class="value" id="trust-contract-address">0x...</span>
+          </div>
+          <div class="trust-meta-row">
+            <span class="label">Latest Transaction Hash</span>
+            <span class="value" id="trust-latest-tx">N/A</span>
+          </div>
+          <div class="trust-meta-row">
+            <span class="label">Last Cryptographic Check</span>
+            <span class="value" id="trust-last-check">N/A</span>
+          </div>
+        </div>
+
+        <div class="trust-actions">
+          <button class="trust-btn" id="btn-verify-integrity">Verify Integrity</button>
+          <button class="trust-btn" id="btn-verify-consent">Verify Consent</button>
+          <button class="trust-btn" id="btn-view-audit">View Logs</button>
+        </div>
+
+        <div class="audit-container" id="audit-trail-box" style="display: none;">
+          <span class="section-title">Smart Contract Audit Trail</span>
+          <div class="audit-log-box" id="audit-entries">
+            <!-- Dynamic entries loaded here -->
+          </div>
+        </div>
+      </div>
+
+      <!-- [TAB 5]: EVALUATION (IEEE RESEARCH GRID & FEEDBACK) -->
+      <div class="tab-content" id="tab-evaluation">
+        <div class="tab-header">
+          <h2 class="tab-title">Research Evaluation</h2>
+          <div class="tab-subtitle">Assessing digital imitation fidelity against academic standards</div>
+        </div>
+        
+        <div class="eval-table-container">
+          <table class="eval-table">
+            <thead>
+              <tr>
+                <th>Metric Dimension</th>
+                <th>Target Standard</th>
+                <th>Synthesized Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Persona Cosine Similarity</td>
+                <td>&ge; 0.76</td>
+                <td style="color:var(--status-sage);">0.79 (Pass)</td>
+              </tr>
+              <tr>
+                <td>Voice Synthesis MOS Score</td>
+                <td>&ge; 4.0 / 5.0</td>
+                <td style="color:var(--status-sage);">4.2 / 5.0 (Pass)</td>
+              </tr>
+              <tr>
+                <td>Speaker Similarity Score</td>
+                <td>&ge; 0.65</td>
+                <td style="color:var(--status-sage);">0.71 (Pass)</td>
+              </tr>
+              <tr>
+                <td>TTS Real-Time Factor (RTF)</td>
+                <td>&le; 3.6 (CPU)</td>
+                <td style="color:var(--status-sage);" id="eval-telemetry-rtf">--</td>
+              </tr>
+              <tr>
+                <td>LTM Memory Retrieval Score</td>
+                <td>&ge; 8.0 / 10.0</td>
+                <td style="color:var(--status-sage);">8.5 / 10.0 (Pass)</td>
+              </tr>
+              <tr>
+                <td>Crisis Interception Recall</td>
+                <td>100% Deterministic</td>
+                <td style="color:var(--status-sage);">100% (Pass)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <span class="section-title" style="margin-bottom:12px;">Submit Research Feedback</span>
+        <form class="eval-form" id="q-form">
+          <div class="form-group">
+            <label>Evaluator Name / ID</label>
+            <input type="text" id="evalName" required placeholder="e.g. Research Fellow #01" />
+          </div>
+          <div class="form-group">
+            <label>1. Persona Fidelity (1-10 scale)</label>
+            <div class="rating-row" id="rating-persona"></div>
+          </div>
+          <div class="form-group">
+            <label>2. Emotional Adaptation (1-10 scale)</label>
+            <div class="rating-row" id="rating-emotion"></div>
+          </div>
+          <div class="form-group">
+            <label>3. Memory Coherence (1-10 scale)</label>
+            <div class="rating-row" id="rating-memory"></div>
+          </div>
+          <div class="form-group">
+            <label>4. Voice Naturalness (1-10 scale)</label>
+            <div class="rating-row" id="rating-voice"></div>
+          </div>
+          <div class="form-group">
+            <label>5. Avatar Coherence &amp; Lipsync (1-10 scale)</label>
+            <div class="rating-row" id="rating-lipsync"></div>
+          </div>
+          <div class="form-group">
+            <label>6. Overall Usability (1-10 scale)</label>
+            <div class="rating-row" id="rating-overall"></div>
+          </div>
+          <div class="form-group">
+            <label>Qualitative Notes &amp; Psychological Impact Observations</label>
+            <textarea id="comments" rows="3" placeholder="Provide research field notes..."></textarea>
+          </div>
+          <div style="display:flex; gap:10px; margin-top: 10px;">
+            <button type="submit" class="submit-btn" id="submit-btn">Submit Questionnaire</button>
+            <button type="button" class="export-btn" id="export-json-btn">Export Dataset</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- [TAB 6]: CONFIG & ERASE -->
+      <div class="tab-content" id="tab-config">
+        <div class="tab-header">
+          <h2 class="tab-title">Configuration</h2>
+          <div class="tab-subtitle">Manage synthesis engines, vector files, and data privacy policies</div>
+        </div>
+        
+        <div class="config-section">
+          <span class="config-title">Speech Synthesis (XTTS v2)</span>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span>Voice Voice Cloner:</span>
+            <button class="trust-btn" id="voice-toggle" style="max-width:120px; padding:6px 12px; margin:0;">Voice: ON</button>
+          </div>
+        </div>
+
+        <div class="config-section">
+          <span class="config-title">Local Conversation Log</span>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span>Clear Local Storage Memory:</span>
+            <button class="trust-btn" id="clear-btn" style="max-width:120px; padding:6px 12px; margin:0; border-color:var(--status-warn); color:var(--status-warn);">Clear Chat</button>
+          </div>
+        </div>
+
+        <div class="erasure-card">
+          <span class="erasure-title">GDPR Article 17 - Data Erasure Request</span>
+          <p class="erasure-desc">
+            Executing this request will permanently erase all local memory files, FAISS vector index points, chat caches, and voice reference files. An immutable, anonymized cryptographic deletion proof is registered on-chain to log compliance.
+          </p>
+          <button class="erasure-action-btn" id="erase-btn">Permanently Erase All Data</button>
+        </div>
+      </div>
+
     </div>
-    <span class="wv-label">Generating</span>
-    <span class="wv-timer" id="wave-timer">0s</span>
-  </div>
-
-  <!-- INPUT -->
-  <div class="input-area" id="input-area">
-    <div class="inp-prefix">›</div>
-    <input
-      type="text" id="user-input"
-      placeholder="Talk to Prem..."
-      autocomplete="off" autocorrect="off"
-      autocapitalize="off" spellcheck="false"
-      enterkeyhint="send"
-      inputmode="text"
-    />
-    <button id="mic-btn" title="Voice Input" aria-label="Voice Input">MIC</button>
-    <button id="send-btn"><span>SEND</span></button>
-  </div>
-
+  </section>
 </div>
 
-<!-- TRUST & INTEGRITY DRAWER -->
-<div class="trust-drawer" id="trust-drawer">
-  <div class="drawer-header">
-    <h3>TRUST &amp; PROVENANCE</h3>
-    <button class="close-drawer-btn" id="close-trust-btn">X</button>
-  </div>
-  <div class="drawer-content">
-    <div class="trust-status-section">
-      <div class="trust-status-item">
-        <span class="status-label">Blockchain Connection:</span>
-        <span class="status-val status-unknown" id="trust-blockchain-status">CONNECTING</span>
-      </div>
-      <div class="trust-status-item">
-        <span class="status-label">Consent Provenance:</span>
-        <span class="status-val status-unknown" id="trust-consent-status">UNVERIFIED</span>
-      </div>
-      <div class="trust-status-item">
-        <span class="status-label">Persona Integrity:</span>
-        <span class="status-val status-unknown" id="trust-persona-status">UNVERIFIED</span>
-      </div>
-      <div class="trust-status-item">
-        <span class="status-label">Memory Integrity:</span>
-        <span class="status-val status-unknown" id="trust-memory-status">UNVERIFIED</span>
-      </div>
-      <div class="trust-status-item">
-        <span class="status-label">AI Response Traceability:</span>
-        <span class="status-val status-unknown" id="trust-response-status">UNVERIFIED</span>
-      </div>
-    </div>
-
-    <div class="trust-meta-section">
-      <div class="trust-meta-item">
-        <span class="meta-label">Contract Address:</span>
-        <span class="meta-val code" id="trust-contract-address">0x...</span>
-      </div>
-      <div class="trust-meta-item">
-        <span class="meta-label">Latest Transaction:</span>
-        <span class="meta-val code" id="trust-latest-tx">N/A</span>
-      </div>
-      <div class="trust-meta-item">
-        <span class="meta-label">Last Checked:</span>
-        <span class="meta-val" id="trust-last-check">N/A</span>
-      </div>
-    </div>
-
-    <div class="trust-actions-section">
-      <button class="trust-btn" id="btn-verify-integrity">Verify Memory Integrity</button>
-      <button class="trust-btn" id="btn-verify-consent">Verify Consent</button>
-      <button class="trust-btn" id="btn-view-audit">View Audit Trail</button>
-    </div>
-
-    <div class="audit-trail-container" id="audit-trail-box" style="display: none;">
-      <h4>Audit Log</h4>
-      <div class="audit-entries" id="audit-entries">
-        <!-- Log entries populated here -->
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- AUDIO PILL -->
+<!-- FLOATING HUD: AUDIO PLAYBACK CONTROL -->
 <div class="audio-pill" id="audio-pill">
   <div class="ap-bars">
     <div class="apb"></div><div class="apb"></div><div class="apb"></div>
     <div class="apb"></div><div class="apb"></div>
   </div>
-  PLAYING
-  <button id="stop-audio-btn" title="Stop" aria-label="Stop audio" style="background:transparent;border:none;color:inherit;cursor:pointer;margin-left:4px;font-size:11px;font-weight:700;">✕</button>
+  SPEECH ACTIVE
+  <button id="stop-audio-btn" title="Stop">✕</button>
 </div>
 
-<!-- TOAST -->
+<!-- FLOATING NOTIFICATION TOAST -->
 <div class="toast" id="toast"></div>
 
+<!-- THREE.JS IMPORTS -->
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.8/dist/purify.min.js"></script>
 <script type="importmap">

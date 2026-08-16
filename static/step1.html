@@ -3,241 +3,216 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MemoryBridge · 4-Stage Persona Onboarding</title>
+    <title>MemoryBridge · Guided Calibration</title>
     <link rel="stylesheet" href="frontend/presentation.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com"/>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
-    <style>
-        .stage-indicator {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 20px;
-        }
-        .stage-badge {
-            flex: 1;
-            padding: 8px;
-            background: rgba(0,0,0,0.1);
-            border: 2px solid var(--black);
-            font-family: 'Space Mono', monospace;
-            font-size: 11px;
-            font-weight: 700;
-            text-align: center;
-            text-transform: uppercase;
-        }
-        .stage-badge.active {
-            background: var(--black);
-            color: var(--yellow);
-        }
-        .stage-card {
-            background: rgba(255,255,255,0.7);
-            border: 3px solid var(--black);
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 4px 4px 0 var(--black);
-        }
-        .stage-title {
-            font-size: 18px;
-            font-weight: 800;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            text-transform: uppercase;
-        }
-        .form-group {
-            margin-bottom: 16px;
-        }
-        .form-group label {
-            display: block;
-            font-size: 13px;
-            font-weight: 700;
-            margin-bottom: 6px;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-        }
-        .form-group input, .form-group textarea, .form-group select {
-            width: 100%;
-            background: #fff;
-            border: 2px solid var(--black);
-            padding: 10px;
-            font-family: inherit;
-            font-size: 14px;
-            color: var(--black);
-            font-weight: 600;
-        }
-        .form-group textarea {
-            resize: vertical;
-            min-height: 80px;
-        }
-        .file-upload-box {
-            border: 2px dashed var(--black);
-            padding: 16px;
-            background: #fff;
-            text-align: center;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        .file-upload-box:hover {
-            background: #fdf8d5;
-        }
-        .save-btn {
-            background: var(--black);
-            color: var(--yellow);
-            border: 3px solid var(--black);
-            padding: 16px 24px;
-            font-size: 18px;
-            font-weight: 800;
-            font-family: 'Space Grotesk', sans-serif;
-            cursor: pointer;
-            width: 100%;
-            text-transform: uppercase;
-            transition: transform 0.2s, box-shadow 0.2s;
-            margin-top: 10px;
-        }
-        .save-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 4px 4px 0 var(--black);
-        }
-        .scrollable-left {
-            overflow-y: auto;
-            max-height: 100%;
-            padding-right: 15px;
-        }
-    </style>
 </head>
 <body>
     <div class="slide-wrapper">
         
-        <!-- LEFT PANE -->
-        <div class="left-pane bg-yellow scrollable-left">
+        <!-- LEFT PANE: GUIDED ONBOARDING STEP PANEL -->
+        <div class="left-pane bg-white">
             <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
-                <div class="step-label">MEMORYBRIDGE · ONBOARDING</div>
-                <a href="/" style="font-family:'Space Mono',monospace; font-size:11px; font-weight:700; color:#0a0a0a; text-decoration:none; border:2px solid #0a0a0a; padding:6px 12px; letter-spacing:2px;">← BACK TO CHAT</a>
+                <div class="step-label">MemoryBridge · Onboarding</div>
+                <a href="/" style="font-family:var(--font-mono); font-size:9px; font-weight:700; color:var(--text-secondary); text-decoration:none; border:1px solid var(--border-subtle); padding:6px 14px; letter-spacing:1px; text-transform:uppercase;">← Back to Chat</a>
             </div>
             
-            <h1 class="title-huge" style="font-size: 48px; margin-bottom: 12px;">PERSONA<br>INGESTION</h1>
-            
-            <p style="margin-bottom: 20px; font-size: 13px; line-height: 1.5; font-weight: 600;">
-                Complete the 4-stage data onboarding process (Section IV-B) to calibrate the MemoryBridge digital imitation persona.
-            </p>
+            <h1 class="title-huge">PERSONA<br>INGESTION</h1>
             
             <div class="stage-indicator">
-                <div class="stage-badge active">1. CONSENT</div>
-                <div class="stage-badge active">2. DATA</div>
-                <div class="stage-badge active">3. PROFILE</div>
-                <div class="stage-badge active">4. LEGAL</div>
+                <div class="stage-badge active" data-step="1">1. CONSENT & POLICY</div>
+                <div class="stage-badge" data-step="2">2. PROFILE CALIBRATION</div>
+                <div class="stage-badge" data-step="3">3. INGESTION FILES</div>
+                <div class="stage-badge" data-step="4">4. PERSONAL CONTEXT</div>
             </div>
             
             <form id="onboarding-form">
-
-                <!-- STAGE 1: CONSENT CONFIGURATION -->
-                <div class="stage-card">
-                    <div class="stage-title">Stage 1: Consent & Privacy Controls</div>
-                    <div class="form-group">
-                        <label>PERMITTED INTERACTION MODES</label>
-                        <select id="consent-mode">
-                            <option value="all">Text, Voice Synthesis & 3D Avatar (Full Pipeline)</option>
-                            <option value="text_voice">Text & Voice Synthesis Only</option>
-                            <option value="text_only">Text Chat Only</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>DATA RETENTION POLICY</label>
-                        <select id="retention-policy">
-                            <option value="local_encrypted">Local AES-256 Encrypted Store (Recommended)</option>
-                            <option value="session_only">Session Only (Purge on Server Restart)</option>
-                        </select>
-                    </div>
-                </div>
-
-                <!-- STAGE 2: DATA UPLOADS -->
-                <div class="stage-card">
-                    <div class="stage-title">Stage 2: Multimodal Data Ingestion</div>
-                    <div class="form-group">
-                        <label>CHAT EXPORT FILE (.TXT, .JSON, .CSV)</label>
-                        <div class="file-upload-box" onclick="document.getElementById('chat-file-input').click()">
-                            <span id="chat-file-label">Click to Upload Chat Messages Export</span>
-                            <input type="file" id="chat-file-input" accept=".txt,.json,.csv" style="display:none;" onchange="handleChatFileUpload(this)">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>VOICE REFERENCE SAMPLE (.WAV, .MP3 — min 6 seconds)</label>
-                        <div class="file-upload-box" onclick="document.getElementById('voice-file-input').click()">
-                            <span id="voice-file-label">Click to Upload Clean Reference Audio</span>
-                            <input type="file" id="voice-file-input" accept=".wav,.mp3" style="display:none;" onchange="handleVoiceFileUpload(this)">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- STAGE 3: PROFILE VERIFICATION -->
-                <div class="stage-card">
-                    <div class="stage-title">Stage 3: Profile & Trait Calibration</div>
-                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-                        <div class="form-group">
-                            <label>DECEASED'S NAME</label>
-                            <input type="text" id="persona-name-input" placeholder="e.g. Prem" required>
-                        </div>
-                        <div class="form-group">
-                            <label>YOUR NAME</label>
-                            <input type="text" id="user-name-input" placeholder="e.g. User" required>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>MBTI PERSONALITY DIMENSION</label>
-                        <select id="mbti-input">
-                            <option value="INFJ">INFJ (Advocate - warm, deeply empathetic)</option>
-                            <option value="ENTP">ENTP (Debater - witty, clever)</option>
-                            <option value="ISFP">ISFP (Adventurer - gentle, poetic)</option>
-                            <option value="ESTJ">ESTJ (Executive - direct, caring but firm)</option>
-                            <option value="ESFP">ESFP (Entertainer - energetic, loving)</option>
-                            <option value="INTP">INTP (Logician - philosophical, quiet)</option>
-                            <option value="ENFJ">ENFJ (Protagonist - charismatic, inspiring)</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>RELATIONSHIP TO USER</label>
-                        <input type="text" id="rel-input" placeholder="e.g. Husband, Sister, Best Friend" required>
-                    </div>
-                    <div class="form-group">
-                        <label>FAVORITE SHARED MEMORIES</label>
-                        <textarea id="memory-input" placeholder="e.g. That rainy evening by the lake, watching the stars..."></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label>CATCHPHRASES, QUIRKS & VOCABULARY</label>
-                        <textarea id="quirks-input" placeholder="e.g. Always called me 'sunshine', used puns, warm laughter..."></textarea>
-                    </div>
-                </div>
-
-                <!-- STAGE 4: LEGAL ACKNOWLEDGEMENT -->
-                <div class="stage-card">
-                    <div class="stage-title">Stage 4: Ethical & Legal Governance</div>
-                    <div class="form-group" style="display: flex; align-items: start; gap: 10px; margin:0;">
-                        <input type="checkbox" id="consent-check" required style="width: 22px; height: 22px; margin-top: 2px; cursor: pointer;">
-                        <label for="consent-check" style="font-size: 11px; font-weight: 600; margin: 0; line-height: 1.5; text-transform:none;">
-                            <strong>DIGITAL IMITATION DISCLOSURE:</strong> I acknowledge that MemoryBridge constructs a <em>digital imitation</em> (Perov et al., 2025) reproducing attested linguistic patterns. The system possesses no subjectivity, consciousness, or autonomous agency, and operates with embedded ethical safeguards.
-                        </label>
-                    </div>
-                </div>
                 
-                <button type="submit" class="save-btn" id="submit-btn">CALIBRATE MEMORYBRIDGE -></button>
+                <!-- STEP 1: CONSENT & POLICY -->
+                <div class="onboarding-step-panel" id="step-panel-1" style="display: flex; flex-direction: column; gap: 16px;">
+                    <div class="stage-card">
+                        <div class="stage-title">Step 1: Consent & Privacy Governance</div>
+                        <div class="form-group">
+                            <label>Permitted Interaction Modes</label>
+                            <select id="consent-mode">
+                                <option value="all">Text, Voice Synthesis & 3D Avatar (Full Pipeline)</option>
+                                <option value="text_voice">Text & Voice Synthesis Only</option>
+                                <option value="text_only">Text Chat Only</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Data Retention Policy</label>
+                            <select id="retention-policy">
+                                <option value="local_encrypted">Local AES-256 Encrypted Store (Recommended)</option>
+                                <option value="session_only">Session Only (Purge on Server Restart)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="stage-card">
+                        <div class="stage-title">Ethical Agreement & Governance</div>
+                        <div class="form-group" style="display: flex; align-items: start; gap: 10px; margin: 0;">
+                            <input type="checkbox" id="consent-check" required style="width: 18px; height: 18px; margin-top: 2px; cursor: pointer;">
+                            <label for="consent-check" style="font-size: 11px; text-transform: none; line-height: 1.5; color: var(--text-secondary);">
+                                I acknowledge that MemoryBridge constructs a digital imitation simulating responses. The system has no autonomy or consciousness, and operates under strict ethical guidelines.
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STEP 2: PROFILE CALIBRATION -->
+                <div class="onboarding-step-panel" id="step-panel-2" style="display: none; flex-direction: column; gap: 16px;">
+                    <div class="stage-card">
+                        <div class="stage-title">Step 2: Profile Details</div>
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+                            <div class="form-group">
+                                <label>Deceased's Name</label>
+                                <input type="text" id="persona-name-input" placeholder="e.g. Prem" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Your Name (Maitree)</label>
+                                <input type="text" id="user-name-input" placeholder="e.g. Maitree" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Relationship Type</label>
+                            <input type="text" id="rel-input" placeholder="e.g. Spouse, Best Friend, Sister" required>
+                        </div>
+                        <div class="form-group">
+                            <label>MBTI Personality Type</label>
+                            <select id="mbti-input">
+                                <option value="INFJ">INFJ (Advocate - warm, deeply empathetic)</option>
+                                <option value="ENTP">ENTP (Debater - witty, clever)</option>
+                                <option value="ISFP">ISFP (Adventurer - gentle, poetic)</option>
+                                <option value="ESTJ">ESTJ (Executive - direct, caring but firm)</option>
+                                <option value="ESFP">ESFP (Entertainer - energetic, loving)</option>
+                                <option value="INTP">INTP (Logician - philosophical, quiet)</option>
+                                <option value="ENFJ">ENFJ (Protagonist - charismatic, inspiring)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STEP 3: FILE INGESTION -->
+                <div class="onboarding-step-panel" id="step-panel-3" style="display: none; flex-direction: column; gap: 16px;">
+                    <div class="stage-card">
+                        <div class="stage-title">Step 3: Document & Audio Logs</div>
+                        <div class="form-group">
+                            <label>Conversation Text Logs (.TXT, .JSON, .CSV)</label>
+                            <div class="file-upload-box" onclick="document.getElementById('chat-file-input').click()">
+                                <span id="chat-file-label">Upload Chat History File</span>
+                                <input type="file" id="chat-file-input" accept=".txt,.json,.csv" style="display:none;" onchange="handleChatFileUpload(this)">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Voice Reference WAV File (min 6s)</label>
+                            <div class="file-upload-box" onclick="document.getElementById('voice-file-input').click()">
+                                <span id="voice-file-label">Upload Voice WAV Reference</span>
+                                <input type="file" id="voice-file-input" accept=".wav,.mp3" style="display:none;" onchange="handleVoiceFileUpload(this)">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STEP 4: PERSONAL CONTEXT -->
+                <div class="onboarding-step-panel" id="step-panel-4" style="display: none; flex-direction: column; gap: 16px;">
+                    <div class="stage-card">
+                        <div class="stage-title">Step 4: Shared Context & Quirks</div>
+                        <div class="form-group">
+                            <label>Favorite Shared Memories</label>
+                            <textarea id="memory-input" rows="3" placeholder="e.g. SAKEC college campus walks, sharing music..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Catchphrases & Speech Patterns</label>
+                            <textarea id="quirks-input" rows="3" placeholder="e.g. Often saying 'listen', calling me by nickname..."></textarea>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="save-btn" id="submit-btn" style="display: none;">Calibrate MemoryBridge -></button>
+                </div>
+
+                <!-- STEP NAVIGATION ACTIONS -->
+                <div class="step-navigation" style="display: flex; gap: 12px; margin-top: 16px; justify-content: flex-end;">
+                    <button type="button" class="save-btn" id="prev-step-btn" style="display: none; max-width: 140px; background: transparent; color: var(--text-primary); border-color: var(--border-subtle);">← Prev</button>
+                    <button type="button" class="save-btn" id="next-step-btn" style="max-width: 140px;">Next →</button>
+                </div>
+
             </form>
         </div>
 
-        <!-- RIGHT PANE -->
+        <!-- RIGHT PANE: BRAND & SYSTEM METRICS -->
         <div class="right-pane bg-black">
-            <div class="rp-text yellow huge" style="font-size: 42px;">MEMORYBRIDGE</div>
+            <div class="rp-text yellow huge">MemoryBridge</div>
             <div class="divider"></div>
-            <div class="rp-text white large" style="font-size: 24px;">ETHICAL AI<br>PERSONA<br>PIPELINE</div>
+            <div class="rp-text white large" style="font-size: 20px;">RESEARCH<br>CALIBRATION<br>FRAMEWORK</div>
             <div class="divider"></div>
-            <div class="rp-text yellow medium" id="status-text" style="letter-spacing: 2px; font-size:16px;">READY FOR CALIBRATION</div>
+            <div class="rp-text yellow medium" id="status-text" style="font-family: var(--font-mono); font-size: 10px; letter-spacing: 1px;">Ready for calibration</div>
         </div>
         
     </div>
 
     <script>
+        // Guided Steps Javascript Controller
+        let currentStep = 1;
+        const totalSteps = 4;
+
+        function showStep(stepNum) {
+            document.querySelectorAll(".onboarding-step-panel").forEach((panel, idx) => {
+                panel.style.display = (idx + 1 === stepNum) ? "flex" : "none";
+            });
+
+            document.querySelectorAll(".stage-badge").forEach((badge, idx) => {
+                if (idx + 1 === stepNum) {
+                    badge.classList.add("active");
+                } else {
+                    badge.classList.remove("active");
+                }
+            });
+
+            document.getElementById("prev-step-btn").style.display = (stepNum === 1) ? "none" : "block";
+            
+            if (stepNum === totalSteps) {
+                document.getElementById("next-step-btn").style.display = "none";
+                document.getElementById("submit-btn").style.display = "block";
+            } else {
+                document.getElementById("next-step-btn").style.display = "block";
+                document.getElementById("submit-btn").style.display = "none";
+            }
+        }
+
+        document.getElementById("next-step-btn").addEventListener("click", () => {
+            if (currentStep === 1) {
+                const checked = document.getElementById("consent-check").checked;
+                if (!checked) {
+                    alert("Please read and accept the Digital Imitation Disclosure to proceed.");
+                    return;
+                }
+            }
+            if (currentStep === 2) {
+                const persona = document.getElementById("persona-name-input").value.trim();
+                const user = document.getElementById("user-name-input").value.trim();
+                if (!persona || !user) {
+                    alert("Both Deceased's Name and Your Name are required parameters.");
+                    return;
+                }
+            }
+            if (currentStep < totalSteps) {
+                currentStep++;
+                showStep(currentStep);
+            }
+        });
+
+        document.getElementById("prev-step-btn").addEventListener("click", () => {
+            if (currentStep > 1) {
+                currentStep--;
+                showStep(currentStep);
+            }
+        });
+
+        // Initialize Step 1
+        showStep(1);
+
         // Load existing configurations from localStorage
         document.getElementById('persona-name-input').value = localStorage.getItem('persona_name') || 'Prem';
-        document.getElementById('user-name-input').value = localStorage.getItem('user_name') || 'User';
+        document.getElementById('user-name-input').value = localStorage.getItem('user_name') || 'Maitree';
         document.getElementById('mbti-input').value = localStorage.getItem('mbti') || 'INFJ';
         document.getElementById('rel-input').value = localStorage.getItem('rel_context') || '';
         document.getElementById('memory-input').value = localStorage.getItem('mem_context') || '';
@@ -246,7 +221,7 @@
         async function handleChatFileUpload(input) {
             if (!input.files || !input.files[0]) return;
             const file = input.files[0];
-            document.getElementById('chat-file-label').innerText = `📄 Uploading ${file.name}...`;
+            document.getElementById('chat-file-label').innerText = `Uploading ${file.name}...`;
             const formData = new FormData();
             formData.append("file", file);
 
@@ -254,20 +229,20 @@
                 const res = await fetch('/upload-chat-export', { method: 'POST', body: formData });
                 const data = await res.json();
                 if (res.ok) {
-                    document.getElementById('chat-file-label').innerText = `✅ Ingested ${data.facts_count} chat turns`;
-                    document.getElementById('status-text').innerText = `INGESTED ${data.facts_count} CHAT FACTS ✓`;
+                    document.getElementById('chat-file-label').innerText = `Ingested ${data.facts_count} chat turns`;
+                    document.getElementById('status-text').innerText = `INGESTED ${data.facts_count} CHAT TURNS ✓`;
                 } else {
-                    document.getElementById('chat-file-label').innerText = `❌ Ingestion failed: ${data.error}`;
+                    document.getElementById('chat-file-label').innerText = `Ingestion failed: ${data.error}`;
                 }
             } catch (err) {
-                document.getElementById('chat-file-label').innerText = `❌ Upload error: ${err.message}`;
+                document.getElementById('chat-file-label').innerText = `Upload error: ${err.message}`;
             }
         }
 
         async function handleVoiceFileUpload(input) {
             if (!input.files || !input.files[0]) return;
             const file = input.files[0];
-            document.getElementById('voice-file-label').innerText = `🎙️ Uploading ${file.name}...`;
+            document.getElementById('voice-file-label').innerText = `Uploading ${file.name}...`;
             const formData = new FormData();
             formData.append("file", file);
 
@@ -275,13 +250,13 @@
                 const res = await fetch('/upload-voice-sample', { method: 'POST', body: formData });
                 const data = await res.json();
                 if (res.ok) {
-                    document.getElementById('voice-file-label').innerText = `✅ Cloned voice sample: ${file.name}`;
-                    document.getElementById('status-text').innerText = `VOICE SAMPLE STORED ✓`;
+                    document.getElementById('voice-file-label').innerText = `Cloned voice sample: ${file.name}`;
+                    document.getElementById('status-text').innerText = `VOICE MODEL SYNCHRONIZED ✓`;
                 } else {
-                    document.getElementById('voice-file-label').innerText = `❌ Upload failed: ${data.error}`;
+                    document.getElementById('voice-file-label').innerText = `Upload failed: ${data.error}`;
                 }
             } catch (err) {
-                document.getElementById('voice-file-label').innerText = `❌ Voice upload error: ${err.message}`;
+                document.getElementById('voice-file-label').innerText = `Voice upload error: ${err.message}`;
             }
         }
 
@@ -305,7 +280,7 @@
             const compiledContext = `Relationship: ${rel}\nMemories: ${mem}\nQuirks: ${quirks}`;
             localStorage.setItem('customContext', compiledContext);
 
-            document.getElementById('status-text').innerText = 'REGISTERING CONSENT ON BLOCKCHAIN...';
+            document.getElementById('status-text').innerText = 'SECURE CONSENT PROVENANCE ON CHAIN...';
             try {
                 const consentMode = document.getElementById('consent-mode').value;
                 const retentionPolicy = document.getElementById('retention-policy').value;
@@ -359,7 +334,7 @@
                 }
                 
                 if (memoriesToBatch.length > 0) {
-                    document.getElementById('status-text').innerText = 'RECORDING MEMORY BATCH ON BLOCKCHAIN...';
+                    document.getElementById('status-text').innerText = 'INGESTING MEMORY LEDGER ON CHAIN...';
                     try {
                         await fetch('/blockchain/memory/batch', {
                             method: 'POST',
@@ -375,8 +350,8 @@
                     }
                 }
                 
-                document.getElementById('status-text').innerText = 'MEMORYBRIDGE PERSONA ACTIVE ✓';
-                document.getElementById('status-text').style.color = '#0f0';
+                document.getElementById('status-text').innerText = 'CALIBRATION COMPLETE';
+                document.getElementById('status-text').style.color = 'var(--status-sage)';
 
                 setTimeout(() => {
                     window.location.href = '/';
@@ -384,7 +359,7 @@
             } catch (err) {
                 console.error('Error saving onboarding data:', err);
                 document.getElementById('status-text').innerText = 'CALIBRATION ERROR';
-                document.getElementById('status-text').style.color = '#f00';
+                document.getElementById('status-text').style.color = 'var(--status-warn)';
             }
         });
     </script>

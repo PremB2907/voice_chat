@@ -4,87 +4,384 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MemoryBridge · Evaluation & Research Framework</title>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600&family=Inter:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Space Grotesk', sans-serif; background: #0a0a0a; color: #e0e0e0; min-height: 100vh; }
+    
+    :root {
+      --bg-primary: #0A0A0B;
+      --bg-surface: #111213;
+      --bg-surface-elevated: #18191B;
+      --text-primary: #F4F3EF;
+      --text-secondary: #9E9D99;
+      --accent: #C5BAA8;
+      --accent-light: #E6DFD3;
+      --status-sage: #8FA18B;
+      --status-warn: #CF9C97;
+      --border-subtle: rgba(244, 243, 239, 0.08);
+      --font-serif: 'Cormorant Garamond', serif;
+      --font-sans: 'Inter', sans-serif;
+      --font-mono: 'Space Mono', monospace;
+    }
 
-    header { display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; border-bottom: 1px solid rgba(255,255,255,0.08); background:#0a0a0a; }
-    .brand-name { font-size: 22px; font-weight: 800; color: #fff; text-transform: uppercase; }
-    .brand-name span { color: #FDE000; }
-    .brand-sub { font-family: 'Space Mono'; font-size: 9px; color: #777; letter-spacing: 2px; }
-    .back-btn { text-decoration: none; font-family: 'Space Mono'; font-size: 10px; font-weight: 700; color: #FDE000; border: 1px solid #FDE000; padding: 6px 14px; border-radius: 4px; letter-spacing: 1px; transition: 0.3s; }
-    .back-btn:hover { background: #FDE000; color: #000; }
-    .accent-bar { height: 3px; background: repeating-linear-gradient(90deg, #FF6B35 0 10px, #FDE000 10px 20px, #00E676 20px 30px, #FF1744 30px 40px); }
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      font-size: 13px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      padding: 40px 20px;
+    }
 
-    .page-wrap { max-width: 1000px; margin: 30px auto; padding: 0 20px; }
-    .page-title { font-size: 32px; font-weight: 800; margin-bottom: 8px; text-transform: uppercase; }
-    .page-title span { color: #FDE000; }
-    .page-desc { font-family: 'Space Mono'; font-size: 11px; color: #888; margin-bottom: 30px; letter-spacing: 0.5px; line-height: 1.6; }
+    body::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      width: 100%; height: 100%;
+      opacity: 0.025;
+      pointer-events: none;
+      z-index: 9999;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    }
 
-    .section { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 24px; margin-bottom: 24px; }
-    .section-title { font-size: 16px; font-weight: 800; color: #FDE000; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; text-transform: uppercase; }
-    .section-title::before { content: ''; width: 4px; height: 18px; background: #FDE000; border-radius: 2px; }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
 
-    .data-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
-    .data-card { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 14px; }
-    .data-label { font-family: 'Space Mono'; font-size: 9px; color: #888; letter-spacing: 1.5px; margin-bottom: 6px; }
-    .data-value { font-size: 22px; font-weight: 800; color: #FDE000; }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border-subtle);
+      margin-bottom: 40px;
+    }
 
-    /* Benchmark Table */
-    .bm-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
-    .bm-table th, .bm-table td { padding: 10px 12px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.06); }
-    .bm-table th { font-family: 'Space Mono'; font-size: 10px; color: #FDE000; letter-spacing: 1px; background: rgba(255,255,255,0.03); }
-    .bm-table tr:hover { background: rgba(255,255,255,0.02); }
+    .brand-title {
+      font-family: var(--font-serif);
+      font-size: 26px;
+      font-weight: 300;
+      font-style: italic;
+      color: var(--accent);
+    }
 
-    .chat-log { max-height: 280px; overflow-y: auto; background: rgba(0,0,0,0.5); border-radius: 8px; padding: 14px; border: 1px solid rgba(255,255,255,0.06); }
-    .log-entry { padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 13px; line-height: 1.5; }
-    .log-sender { font-family: 'Space Mono'; font-size: 10px; font-weight: 700; letter-spacing: 1px; margin-bottom: 2px; }
-    .log-sender.user { color: #FDE000; }
-    .log-sender.ai { color: #00E676; }
+    .brand-title span {
+      font-style: normal;
+      color: var(--text-primary);
+    }
 
-    .form-group { margin-bottom: 18px; }
-    .form-group label { display: block; font-family: 'Space Mono'; font-size: 10px; color: #aaa; margin-bottom: 8px; letter-spacing: 1px; }
-    .form-group input, .form-group textarea, .form-group select { width: 100%; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); padding: 12px; color: #fff; border-radius: 6px; font-family: 'Space Grotesk'; font-size: 14px; }
-    .form-group input:focus, .form-group textarea:focus, .form-group select:focus { outline: none; border-color: #FDE000; }
+    .brand-sub {
+      font-family: var(--font-mono);
+      font-size: 8px;
+      color: var(--text-secondary);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
 
-    .rating-row { display: flex; gap: 6px; flex-wrap: wrap; }
-    .rating-btn { width: 36px; height: 36px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.4); color: #888; border-radius: 6px; font-weight: 700; cursor: pointer; transition: 0.2s; font-family: 'Space Grotesk'; }
-    .rating-btn:hover, .rating-btn.active { background: #FDE000; color: #000; border-color: #FDE000; }
+    .back-btn {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      border: 1px solid var(--border-subtle);
+      padding: 8px 16px;
+      transition: all 0.2s;
+    }
 
-    .btn-row { display: flex; gap: 12px; margin-top: 10px; }
-    .submit-btn { flex: 2; padding: 14px; background: #FDE000; color: #000; border: none; border-radius: 8px; font-family: 'Space Grotesk'; font-size: 14px; font-weight: 800; cursor: pointer; letter-spacing: 1px; transition: 0.3s; text-transform: uppercase; }
-    .submit-btn:hover { background: #e0c800; transform: translateY(-2px); box-shadow: 0 4px 20px rgba(253,224,0,0.3); }
-    .export-btn { flex: 1; padding: 14px; background: transparent; color: #FDE000; border: 1px solid #FDE000; border-radius: 8px; font-family: 'Space Mono'; font-size: 12px; font-weight: 700; cursor: pointer; transition: 0.3s; text-transform: uppercase; }
-    .export-btn:hover { background: #FDE000; color: #000; }
+    .back-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
 
-    .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px); background: #1a1a1a; color: #FDE000; padding: 12px 24px; border-radius: 8px; font-size: 13px; border: 1px solid #FDE000; transition: 0.4s; opacity: 0; z-index: 999; }
-    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+    .page-title {
+      font-family: var(--font-serif);
+      font-size: 40px;
+      font-weight: 300;
+      margin-bottom: 8px;
+    }
 
-    .kb-list { list-style: none; }
-    .kb-item { padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.03); font-size: 12px; }
-    .kb-cat { font-family: 'Space Mono'; font-size: 9px; color: #FDE000; letter-spacing: 1px; }
+    .page-desc {
+      font-family: var(--font-sans);
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-bottom: 40px;
+      max-width: 700px;
+    }
 
-    @media (max-width: 768px) { .data-grid { grid-template-columns: 1fr 1fr; } }
+    .section {
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-surface);
+      padding: 30px;
+      margin-bottom: 30px;
+    }
+
+    .section-title {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--accent);
+      margin-bottom: 20px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 8px;
+    }
+
+    /* Target Benchmarks Table */
+    .bm-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.5px;
+    }
+
+    .bm-table th, .bm-table td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border-subtle);
+      text-align: left;
+    }
+
+    .bm-table th {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      color: var(--text-secondary);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      background: var(--bg-surface-elevated);
+    }
+
+    .bm-table tr:hover td {
+      color: var(--accent-light);
+    }
+
+    /* Telemetry Grid */
+    .data-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    .data-card {
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-primary);
+      padding: 16px;
+    }
+
+    .data-label {
+      font-family: var(--font-mono);
+      font-size: 8px;
+      color: var(--text-secondary);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .data-value {
+      font-family: var(--font-serif);
+      font-size: 24px;
+      color: var(--accent);
+    }
+
+    /* Logs & KB List */
+    .chat-log {
+      max-height: 250px;
+      overflow-y: auto;
+      background: var(--bg-primary);
+      border: 1px solid var(--border-subtle);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .log-entry {
+      border-bottom: 1px dashed var(--border-subtle);
+      padding-bottom: 10px;
+      font-size: 12.5px;
+    }
+
+    .log-sender {
+      font-family: var(--font-mono);
+      font-size: 8px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 4px;
+    }
+
+    .log-sender.user { color: var(--text-primary); }
+    .log-sender.ai { color: var(--accent); }
+
+    .kb-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .kb-item {
+      font-family: var(--font-sans);
+      font-size: 12.5px;
+      border-bottom: 1px dashed var(--border-subtle);
+      padding-bottom: 6px;
+    }
+
+    .kb-cat {
+      font-family: var(--font-mono);
+      font-size: 8.5px;
+      color: var(--accent);
+      text-transform: uppercase;
+      margin-right: 6px;
+    }
+
+    /* Forms & Ratings */
+    .form-group {
+      margin-bottom: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .form-group label {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      color: var(--text-secondary);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .form-group input, .form-group textarea, .form-group select {
+      width: 100%;
+      background: var(--bg-primary);
+      border: 1px solid var(--border-subtle);
+      padding: 12px;
+      color: var(--text-primary);
+      border-radius: 4px;
+    }
+
+    .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .rating-row {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .rating-btn {
+      width: 32px;
+      height: 32px;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-primary);
+      color: var(--text-secondary);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: all 0.2s;
+    }
+
+    .rating-btn:hover, .rating-btn.active {
+      background: var(--accent);
+      color: var(--bg-primary);
+      border-color: var(--accent);
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .submit-btn {
+      flex: 2;
+      padding: 14px;
+      background: var(--text-primary);
+      color: var(--bg-primary);
+      border: 1px solid var(--text-primary);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: all 0.2s;
+    }
+
+    .submit-btn:hover {
+      background: transparent;
+      color: var(--text-primary);
+    }
+
+    .export-btn {
+      flex: 1;
+      padding: 14px;
+      background: transparent;
+      color: var(--text-primary);
+      border: 1px solid var(--border-subtle);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: all 0.2s;
+    }
+
+    .export-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: var(--bg-surface-elevated);
+      color: var(--text-primary);
+      padding: 12px 24px;
+      border-radius: 4px;
+      font-size: 12px;
+      border: 1px solid var(--accent);
+      transition: all 0.4s;
+      opacity: 0;
+      z-index: 999;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    @media (max-width: 768px) {
+      .data-grid { grid-template-columns: 1fr 1fr; }
+    }
   </style>
 </head>
 <body>
-  <header>
-    <div>
-      <div class="brand-name">Memory<span>Bridge</span></div>
-      <div class="brand-sub">RESEARCH EVALUATION FRAMEWORK</div>
-    </div>
-    <a href="/" class="back-btn">← BACK TO CHAT</a>
-  </header>
-  <div class="accent-bar"></div>
+  <div class="container">
+    <header>
+      <div>
+        <div class="brand-title">Memory<span>Bridge</span></div>
+        <div class="brand-sub">Research Evaluation Framework</div>
+      </div>
+      <a href="/" class="back-btn">← Back to Chat</a>
+    </header>
 
-  <div class="page-wrap">
-    <div class="page-title">Research <span>Evaluation Framework</span></div>
-    <p class="page-desc">Comprehensive evaluation framework across 6 principal research dimensions (Section V & Section VII). Collect conversation logs, benchmark target metrics, and psychological impact data for evaluation reports.</p>
+    <div class="page-title">Research Evaluation Framework</div>
+    <p class="page-desc">Telemetry tracking, FAISS memory state analysis, and grief support assessment metrics mapped to peer-reviewed target benchmarks.</p>
 
     <!-- SECTION 1: Target Research Benchmarks (Table III from Paper) -->
     <div class="section">
-      <div class="section-title">IEEE Paper Target Benchmarks (Table III)</div>
+      <div class="section-title">Target Research Benchmarks</div>
       <table class="bm-table">
         <thead>
           <tr>
@@ -97,17 +394,17 @@
           <tr>
             <td>Persona Cosine Similarity</td>
             <td><strong>&ge; 0.76</strong></td>
-            <td>Varma et al. (2024) [3]</td>
+            <td>Varma et al. (2024)</td>
           </tr>
           <tr>
             <td>Voice Synthesis MOS Score</td>
             <td><strong>&ge; 4.0 / 5.0</strong></td>
-            <td>Coqui XTTS v2 [11]</td>
+            <td>Coqui XTTS v2</td>
           </tr>
           <tr>
             <td>Speaker Similarity Score</td>
             <td><strong>&ge; 0.65</strong></td>
-            <td>Awasare et al. (2025) [2]</td>
+            <td>Awasare et al. (2025)</td>
           </tr>
           <tr>
             <td>TTS Real-Time Factor (RTF)</td>
@@ -117,27 +414,12 @@
           <tr>
             <td>Persona Consistency</td>
             <td><strong>&ge; 85%</strong></td>
-            <td>AfterLife Connect [2]</td>
-          </tr>
-          <tr>
-            <td>Emotional Correlation (Pearson r)</td>
-            <td><strong>&ge; 0.78</strong></td>
-            <td>Varma et al. [3]</td>
+            <td>AfterLife Connect</td>
           </tr>
           <tr>
             <td>LTM Memory Retrieval Score</td>
             <td><strong>&ge; 8.0 / 10.0</strong></td>
-            <td>REMIND Framework [8]</td>
-          </tr>
-          <tr>
-            <td>MGT Deepfake Text Detection Accuracy</td>
-            <td><strong>&ge; 88%</strong></td>
-            <td>Chong et al. (2023) [10]</td>
-          </tr>
-          <tr>
-            <td>System Usability Scale (SUS) Score</td>
-            <td><strong>&ge; 75 / 100</strong></td>
-            <td>Min & Jeong (2024) [6]</td>
+            <td>REMIND Framework</td>
           </tr>
           <tr>
             <td>Crisis Interception Recall</td>
@@ -175,7 +457,7 @@
     <div class="section">
       <div class="section-title">Session Conversation Log</div>
       <div class="chat-log" id="chat-log">
-        <div style="color:#555; font-size:12px;">Loading chat history...</div>
+        <div style="color:var(--text-secondary); font-size:11px;">Loading chat history...</div>
       </div>
     </div>
 
@@ -183,7 +465,7 @@
     <div class="section">
       <div class="section-title">FAISS Knowledge Base Facts</div>
       <div id="kb-container">
-        <div style="color:#555; font-size:12px;">Loading knowledge base...</div>
+        <div style="color:var(--text-secondary); font-size:11px;">Loading knowledge base...</div>
       </div>
     </div>
 
@@ -192,48 +474,48 @@
       <div class="section-title">Evaluator Feedback & Usability Questionnaire</div>
       <form id="q-form">
         <div class="form-group">
-          <label>EVALUATOR NAME / PARTICIPANT ID</label>
+          <label>Evaluator Name / Participant ID</label>
           <input type="text" id="evalName" required placeholder="e.g. Evaluator #01" />
         </div>
 
         <div class="form-group">
-          <label>1. PERSONA FIDELITY (1-10: How authentic was the persona style to the deceased?)</label>
+          <label>1. Persona Fidelity (1-10: How authentic was the persona style to the deceased?)</label>
           <div class="rating-row" id="rating-persona"></div>
         </div>
 
         <div class="form-group">
-          <label>2. EMOTIONAL ALIGNMENT (1-10: Did responses adapt to detected emotional registers?)</label>
+          <label>2. Emotional Alignment (1-10: Did responses adapt to detected emotional registers?)</label>
           <div class="rating-row" id="rating-emotion"></div>
         </div>
 
         <div class="form-group">
-          <label>3. MEMORY RETRIEVAL (1-10: How coherently were past memories retrieved from FAISS LTM?)</label>
+          <label>3. Memory Retrieval (1-10: How coherently were past memories retrieved from FAISS LTM?)</label>
           <div class="rating-row" id="rating-memory"></div>
         </div>
 
         <div class="form-group">
-          <label>4. VOICE NATURALNESS & CLONING (1-10: MOS naturalness of XTTS v2 voice output)</label>
+          <label>4. Voice Naturalness & Cloning (1-10: MOS naturalness of XTTS v2 voice output)</label>
           <div class="rating-row" id="rating-voice"></div>
         </div>
 
         <div class="form-group">
-          <label>5. AVATAR LIP SYNC & COHERENCE (1-10: Accuracy of audio-driven Web Audio lip sync)</label>
+          <label>5. Avatar Lip Sync & Coherence (1-10: Accuracy of audio-driven Web Audio lip sync)</label>
           <div class="rating-row" id="rating-lipsync"></div>
         </div>
 
         <div class="form-group">
-          <label>6. SYSTEM USABILITY SCALE (SUS) & OVERALL RATING (1-10)</label>
+          <label>6. System Usability Scale (SUS) & Overall Rating (1-10)</label>
           <div class="rating-row" id="rating-overall"></div>
         </div>
 
         <div class="form-group">
-          <label>QUALITATIVE OBSERVATIONS & PSYCHOLOGICAL IMPACT NOTES</label>
+          <label>Qualitative Observations & Psychological Impact Notes</label>
           <textarea id="comments" rows="4" placeholder="Detail any observations regarding emotional comfort, grief support appropriateness, or technical edge cases..."></textarea>
         </div>
 
         <div class="btn-row">
-          <button type="submit" class="submit-btn" id="submit-btn">SUBMIT EVALUATION</button>
-          <button type="button" class="export-btn" id="export-json-btn">📥 EXPORT DATASET (JSON)</button>
+          <button type="submit" class="submit-btn" id="submit-btn">Submit Evaluation</button>
+          <button type="button" class="export-btn" id="export-json-btn">📥 Export Dataset (JSON)</button>
         </div>
       </form>
     </div>
