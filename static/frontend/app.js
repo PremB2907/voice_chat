@@ -635,17 +635,24 @@ function initThreeJS() {
     return;
   }
 
-  console.log("📐 Container dimensions:", container.clientWidth, "x", container.clientHeight);
+  let width = container.clientWidth;
+  let height = container.clientHeight;
+  if (width === 0 || height === 0) {
+    const rect = container.getBoundingClientRect();
+    width = rect.width || 300;
+    height = rect.height || 500;
+  }
+  console.log("📐 Container dimensions:", width, "x", height);
   
   scene = new THREE.Scene();
   scene.background = new THREE.Color(0x060911);
   scene.fog = new THREE.FogExp2(0x060911, 0.02);
 
-  camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
+  camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
   camera.position.set(0, 1.5, 3);
 
   renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
-  renderer.setSize(container.clientWidth, container.clientHeight);
+  renderer.setSize(width, height);
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.shadowMap.enabled = true;
   container.appendChild(renderer.domElement);
@@ -821,12 +828,21 @@ function initThreeJS() {
   );
 
   // Handle Resize
-  window.addEventListener('resize', () => {
-    if (!container) return;
-    camera.aspect = container.clientWidth / container.clientHeight;
+  // Handle Resize
+  function handleResize() {
+    if (!container || !renderer || !camera) return;
+    const w = container.clientWidth || 300;
+    const h = container.clientHeight || 500;
+    camera.aspect = w / h;
     camera.updateProjectionMatrix();
-    renderer.setSize(container.clientWidth, container.clientHeight);
-  });
+    renderer.setSize(w, h);
+  }
+  window.addEventListener('resize', handleResize);
+  
+  // Late layout triggers to recover from initial 0px canvas sizes
+  window.addEventListener('load', handleResize);
+  setTimeout(handleResize, 500);
+  setTimeout(handleResize, 1500);
 
   // Render Loop — Procedural SALSA Lip Sync + Living Idle Breathing & Sway
   function animate() {
