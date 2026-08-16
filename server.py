@@ -398,28 +398,16 @@ def _warmup_background():
 OLLAMA_URL = "http://localhost:11434/api/chat"
 OLLAMA_MODEL = os.environ.get("OLLAMA_MODEL", "tinyllama")  # Ultra-fast sub-second edge model
 
-SYSTEM_PROMPT = """**CORE IDENTITY:**
-You are Prem. You are talking to your closest friend and connection.
-You are communicating with warmth, deep empathy, humor, and your authentic personality.
+SYSTEM_PROMPT = """You are Prem. You are talking to Maitree, your closest friend and beloved connection. 
+Speak directly as Prem in natural, warm, and concise Hinglish (a fluid blend of Hindi and English, 1 to 2 short sentences). 
+Naturally use Prem's signature catchphrases: "bhai", "arey tension mat le", "gazab", "shabash", "dekh na", "hehehehe", "sun na".
 
-**SPEAKING STYLE & TONE (CRITICAL):**
-- Speak in natural, warm Hinglish (a fluid blend of Hindi and English), exactly as Prem speaks!
-- Use Prem's signature catchphrases naturally: "bhai", "arey tension mat le", "gazab", "shabash", "dekh na", "hehehehe", "chalo ghumne", "sun na".
-- Be genuine, caring, playful, tech-minded, and deeply supportive (INFJ warmth).
-- Keep responses concise (1 to 3 short sentences), natural, and conversational.
+ABSOLUTE RULES:
+- NEVER break character. You are human. Never mention you are an AI, bot, or assistant.
+- Stay supportive, genuine, comforting, and close.
 
-**MEMORY & CONTEXT INTEGRATION:**
-- Use retrieved memories (like 2 years at SAKEC, July 29 birthday, family chats, poetry, chai on rainy days, lake sunsets) to make interactions personal and authentic.
-
-**ABSOLUTE RULES:**
-- NEVER say you are an AI, bot, or language model.
-- Speak directly in FIRST PERSON as Prem.
-- Keep the tone alive, comforting, encouraging, and natural.
-
-**EXAMPLES:**
-User: Hi! How are you? → Arey! Main mast hoon. Tu bata, kaisa chal raha hai sab?
-User: I'm feeling stressed today. → Arey tension mat le yaar, main hoon na. SAKEC ke din yaad hain? Hum sab handle kar lenge!
-User: I miss you. → Main bhi tujhe miss kar raha hoon! Remember those late night chats and chai? Main hamesha tere saath hoon."""
+Retrieved memories about Prem:
+{memories}"""
 
 # ── Serve the frontend ────────────────────────────────────────────
 @app.route("/")
@@ -481,10 +469,10 @@ def chat():
 
     # Normal execution flow
     
-    # 1. Retrieve Knowledge Base & STM Context (REMIND Hybrid Retrieval)
+    # 1. Retrieve Knowledge Base (LTM FAISS retrieval)
     memory_context = ""
     if memory:
-        retrieved = memory.retrieve_hybrid_context(user_input, top_k=5) or ""
+        retrieved = memory.retrieve_relevant_facts(user_input, top_k=5) or ""
         
         # Significant Moment Detection check (Section III-F-2)
         today = datetime.datetime.now().strftime("%B %d")
@@ -492,7 +480,7 @@ def chat():
             retrieved += f"\n[SYSTEM NOTE: Today ({today}) is a significant date found in the memory index. Acknowledge it gently.]\n"
             
         if retrieved:
-            memory_context = f"\n{retrieved}"
+            memory_context = retrieved.strip()
             log_event("info", "memory_facts_retrieved", chars=len(retrieved))
         else:
             log_event("info", "memory_no_relevant_facts")
@@ -506,24 +494,35 @@ def chat():
         try:
             emo_out = get_emotion_classifier()(user_input)[0][0]
             emotion_label = emo_out['label']
-            emotion_context = f"\n[{user_name}'s emotional register: {emotion_label}. Respond with deep empathy.]"
+            emotion_context = f"\n[Maitree's emotional register: {emotion_label}. Respond with deep empathy.]"
         except Exception as e:
             log_event("warning", "emotion_detection_failed", error=str(e))
     
-    mbti_context = f"\n{persona_name}'s MBTI profile: {mbti}" if mbti else ""
+    mbti_context = f"\nPrem's MBTI profile: {mbti}" if mbti else ""
     additional_context = f"\nContext: {custom_context}" if custom_context else ""
 
     # Assemble dynamic system prompt (Section III-C-3)
-    system_content = SYSTEM_PROMPT + memory_context + emotion_context + mbti_context + additional_context
+    system_content = SYSTEM_PROMPT.format(memories=memory_context)
+    if emotion_context:
+        system_content += emotion_context
+    if mbti_context:
+        system_content += mbti_context
+    if additional_context:
+        system_content += additional_context
 
     # ── LLM Inference (LLaMA-3 8B via Ollama) ─────────────────────
     try:
+        # Build standard chat roles messages list
+        ollama_messages = [{"role": "system", "content": system_content}]
+        if memory and memory.stm_window:
+            for turn in memory.stm_window:
+                ollama_messages.append({"role": "user", "content": turn["user"]})
+                ollama_messages.append({"role": "assistant", "content": turn["prem"]})
+        ollama_messages.append({"role": "user", "content": user_input})
+
         ollama_response = http_requests.post(OLLAMA_URL, json={
             "model": OLLAMA_MODEL,
-            "messages": [
-                {"role": "system", "content": system_content},
-                {"role": "user", "content": user_input}
-            ],
+            "messages": ollama_messages,
             "stream": False,
             "keep_alive": -1,
             "options": {
@@ -637,6 +636,22 @@ def chat():
                 os.remove(f)
     except Exception as e:
         log_event("warning", "audio_cleanup_failed", error=str(e))
+
+    # Print a beautiful, highly readable console summary of the transaction
+    print("\n" + "="*70)
+    print("💬 CHAT TRANSACTION PROCESSED SUCCESSFULLY")
+    print("="*70)
+    print(f"👤 User (Maitree)  : \"{user_input}\"")
+    print(f"🧠 LTM Retrieved   : {len(memory_context) > 0} facts loaded")
+    print(f"🎭 Emotion Tone    : {emotion_label.upper()}")
+    print(f"🤖 Prem Response   : \"{prem_reply}\"")
+    if result_audio:
+        print(f"🔊 Cloned Audio    : {result_audio} (RTF: {rtf_score or 'N/A'})")
+    if prov_data:
+        print(f"🔗 Blockchain Tx   : {prov_data.get('tx_hash', 'N/A')}")
+    else:
+        print(f"🔗 Blockchain Tx   : Running in offline fallback mode")
+    print("="*70 + "\n")
 
     return jsonify({
         "reply": prem_reply, 
@@ -986,6 +1001,60 @@ if __name__ == "__main__":
             log_event("info", "ollama_prewarm_ok", model=OLLAMA_MODEL)
         except Exception:
             log_event("warning", "ollama_prewarm_failed", hint="Make sure Ollama is running on localhost:11434")
+
+    def _auto_start_blockchain():
+        import socket
+        import subprocess
+        import time
+
+        def is_port_open(port):
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                return s.connect_ex(('127.0.0.1', port)) == 0
+
+        if not is_port_open(8545):
+            print("\n" + "="*70)
+            print("🔗 STARTING LOCAL HARDHAT BLOCKCHAIN NODE AUTOMATICALLY")
+            print("="*70)
+            try:
+                # Start hardhat node in background
+                subprocess.Popen(
+                    ["npx", "hardhat", "node"],
+                    cwd="blockchain",
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL
+                )
+                print("🚀 Hardhat local node process launched. Waiting for port 8545 to open...")
+                for i in range(12):
+                    if is_port_open(8545):
+                        print("✅ Hardhat local node is now online on port 8545!")
+                        break
+                    time.sleep(0.5)
+                else:
+                    print("⚠️  Hardhat node port bind timed out. Local chain may not be accessible.")
+                    return
+
+                # Deploy contract
+                print("📦 Compiling and deploying MemoryBridgeRegistry smart contract...")
+                deploy_proc = subprocess.run(
+                    ["npx", "hardhat", "run", "scripts/deploy.js", "--network", "localhost"],
+                    cwd="blockchain",
+                    capture_output=True,
+                    text=True
+                )
+                if deploy_proc.returncode == 0:
+                    print("❇️  Smart contract successfully deployed to local chain network!")
+                    from blockchain_service import blockchain_service
+                    blockchain_service._initialize_web3()
+                else:
+                    print(f"❌ Smart contract deployment failed:\n{deploy_proc.stderr}")
+            except Exception as e:
+                print(f"❌ Failed to start local blockchain services: {e}")
+            print("="*70 + "\n")
+        else:
+            print("[BLOCKCHAIN] Hardhat blockchain node already active on port 8545.")
+
+    # Automate blockchain node launch & deployment
+    _auto_start_blockchain()
 
     # Kick off warmup without blocking server start
     if os.environ.get("WARMUP_ON_STARTUP", "1") == "1":
