@@ -2,6 +2,18 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
+// Global error logger to surface import/runtime exceptions to UI
+window.addEventListener('error', (event) => {
+  const file = event.filename ? event.filename.split('/').pop() : 'inline';
+  const errText = `[JS ERROR] ${event.message} at ${file}:${event.lineno || 0}`;
+  console.error(errText);
+  if (typeof showToast === 'function') {
+    showToast(errText, 10000);
+  } else {
+    alert(errText);
+  }
+});
+
 /* ═══════════════════════════════════════════════════
    THREE.JS GLOBAL STATE
 ═══════════════════════════════════════════════════ */
@@ -863,7 +875,7 @@ function initThreeJS() {
       }
 
       // 3. Subtle Head Sway (when not actively speaking)
-      if (window.headBone && (!audio || audio.paused)) {
+      if (window.headBone && (!globalAudio || globalAudio.paused)) {
         const base = window.headBoneBaseRotationY || 0;
         window.headBone.rotation.y = base + Math.sin(elapsedTime * 0.7) * 0.025;
       }
