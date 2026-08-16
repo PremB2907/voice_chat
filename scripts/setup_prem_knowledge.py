@@ -4,8 +4,12 @@ Setup script to populate Prem's Knowledge Base.
 Run this to add initial facts about Prem before starting conversations with User.
 
 Usage:
-    python setup_prem_knowledge.py
+    python scripts/setup_prem_knowledge.py
 """
+
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
 from memory_store import MemoryStore
 

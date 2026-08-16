@@ -2,7 +2,7 @@ import requests
 
 url = "http://localhost:11434/api/chat"
 payload = {
-    "model": "phi",
+    "model": "tinyllama",
     "messages": [
         {"role": "system", "content": "You are Prem. Your birthday is July 29th. You are human. Never break character."},
         {"role": "user", "content": "when is your birthday?"}
@@ -20,7 +20,7 @@ print("-" * 50)
 
 url2 = "http://localhost:11434/api/generate"
 payload2 = {
-    "model": "phi",
+    "model": "tinyllama",
     "prompt": "System: You are Prem, a human being. Your birthday is July 29th. Never mention you are an AI.\nUser: When is your birthday?\nPrem:",
     "stream": False
 }

@@ -44,7 +44,7 @@ cd voice_chat
 
 #### 2. Initialize Knowledge Base
 ```bash
-python setup_prem_knowledge.py
+python scripts/setup_prem_knowledge.py
 ```
 
 #### 3. Run with Docker Compose
@@ -108,7 +108,7 @@ ollama serve  # Start Ollama server on localhost:11434
 
 #### 1. Initialize Knowledge Base (First Time Only)
 ```bash
-python setup_prem_knowledge.py
+python scripts/setup_prem_knowledge.py
 ```
 
 This creates:
@@ -137,6 +137,11 @@ voice_chat/
 ├── server.py                 # Main Flask server & API endpoints
 ├── memory_store.py           # Conversation memory & knowledge management
 ├── scripts/
+│   ├── check_model.py       # Diagnostic script for 3D model pathing
+│   ├── reset_memory.py      # Clears conversation logs & vector caches
+│   ├── setup_prem_knowledge.py # Populates knowledge base
+│   ├── test_ollama.py       # Validates local LLaMA API
+│   ├── setup_ubuntu.sh      # Ubuntu environment configuration script
 │   ├── app.py               # CLI text-to-speech tool
 │   ├── app_emotions.py      # Emotion-aware chat CLI
 │   ├── deepfake_detector.py # Heuristic AI transparency detector
@@ -294,7 +299,7 @@ Run the benchmark suite to analyze overhead metrics (hashing latency, transactio
 Run individual components:
 ```bash
 # Test Ollama connection
-python test_ollama.py
+python scripts/test_ollama.py
 
 # Test TTS
 python scripts/test_tts.py
@@ -303,7 +308,7 @@ python scripts/test_tts.py
 python scripts/test_api.py
 
 # Check model status
-python check_model.py
+python scripts/check_model.py
 ```
 
 ## 📊 Logging
@@ -361,7 +366,7 @@ and filter by fields like `"event"`, `"error"`, `"model"`, etc.
 
 Clear conversation history and memory index:
 ```bash
-python reset_memory.py
+python scripts/reset_memory.py
 ```
 
 ## 🔊 Voice Samples

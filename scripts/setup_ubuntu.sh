@@ -2,8 +2,12 @@
 # MemoryBridge Ubuntu Environment Setup Script
 # Configures Python virtual environment, dependencies, GPU drivers, and Ollama LLaMA-3 model.
 
+# Go to project root directory
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR/.."
+
 echo "============================================================"
-echo "  🚀 MemoryBridge: Ubuntu Hackathon Environment Setup"
+echo "  🚀 MemoryBridge: Ubuntu Environment Setup"
 echo "============================================================"
 echo ""
 
