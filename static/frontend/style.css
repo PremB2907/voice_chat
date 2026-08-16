@@ -1041,3 +1041,117 @@ header {
 .provenance-badge.status-unknown {
   color: #F59E0B;
 }
+
+/* ═══════════════════════════════════════
+   DEV DEBUG PANEL
+   ═══════════════════════════════════════ */
+.dev-debug-panel {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  width: 250px;
+  background: rgba(10, 15, 25, 0.95);
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  z-index: 100;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-normal);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+.dev-debug-panel.collapsed {
+  height: 28px;
+  width: 170px;
+}
+
+.debug-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 10px;
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-subtle);
+  cursor: pointer;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+}
+
+#toggle-debug-btn {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  padding: 2px 6px;
+  font-size: 8px;
+  cursor: pointer;
+}
+
+.debug-content {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.debug-row {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.05);
+  padding-bottom: 4px;
+}
+
+.debug-row .highlight {
+  color: var(--accent-light);
+  font-weight: bold;
+}
+
+.debug-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.section-title {
+  font-weight: bold;
+  color: var(--text-muted);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 2px;
+  margin-bottom: 2px;
+}
+
+.manual-viseme-buttons {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.viseme-test-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-normal);
+  border-radius: 3px;
+  padding: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: var(--mono);
+  font-size: 9px;
+  text-align: center;
+}
+
+.viseme-test-btn:hover {
+  background: var(--accent);
+  border-color: var(--accent-light);
+}
+
+.viseme-test-btn.active {
+  background: var(--accent);
+  border-color: var(--accent-light);
+  font-weight: bold;
+}

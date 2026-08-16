@@ -632,6 +632,13 @@ def chat():
         rtf_score = round(t_synth / est_duration, 2)
         log_event("info", "tts_generated", synthesis_time=round(t_synth, 2), rtf=rtf_score)
         result_audio = filename
+        
+        # Generate lip-sync Visemes for the synthesized audio
+        try:
+            from lipsync_service import lipsync_service
+            lipsync_service.generate_visemes(filepath)
+        except Exception as ex:
+            log_event("warning", "lipsync_generation_failed", error=str(ex))
     except Exception as e:
         log_event("warning", "tts_failed", mode="normal", error=str(e))
     
@@ -665,7 +672,9 @@ def chat():
         "audio": result_audio,
         "rtf": rtf_score,
         "ai_transparency": ai_transparency,
-        "blockchain_provenance": prov_data
+        "blockchain_provenance": prov_data,
+        "lipsync_url": f"/api/avatar/lipsync/{os.path.splitext(result_audio)[0]}" if result_audio else None,
+        "emotion": emotion_label
     })
 
 # ── ADD PREM'S FACTS ENDPOINT ─────────────────────────────────────
@@ -754,6 +763,38 @@ def audio(filename):
     if not os.path.exists(requested):
         abort(404)
     return send_from_directory(base_dir, filename, mimetype="audio/wav")
+
+# ── LIPS_YNC API ENDPOINT ─────────────────────────────────────────
+@app.route("/api/avatar/lipsync/<audio_id>")
+def serve_lipsync(audio_id):
+    # Verify that the JSON exists
+    filename = f"{audio_id}.json"
+    filepath = os.path.join("generated_audio", filename)
+    
+    # Secure path traversal check
+    base_dir = os.path.abspath("generated_audio")
+    requested = os.path.abspath(os.path.join(base_dir, filename))
+    if not requested.startswith(base_dir + os.sep):
+        abort(404)
+
+    if not os.path.exists(requested):
+        # Check if the corresponding WAV exists and try to generate it dynamically
+        wav_filepath = os.path.join("generated_audio", f"{audio_id}.wav")
+        if os.path.exists(wav_filepath):
+            try:
+                from lipsync_service import lipsync_service
+                cues = lipsync_service.generate_visemes(wav_filepath)
+                if cues:
+                    return jsonify(cues)
+            except Exception as e:
+                log_event("warning", "lipsync_dynamic_generation_failed", error=str(e))
+        return jsonify({"error": "Lipsync file not found"}), 404
+        
+    try:
+        with open(filepath, 'r', encoding='utf-8') as f:
+            return jsonify(json.load(f))
+    except Exception as e:
+        return jsonify({"error": f"Failed to read lipsync cues: {e}"}), 500
 
 # ── 3D MODEL ENDPOINT ─────────────────────────────────────────────
 @app.route("/model.glb")

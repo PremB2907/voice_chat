@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { AvatarController } from './avatar_controller.js';
 
 // Global error logger to surface import/runtime exceptions to UI
 window.addEventListener('error', (event) => {
@@ -483,7 +484,30 @@ async function sendMessage() {
     }
 
     if (data.audio) {
-      const audio = setupAudio(`${SERVER}/audio/${data.audio}`);
+      audio = setupAudio(`${SERVER}/audio/${data.audio}`);
+
+      // Load viseme lip-sync cues if present
+      if (data.lipsync_url) {
+        fetch(`${SERVER}${data.lipsync_url}`)
+          .then(res => res.json())
+          .then(cuesData => {
+            if (window.avatarController && cuesData && cuesData.mouthCues) {
+              window.avatarController.loadVisemes(cuesData.mouthCues);
+            }
+          })
+          .catch(err => {
+            console.warn("⚠️ Failed to load lipsync cues. Falling back to RMS volume animation.", err);
+            if (window.avatarController) window.avatarController.loadVisemes([]);
+          });
+      } else if (window.avatarController) {
+        window.avatarController.loadVisemes([]);
+      }
+
+      // Apply emotion state to facial blendshapes
+      if (data.emotion && window.avatarController) {
+        window.avatarController.setEmotion(data.emotion);
+      }
+
       audio.onplay   = () => { bubble.classList.add("playing");   showAudioPill(true);  };
       audio.onended  = () => { bubble.classList.remove("playing"); showAudioPill(false); };
       audio.onerror  = () => { bubble.classList.remove("playing"); showAudioPill(false); };
@@ -804,6 +828,9 @@ function initThreeJS() {
       window.avatarModel = model;
       scene.add(model);
       console.log("🎭 Character model added to scene with T-pose correction & SALSA setup");
+      
+      // Initialize viseme controller
+      window.avatarController = new AvatarController(model, globalAudio);
     },
     (progress) => {
       const percent = Math.round((progress.loaded / progress.total) * 100);
@@ -866,6 +893,9 @@ function initThreeJS() {
 
     // Living Avatar Procedural Animations (when 3D GLB is active)
     if (window.avatarModel) {
+      if (window.avatarController) {
+        window.avatarController.update(delta, elapsedTime);
+      }
       // 1. Natural Breathing (Subtle Y vertical float)
       window.avatarModel.position.y = Math.sin(elapsedTime * 1.5) * 0.012;
 
@@ -890,7 +920,63 @@ function initThreeJS() {
     }
 
     renderer.render(scene, camera);
+    updateDebugHUD();
   }
+
+  function updateDebugHUD() {
+    const debugPanel = document.getElementById("dev-debug-panel");
+    if (!debugPanel || debugPanel.classList.contains("collapsed")) return;
+
+    const controller = window.avatarController;
+    if (!controller) return;
+
+    // Use current playing audio clock
+    const currentAudioTime = (audio && !audio.paused && !audio.ended) ? audio.currentTime : 0;
+    document.getElementById("debug-time").innerText = currentAudioTime.toFixed(2) + "s";
+    document.getElementById("debug-viseme").innerText = controller.activeViseme;
+    document.getElementById("debug-next").innerText = controller.nextViseme;
+    document.getElementById("debug-emotion").innerText = controller.currentEmotion;
+
+    // Display morph weights
+    const weightsContainer = document.getElementById("debug-morph-weights");
+    if (weightsContainer && controller.faceMesh && controller.morphTargets) {
+      let html = "";
+      const keys = ["jawOpen", "mouthClose", "mouthPucker", "mouthFunnel", "eyeBlinkLeft", "eyeBlinkRight"];
+      keys.forEach(k => {
+        const idx = controller.morphTargets[k];
+        if (idx !== undefined) {
+          const val = (controller.morphInfluences[idx] || 0.0).toFixed(2);
+          html += `<div class="debug-row"><span>${k}:</span><span>${val}</span></div>`;
+        }
+      });
+      weightsContainer.innerHTML = html;
+    }
+  }
+
+  // Debug Toggle & Buttons initialization
+  const toggleBtn = document.getElementById("toggle-debug-btn");
+  const debugPanel = document.getElementById("dev-debug-panel");
+  const debugHeader = document.getElementById("debug-header");
+  if (toggleBtn && debugPanel && debugHeader) {
+    const toggle = () => {
+      const isCol = debugPanel.classList.toggle("collapsed");
+      toggleBtn.textContent = isCol ? "SHOW" : "HIDE";
+    };
+    toggleBtn.addEventListener("click", (e) => { e.stopPropagation(); toggle(); });
+    debugHeader.addEventListener("click", toggle);
+  }
+
+  document.querySelectorAll(".viseme-test-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const viseme = btn.getAttribute("data-viseme");
+      if (window.avatarController) {
+        document.querySelectorAll(".viseme-test-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        window.avatarController.forceViseme(viseme);
+      }
+    });
+  });
+
   animate();
 }
 

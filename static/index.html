@@ -61,6 +61,38 @@
     <div class="avatar-view" id="avatar-view">
       <div id="three-canvas-container" style="width: 100%; height: 100%;"></div>
       <div class="avatar-hint" id="avatar-hint-label">3D Avatar · Lip Synced</div>
+      
+      <!-- DEV DEBUG PANEL -->
+      <div class="dev-debug-panel collapsed" id="dev-debug-panel">
+        <div class="debug-header" id="debug-header">
+          <span>⚙️ DEBUG PANEL</span>
+          <button id="toggle-debug-btn">SHOW</button>
+        </div>
+        <div class="debug-content">
+          <div class="debug-row"><span>Audio Time:</span><span id="debug-time">0.00s</span></div>
+          <div class="debug-row"><span>Viseme:</span><span id="debug-viseme" style="color:var(--accent-light); font-weight:bold;">REST</span></div>
+          <div class="debug-row"><span>Next Viseme:</span><span id="debug-next">REST</span></div>
+          <div class="debug-row"><span>Emotion:</span><span id="debug-emotion">neutral</span></div>
+          <div class="debug-section">
+            <span class="section-title">Active Morph Weights</span>
+            <div id="debug-morph-weights"></div>
+          </div>
+          <div class="debug-section">
+            <span class="section-title">Manual Viseme Trigger Test</span>
+            <div class="manual-viseme-buttons">
+              <button class="viseme-test-btn" data-viseme="REST">REST</button>
+              <button class="viseme-test-btn" data-viseme="MBP">MBP</button>
+              <button class="viseme-test-btn" data-viseme="E">E</button>
+              <button class="viseme-test-btn" data-viseme="AE">AE</button>
+              <button class="viseme-test-btn" data-viseme="AA">AA</button>
+              <button class="viseme-test-btn" data-viseme="O">O</button>
+              <button class="viseme-test-btn" data-viseme="U">U</button>
+              <button class="viseme-test-btn" data-viseme="FV">FV</button>
+              <button class="viseme-test-btn" data-viseme="L">L</button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- CHAT -->
