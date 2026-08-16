@@ -1342,5 +1342,24 @@
             "blockchain_hash": "0xca3d1132cb603add343a7bba8a8a53a8d9bbd5c8931d09ba6d1fc128d5f380dc",
             "local_hash": "0xca3d1132cb603add343a7bba8a8a53a8d9bbd5c8931d09ba6d1fc128d5f380dc"
         }
+    },
+    {
+        "event_id": "evt_1deff5ce",
+        "event_type": "RESPONSE_PROVENANCE_REGISTERED",
+        "chain_id": 1337,
+        "contract_address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+        "contract_version": "1.0.0",
+        "transaction_hash": "0x7aa255addce53a3778559265472e30dc037aa0a150d1055da51ed4d5fd0aa368",
+        "block_number": 2,
+        "record_hash": "0xc1a3765f1b89db81eacb4251282b0e54eb8218e50d7a99b2d2a98bb5d971cfcf",
+        "status": "CONFIRMED",
+        "created_at": "2026-08-16 20:54:27",
+        "details": {
+            "model_name": "tinyllama",
+            "emotion": "sadness",
+            "memory_version": 0,
+            "persona_name": "Prem",
+            "user_name": "User"
+        }
     }
 ]
