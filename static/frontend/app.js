@@ -546,10 +546,12 @@ async function sendMessage() {
 }
 
 /* ═══ EVENTS ═══ */
-sendBtn.addEventListener("click", sendMessage);
-userInput.addEventListener("keydown", e => {
-  if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); }
-});
+if (sendBtn) sendBtn.addEventListener("click", sendMessage);
+if (userInput) {
+  userInput.addEventListener("keydown", e => {
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+  });
+}
 
 /* ═══ THEME ═══ */
 let isLight = false;
@@ -573,19 +575,21 @@ if (voiceToggle) {
 }
 
 /* ═══ CLEAR CHAT HISTORY ═══ */
-clearBtn.addEventListener("click", () => {
-  try { globalAudio.pause(); } catch {}
-  showAudioPill(false);
-  chatHistory = [];
-  localStorage.removeItem(HISTORY_KEY);
-  document.querySelectorAll(".bubble.playing").forEach(b => b.classList.remove("playing"));
+if (clearBtn) {
+  clearBtn.addEventListener("click", () => {
+    try { globalAudio.pause(); } catch {}
+    showAudioPill(false);
+    chatHistory = [];
+    localStorage.removeItem(HISTORY_KEY);
+    document.querySelectorAll(".bubble.playing").forEach(b => b.classList.remove("playing"));
 
-  chatBox.innerHTML = `
-    <div class="empty-state" id="empty-state">
-      <div class="empty-title">MemoryBridge</div>
-      <div class="empty-msg">Begin talking to start the presence timeline...</div>
-    </div>`;
-});
+    chatBox.innerHTML = `
+      <div class="empty-state" id="empty-state">
+        <div class="empty-title">MemoryBridge</div>
+        <div class="empty-msg">Begin talking to start the presence timeline...</div>
+      </div>`;
+  });
+}
 
 /* ═══ GDPR ARTICLE 17 ERASE ALL DATA ═══ */
 const eraseBtn = document.getElementById("erase-btn");
@@ -730,7 +734,7 @@ function initThreeJS() {
   console.log("🤖 Attempting to load model from: /model.glb");
   
   loader.load(
-    '/model.glb',
+    '/model.glb?v=3',
     (gltf) => {
       console.log("✅ GLB Model loaded successfully!");
       const model = gltf.scene;
@@ -1499,4 +1503,8 @@ setInterval(async () => {
   }
 }, 3000);
 
-window.addEventListener("DOMContentLoaded", initThreeJS);
+if (document.readyState === "complete" || document.readyState === "interactive") {
+  initThreeJS();
+} else {
+  window.addEventListener("DOMContentLoaded", initThreeJS);
+}
