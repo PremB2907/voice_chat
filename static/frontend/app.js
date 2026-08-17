@@ -1403,6 +1403,8 @@ function initEvaluationFramework() {
       downloadAnchor.remove();
     });
   }
+}
+
 async function renderAuditTrail() {
   try {
     const res = await fetch(`${SERVER}/blockchain/audit`);

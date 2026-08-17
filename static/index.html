@@ -20,6 +20,14 @@
     }
   }
 </script>
+<script>
+  window.jsErrors = [];
+  window.addEventListener('error', (event) => {
+    const file = event.filename ? event.filename.split('/').pop() : 'inline';
+    const errText = `[JS ERROR] ${event.message} at ${file}:${event.lineno || 0}`;
+    window.jsErrors.push(errText);
+  });
+</script>
 </head>
 <body>
 
