@@ -484,7 +484,7 @@ async function sendMessage() {
     }
 
     if (data.audio) {
-      audio = setupAudio(`${SERVER}/audio/${data.audio}`);
+      const audio = setupAudio(`${SERVER}/audio/${data.audio}`);
 
       // Load viseme lip-sync cues if present
       if (data.lipsync_url) {
@@ -949,7 +949,7 @@ function initThreeJS() {
     if (!controller) return;
 
     // Use current playing audio clock
-    const currentAudioTime = (audio && !audio.paused && !audio.ended) ? audio.currentTime : 0;
+    const currentAudioTime = (globalAudio && !globalAudio.paused && !globalAudio.ended) ? globalAudio.currentTime : 0;
     document.getElementById("debug-time").innerText = currentAudioTime.toFixed(2) + "s";
     document.getElementById("debug-viseme").innerText = controller.activeViseme;
     document.getElementById("debug-next").innerText = controller.nextViseme;
