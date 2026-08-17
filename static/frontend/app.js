@@ -582,17 +582,8 @@ clearBtn.addEventListener("click", () => {
 
   chatBox.innerHTML = `
     <div class="empty-state" id="empty-state">
-      <div class="empty-orb">
-        <div class="orb-glow"></div>
-        <div class="orb-ring"></div>
-        <div class="orb-ring"></div>
-        <div class="orb-ring"></div>
-        <div class="orb-center">MB</div>
-      </div>
       <div class="empty-title">MemoryBridge</div>
-      <div class="empty-msg">
-        Speak to ${getPersonaName()} <span class="blink-cursor"></span>
-      </div>
+      <div class="empty-msg">Begin talking to start the presence timeline...</div>
     </div>`;
 });
 
