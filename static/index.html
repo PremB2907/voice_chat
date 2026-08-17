@@ -60,9 +60,11 @@
     </nav>
 
     <div class="sidebar-footer">
-      <button class="shutdown-btn" id="voice-toggle" style="width: 100%; text-align: center; border-color: var(--accent); color: var(--accent); margin-bottom: 8px; font-weight: bold;">Voice: ON</button>
+      <button class="shutdown-btn" id="voice-toggle" style="width: 100%; text-align: center; border-color: var(--accent); color: var(--accent); margin-bottom: 6px; font-weight: bold;">Voice: ON</button>
+      <button class="shutdown-btn" id="clear-btn" style="width: 100%; text-align: center; border-color: var(--text-secondary); color: var(--text-secondary); margin-bottom: 6px; font-weight: bold;">Clear Chat</button>
+      <button class="shutdown-btn" id="erase-btn" style="width: 100%; text-align: center; border-color: var(--status-warn); color: var(--status-warn); margin-bottom: 8px; font-weight: bold;">GDPR Erase</button>
       <a href="/step1.html" style="font-family: var(--font-mono); font-size: 8px; font-weight: bold; letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent); border: 1px solid var(--border-subtle); padding: 8px; text-align: center; margin-bottom: 12px; display: block;">← SETUP ONBOARDING</a>
-      <div class="session-duration" style="margin-bottom: 12px;">
+      <div class="session-duration" style="margin-bottom: 12px; text-align: center;">
         DURATION: <span id="session-clock">00:00</span>
       </div>
       <button class="shutdown-btn" id="shutdown-btn" title="Stop Server" style="width: 100%;">Shutdown</button>
@@ -384,7 +386,7 @@
           <span class="config-title">Local Conversation Log</span>
           <div style="display:flex; justify-content:space-between; align-items:center;">
             <span>Clear Local Storage Memory:</span>
-            <button class="trust-btn" id="clear-btn" style="max-width:120px; padding:6px 12px; margin:0; border-color:var(--status-warn); color:var(--status-warn);">Clear Chat</button>
+            <span style="font-family: var(--font-mono); font-size: 11px; color: var(--accent);">Managed in sidebar</span>
           </div>
         </div>
 
@@ -393,7 +395,7 @@
           <p class="erasure-desc">
             Executing this request will permanently erase all local memory files, FAISS vector index points, chat caches, and voice reference files. An immutable, anonymized cryptographic deletion proof is registered on-chain to log compliance.
           </p>
-          <button class="erasure-action-btn" id="erase-btn">Permanently Erase All Data</button>
+          <span style="font-family: var(--font-mono); font-size: 11px; color: var(--status-warn); font-weight: bold; text-transform: uppercase;">Managed in sidebar</span>
         </div>
       </div>
 

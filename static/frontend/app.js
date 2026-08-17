@@ -1408,6 +1408,47 @@ function initEvaluationFramework() {
       downloadAnchor.remove();
     });
   }
+async function renderAuditTrail() {
+  try {
+    const res = await fetch(`${SERVER}/blockchain/audit`);
+    const logs = await res.json();
+    
+    if (!auditEntries) return;
+    auditEntries.innerHTML = "";
+    if (logs.length === 0) {
+      auditEntries.innerHTML = `<div style="text-align:center;color:var(--text-secondary);font-size:11px;padding:12px;">No audit logs recorded yet.</div>`;
+    } else {
+      [...logs].reverse().forEach(entry => {
+        const item = document.createElement("div");
+        item.className = "audit-entry";
+        
+        let statusClass = "status-unknown";
+        if (entry.status === "VERIFIED" || entry.status === "success") statusClass = "status-verified";
+        if (entry.status === "TAMPERING_DETECTED") statusClass = "status-failed";
+        
+        item.innerHTML = `
+          <div class="audit-header" style="display:flex; justify-content:space-between; font-weight:bold; font-family:var(--font-mono); font-size:10px;">
+            <span style="color:var(--accent);">${entry.event_type}</span>
+            <span class="${statusClass}">${entry.status}</span>
+          </div>
+          <div class="audit-time" style="font-size:9px; color:var(--text-secondary); margin:2px 0;">${entry.timestamp}</div>
+          <div class="audit-hash" style="font-family:var(--font-mono); font-size:8.5px; word-break:break-all;">Hash: ${entry.hash}</div>
+          <div class="audit-tx" style="font-family:var(--font-mono); font-size:8.5px; word-break:break-all; opacity:0.8;">Tx: ${entry.tx_hash || "N/A"}</div>
+        `;
+        item.style.borderBottom = "1px dashed var(--border-subtle)";
+        item.style.paddingBottom = "8px";
+        item.style.marginBottom = "8px";
+        auditEntries.appendChild(item);
+      });
+    }
+    
+    if (auditTrailBox) {
+      auditTrailBox.style.display = "block";
+      auditTrailBox.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  } catch (err) {
+    showToast("Failed to retrieve audit trail.");
+  }
 }
 
 // Bind Buttons
