@@ -340,5 +340,17 @@
         "category": "relationship",
         "detail": "Prem's spirit is bound to User by eternal love",
         "timestamp": "2026-08-16T14:22:35"
+    },
+    {
+        "id": "mem-8e89f23b8799",
+        "category": "personality",
+        "detail": "Prem's MBTI personality dimension is INFJ",
+        "timestamp": "2026-08-17T14:56:37"
+    },
+    {
+        "id": "mem-ce1477206c9b",
+        "category": "relationship",
+        "detail": "Prem had relationship \"Best Friend\" with Maitree",
+        "timestamp": "2026-08-17T14:56:37"
     }
 ]
