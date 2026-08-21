@@ -759,7 +759,7 @@ function initThreeJS() {
   console.log("🤖 Attempting to load model from: /model.glb");
   
   loader.load(
-    '/model.glb?v=3',
+    '/model.glb?v=' + Date.now(),
     (gltf) => {
       console.log("✅ GLB Model loaded successfully!");
       const model = gltf.scene;
