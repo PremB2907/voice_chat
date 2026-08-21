@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MemoryBridge — On-Chain Ledger Explorer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #09090a;
+      --bg-surface: #101011;
+      --bg-surface-elevated: #161618;
+      
+      --text-primary: #eae6df;
+      --text-secondary: #979590;
+      --text-muted: #5e5c58;
+      
+      --accent: #b89047;
+      --accent-light: #eae6df;
+      --border-subtle: rgba(234, 230, 223, 0.08);
+      --border-active: rgba(234, 230, 223, 0.2);
+      --status-warn: #CF9C97;
+
+      --font-sans: 'Inter', sans-serif;
+      --font-mono: 'Space Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      font-size: 13px;
+      line-height: 1.6;
+      padding: 40px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Subtle background noise overlay */
+    body::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      width: 100%; height: 100%;
+      opacity: 0.025;
+      pointer-events: none;
+      z-index: 9999;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1100px;
+      z-index: 10;
+    }
+
+    /* ── HEADER ────────────────────────────────────────────────────────── */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 40px;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 24px;
+    }
+
+    .brand-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .brand-title {
+      font-family: var(--font-mono);
+      font-size: 16px;
+      font-weight: bold;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .brand-subtitle {
+      font-size: 11px;
+      color: var(--text-secondary);
+      letter-spacing: 0.5px;
+    }
+
+    .nav-back-btn {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--text-primary);
+      border: 1px solid var(--border-subtle);
+      padding: 8px 16px;
+      text-decoration: none;
+      transition: all 0.25s;
+      background: var(--bg-surface);
+      cursor: pointer;
+    }
+
+    .nav-back-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      box-shadow: 0 0 10px rgba(184, 144, 71, 0.15);
+    }
+
+    /* ── WIDGET STAT CARDS ──────────────────────────────────────────────── */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 4px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    }
+
+    .stat-label {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      color: var(--text-secondary);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .stat-value {
+      font-family: var(--font-mono);
+      font-size: 20px;
+      font-weight: bold;
+      color: var(--accent);
+      word-break: break-all;
+    }
+
+    .stat-desc {
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    /* ── CHAIN VISUALIZER ───────────────────────────────────────────────── */
+    .section-title {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: bold;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .visualizer-wrapper {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 4px;
+      padding: 24px;
+      margin-bottom: 30px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    }
+
+    .blockchain-visualizer {
+      display: flex;
+      align-items: stretch;
+      gap: 12px;
+      overflow-x: auto;
+      padding: 10px 0 20px 0;
+      scrollbar-width: thin;
+      scrollbar-color: var(--accent) var(--bg-surface-elevated);
+    }
+
+    .blockchain-visualizer::-webkit-scrollbar {
+      height: 6px;
+    }
+    .blockchain-visualizer::-webkit-scrollbar-track {
+      background: var(--bg-surface-elevated);
+    }
+    .blockchain-visualizer::-webkit-scrollbar-thumb {
+      background: var(--accent);
+      border-radius: 3px;
+    }
+
+    .blockchain-block {
+      flex: 0 0 180px;
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: 4px;
+      padding: 14px;
+      position: relative;
+      font-family: var(--font-mono);
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .blockchain-block:hover {
+      border-color: var(--accent);
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(184, 144, 71, 0.25);
+      background: rgba(184, 144, 71, 0.03);
+    }
+
+    .blockchain-block.selected {
+      border-color: var(--accent);
+      box-shadow: 0 0 12px rgba(184, 144, 71, 0.3);
+      background: rgba(184, 144, 71, 0.05);
+    }
+
+    .blockchain-block-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      border-bottom: 1px solid rgba(234, 230, 223, 0.08);
+      padding-bottom: 6px;
+      font-size: 8px;
+      letter-spacing: 0.5px;
+    }
+
+    .blockchain-block-index {
+      background: rgba(184, 144, 71, 0.15);
+      color: var(--accent);
+      padding: 2px 5px;
+      border-radius: 2px;
+      font-weight: bold;
+      font-size: 8.5px;
+    }
+
+    .blockchain-block-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
+    .blockchain-block-dot.verified {
+      background: var(--accent);
+      box-shadow: 0 0 8px var(--accent);
+    }
+    .blockchain-block-dot.failed {
+      background: var(--status-warn);
+      box-shadow: 0 0 8px var(--status-warn);
+    }
+    .blockchain-block-dot.pending {
+      background: var(--text-secondary);
+    }
+
+    .blockchain-block-body {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .blockchain-block-type {
+      font-size: 9px;
+      font-weight: bold;
+      text-transform: uppercase;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .blockchain-block-time {
+      font-size: 8px;
+      color: var(--text-secondary);
+    }
+
+    .blockchain-block-hash {
+      font-size: 8px;
+      color: var(--text-muted);
+      word-break: break-all;
+      margin-top: 4px;
+    }
+
+    .blockchain-connector {
+      flex: 0 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      font-size: 14px;
+      font-family: var(--font-mono);
+      user-select: none;
+    }
+
+    /* ── BLOCK INSPECTOR ────────────────────────────────────────────────── */
+    .block-inspector-panel {
+      margin-top: 20px;
+      padding: 20px;
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: 4px;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .block-inspector-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 10px;
+      margin-bottom: 16px;
+    }
+
+    .block-inspector-title {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: bold;
+      color: var(--accent);
+    }
+
+    .block-inspector-close {
+      cursor: pointer;
+      color: var(--text-secondary);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      border: 1px solid var(--border-subtle);
+      padding: 3px 8px;
+      border-radius: 2px;
+      transition: all 0.2s;
+    }
+
+    .block-inspector-close:hover {
+      color: var(--status-warn);
+      border-color: var(--status-warn);
+    }
+
+    .block-inspector-row {
+      display: flex;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(234, 230, 223, 0.04);
+      font-family: var(--font-mono);
+      font-size: 10px;
+    }
+
+    .block-inspector-row .label {
+      width: 160px;
+      color: var(--text-secondary);
+      flex-shrink: 0;
+    }
+
+    .block-inspector-row .value {
+      color: var(--text-primary);
+      word-break: break-all;
+    }
+
+    .block-inspector-row .copy-btn {
+      margin-left: 8px;
+      cursor: pointer;
+      color: var(--accent);
+      opacity: 0.7;
+      transition: opacity 0.2s;
+      display: inline-block;
+    }
+    .block-inspector-row .copy-btn:hover {
+      opacity: 1;
+    }
+
+    .block-inspector-json {
+      margin-top: 16px;
+      padding: 12px;
+      background: var(--bg-primary);
+      border: 1px dashed var(--border-subtle);
+      border-radius: 3px;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      color: var(--accent);
+      white-space: pre-wrap;
+    }
+
+    /* ── TRANSACTIONS TABLE ─────────────────────────────────────────────── */
+    .ledger-table-wrap {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 4px;
+      padding: 24px;
+      margin-bottom: 40px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: var(--font-mono);
+      font-size: 10px;
+    }
+
+    th, td {
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    th {
+      color: var(--text-secondary);
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      background: var(--bg-surface-elevated);
+    }
+
+    td {
+      color: var(--text-primary);
+    }
+
+    tr:hover td {
+      background: rgba(184, 144, 71, 0.02);
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 2px;
+      font-size: 8px;
+      font-weight: bold;
+    }
+
+    .status-badge.verified {
+      background: rgba(184, 144, 71, 0.15);
+      color: var(--accent);
+    }
+
+    .status-badge.failed {
+      background: rgba(207, 156, 151, 0.15);
+      color: var(--status-warn);
+    }
+
+    .status-badge.pending {
+      background: rgba(151, 149, 144, 0.15);
+      color: var(--text-secondary);
+    }
+
+    /* ── TOAST NOTIFICATIONS ────────────────────────────────────────────── */
+    #toast {
+      visibility: hidden;
+      min-width: 250px;
+      background-color: var(--bg-surface-elevated);
+      color: var(--text-primary);
+      text-align: center;
+      border: 1px solid var(--accent);
+      padding: 12px 24px;
+      position: fixed;
+      z-index: 10000;
+      bottom: 30px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.5px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+
+    #toast.show {
+      visibility: visible;
+      animation: fadein 0.3s, fadeout 0.3s 2.7s;
+    }
+
+    @keyframes fadein {
+      from { bottom: 0; opacity: 0; }
+      to { bottom: 30px; opacity: 1; }
+    }
+    @keyframes fadeout {
+      from { bottom: 30px; opacity: 1; }
+      to { bottom: 0; opacity: 0; }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="brand-group">
+        <h1 class="brand-title">MemoryBridge Ledger</h1>
+        <div class="brand-subtitle">Smart Contract Audit & Integrity Registry</div>
+      </div>
+      <a href="/" class="nav-back-btn">← Back to Timeline</a>
+    </header>
+
+    <!-- WIDGET TELEMETRY CARDS -->
+    <div class="dashboard-grid">
+      <div class="stat-card">
+        <span class="stat-label">Secure Blocks</span>
+        <span class="stat-value" id="stat-blocks-count">--</span>
+        <span class="stat-desc">Total cryptographic nodes verified</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Registry Contract</span>
+        <span class="stat-value" id="stat-contract-address" style="font-size: 11px;">0x...</span>
+        <span class="stat-desc">Active contract deployment target</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Subnet Chain Status</span>
+        <span class="stat-value" id="stat-chain-status">CONNECTING</span>
+        <span class="stat-desc">Hardhat local instance verification</span>
+      </div>
+    </div>
+
+    <!-- CHAIN TIMELINE VISUALIZER -->
+    <span class="section-title">Block Chain Sequence</span>
+    <div class="visualizer-wrapper">
+      <div class="blockchain-visualizer" id="chain-container">
+        <div style="text-align:center;color:var(--text-secondary);font-size:11px;padding:20px;width:100%;">Connecting to local trust node...</div>
+      </div>
+
+      <div class="block-inspector-panel" id="block-inspector" style="display: none;">
+        <!-- Detailed visual block metadata -->
+      </div>
+    </div>
+
+    <!-- RECENT TRANSACTIONS LEDGER TABLE -->
+    <span class="section-title">On-Chain Audit Records</span>
+    <div class="ledger-table-wrap">
+      <table id="ledger-table">
+        <thead>
+          <tr>
+            <th>Block</th>
+            <th>Event Type</th>
+            <th>Block Hash</th>
+            <th>Transaction Hash</th>
+            <th>Timestamp</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="ledger-rows">
+          <tr>
+            <td colspan="6" style="text-align:center; color:var(--text-secondary); padding:20px;">Fetching audit trail logs...</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+  <script>
+    const SERVER = window.location.origin;
+
+    function showToast(msg) {
+      const toast = document.getElementById("toast");
+      toast.textContent = msg;
+      toast.className = "show";
+      setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
+    }
+
+    async function loadExplorerData() {
+      try {
+        // 1. Fetch blockchain status details
+        const statusRes = await fetch(`${SERVER}/blockchain/status`);
+        if (statusRes.ok) {
+          const statusData = await statusRes.json();
+          document.getElementById("stat-contract-address").textContent = statusData.contract_address || "N/A";
+          document.getElementById("stat-contract-address").title = statusData.contract_address || "";
+          
+          if (statusData.connected) {
+            document.getElementById("stat-chain-status").textContent = "CONNECTED";
+            document.getElementById("stat-chain-status").style.color = "var(--accent)";
+          } else {
+            document.getElementById("stat-chain-status").textContent = "OFFLINE";
+            document.getElementById("stat-chain-status").style.color = "var(--status-warn)";
+          }
+        }
+
+        // 2. Fetch blockchain audit trail logs
+        const auditRes = await fetch(`${SERVER}/blockchain/audit`);
+        if (!auditRes.ok) throw new Error("Failed to fetch logs");
+        const logs = await auditRes.json();
+
+        // Update block count widget
+        document.getElementById("stat-blocks-count").textContent = logs.length + " Blocks";
+
+        // Render chain & table rows
+        renderChain(logs);
+        renderTable(logs);
+
+      } catch (err) {
+        console.error(err);
+        showToast("Error connecting to Blockchain trust provider.");
+      }
+    }
+
+    function renderChain(logs) {
+      const container = document.getElementById("chain-container");
+      container.innerHTML = "";
+
+      if (logs.length === 0) {
+        container.innerHTML = `<div style="text-align:center;color:var(--text-secondary);font-size:11px;padding:20px;width:100%;">No blocks registered on-chain yet.</div>`;
+        return;
+      }
+
+      // Sort logs ascending chronologically by block number
+      const sorted = [...logs].sort((a, b) => (a.block_number || 0) - (b.block_number || 0));
+
+      sorted.forEach((entry, idx) => {
+        const block = document.createElement("div");
+        block.className = "blockchain-block";
+        block.id = `block-${entry.event_id || idx}`;
+
+        let statusClass = "pending";
+        if (entry.status === "VERIFIED" || entry.status === "success" || entry.status === "CONFIRMED") {
+          statusClass = "verified";
+        } else if (entry.status === "FAILED") {
+          statusClass = "failed";
+        }
+
+        const blockNum = entry.block_number !== undefined && entry.block_number !== null ? `#${entry.block_number}` : `Tx-${idx}`;
+        const shortHash = entry.hash ? (entry.hash.substring(0, 10) + "...") : "N/A";
+
+        block.innerHTML = `
+          <div class="blockchain-block-header">
+            <span class="blockchain-block-index">BLOCK ${blockNum}</span>
+            <span class="blockchain-block-dot ${statusClass}" title="Status: ${entry.status}"></span>
+          </div>
+          <div class="blockchain-block-body">
+            <div class="blockchain-block-type" title="${entry.event_type}">${entry.event_type.replace(/_/g, ' ')}</div>
+            <div class="blockchain-block-time">${entry.timestamp || entry.created_at || "N/A"}</div>
+            <div class="blockchain-block-hash">Hash: ${shortHash}</div>
+          </div>
+        `;
+
+        block.addEventListener("click", () => {
+          document.querySelectorAll(".blockchain-block").forEach(b => b.classList.remove("selected"));
+          block.classList.add("selected");
+          inspectBlock(entry, blockNum);
+        });
+
+        container.appendChild(block);
+
+        // Add linkage arrow if not last block
+        if (idx < sorted.length - 1) {
+          const arrow = document.createElement("div");
+          arrow.className = "blockchain-connector";
+          arrow.innerHTML = "⇢";
+          container.appendChild(arrow);
+        }
+      });
+
+      // Auto scroll visualizer row to the latest block
+      setTimeout(() => {
+        container.scrollLeft = container.scrollWidth;
+      }, 100);
+    }
+
+    function inspectBlock(entry, blockNum) {
+      const inspector = document.getElementById("block-inspector");
+      inspector.style.display = "block";
+
+      let jsonHtml = "";
+      if (entry.details) {
+        jsonHtml = `<div class="block-inspector-json">${JSON.stringify(entry.details, null, 2)}</div>`;
+      }
+
+      inspector.innerHTML = `
+        <div class="block-inspector-header">
+          <span class="block-inspector-title">Block ${blockNum} Metadata Details</span>
+          <span class="block-inspector-close" id="close-inspector">CLOSE</span>
+        </div>
+        <div class="block-inspector-row">
+          <span class="label">Event Type:</span>
+          <span class="value">${entry.event_type}</span>
+        </div>
+        <div class="block-inspector-row">
+          <span class="label">Ledger Status:</span>
+          <span class="value" style="font-weight:bold; color:var(--accent); text-transform:uppercase;">${entry.status}</span>
+        </div>
+        <div class="block-inspector-row">
+          <span class="label">Record Hash:</span>
+          <span class="value">${entry.hash || entry.record_hash || "N/A"}</span>
+        </div>
+        <div class="block-inspector-row">
+          <span class="label">Transaction Hash:</span>
+          <span class="value">
+            ${entry.tx_hash || "Offline Mode Sim"}
+            ${entry.tx_hash ? `<span class="copy-btn" id="copy-inspect-tx" title="Copy Tx Hash">⎘</span>` : ""}
+          </span>
+        </div>
+        <div class="block-inspector-row">
+          <span class="label">Contract Address:</span>
+          <span class="value">${entry.contract_address || "N/A"}</span>
+        </div>
+        <div class="block-inspector-row">
+          <span class="label">Block Timestamp:</span>
+          <span class="value">${entry.timestamp || entry.created_at || "N/A"}</span>
+        </div>
+        ${jsonHtml}
+      `;
+
+      document.getElementById("close-inspector").addEventListener("click", () => {
+        inspector.style.display = "none";
+        document.querySelectorAll(".blockchain-block").forEach(b => b.classList.remove("selected"));
+      });
+
+      const copyBtn = document.getElementById("copy-inspect-tx");
+      if (copyBtn && entry.tx_hash) {
+        copyBtn.addEventListener("click", () => {
+          navigator.clipboard.writeText(entry.tx_hash);
+          showToast("Transaction hash copied to clipboard.");
+        });
+      }
+
+      inspector.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function renderTable(logs) {
+      const tbody = document.getElementById("ledger-rows");
+      tbody.innerHTML = "";
+
+      if (logs.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-secondary); padding:20px;">No blocks recorded in local file index.</td></tr>`;
+        return;
+      }
+
+      // Render reversed chronological order (latest transactions first in the audit table)
+      [...logs].reverse().forEach((entry, idx) => {
+        const tr = document.createElement("tr");
+        const blockNum = entry.block_number !== undefined && entry.block_number !== null ? `#${entry.block_number}` : `Tx-${logs.length - 1 - idx}`;
+        
+        let statusBadgeClass = "pending";
+        let statusBadgeText = "Pending";
+        if (entry.status === "VERIFIED" || entry.status === "success" || entry.status === "CONFIRMED") {
+          statusBadgeClass = "verified";
+          statusBadgeText = "Confirmed";
+        } else if (entry.status === "FAILED") {
+          statusBadgeClass = "failed";
+          statusBadgeText = "Failed";
+        }
+
+        const shortHash = entry.hash ? (entry.hash.substring(0, 14) + "...") : "N/A";
+        const shortTx = entry.tx_hash ? (entry.tx_hash.substring(0, 14) + "...") : "N/A";
+
+        tr.innerHTML = `
+          <td><strong>${blockNum}</strong></td>
+          <td><span style="color:var(--accent); font-weight:bold;">${entry.event_type.replace(/_/g, ' ')}</span></td>
+          <td title="${entry.hash || ''}">${shortHash}</td>
+          <td title="${entry.tx_hash || ''}">${shortTx}</td>
+          <td>${entry.timestamp || entry.created_at || "N/A"}</td>
+          <td><span class="status-badge ${statusBadgeClass}">${statusBadgeText}</span></td>
+        `;
+        
+        tbody.appendChild(tr);
+      });
+    }
+
+    window.addEventListener("DOMContentLoaded", loadExplorerData);
+  </script>
+</body>
+</html>

@@ -274,10 +274,15 @@
           </div>
         </div>
 
-        <div class="trust-actions">
-          <button class="trust-btn" id="btn-verify-integrity">Verify Integrity</button>
-          <button class="trust-btn" id="btn-verify-consent">Verify Consent</button>
-          <button class="trust-btn" id="btn-view-audit">View Logs</button>
+        <div class="trust-actions" style="display:flex; flex-direction:column; gap:10px; width:100%;">
+          <div style="display:flex; gap:12px; width:100%;">
+            <button class="trust-btn" id="btn-verify-integrity" style="flex:1;">Verify Integrity</button>
+            <button class="trust-btn" id="btn-verify-consent" style="flex:1;">Verify Consent</button>
+          </div>
+          <div style="display:flex; gap:12px; width:100%;">
+            <button class="trust-btn" id="btn-view-audit" style="flex:1;">View Local Logs</button>
+            <a href="/explorer.html" class="trust-btn" style="flex:1; text-align:center; display:flex; align-items:center; justify-content:center; text-decoration:none; background:rgba(184, 144, 71, 0.1); border-color:var(--accent); color:var(--accent); font-weight:bold;">Launch Ledger Explorer ↗</a>
+          </div>
         </div>
 
         <div class="audit-container" id="audit-trail-box" style="display: none;">
