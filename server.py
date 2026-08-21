@@ -1,8 +1,11 @@
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
 from flask import Flask, request, jsonify, send_file, send_from_directory, abort
 from flask_cors import CORS
 from TTS.api import TTS
 import requests as http_requests
-import os
 import uuid
 import re
 import time
