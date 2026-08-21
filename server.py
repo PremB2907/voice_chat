@@ -480,6 +480,7 @@ def chat():
             retrieved += f"\n[SYSTEM NOTE: Today ({today}) is a significant date found in the memory index. Acknowledge it gently.]\n"
             
         if retrieved:
+            retrieved = re.sub(r'\bUser\b', user_name, retrieved)
             memory_context = retrieved.strip()
             log_event("info", "memory_facts_retrieved", chars=len(retrieved))
         else:
@@ -547,6 +548,12 @@ def chat():
         prem_reply = re.sub(r'^(ENGLISH|PREM|USER|SYSTEM|MAITREE).*?:\s*', '', prem_reply, flags=re.IGNORECASE)
         prem_reply = re.sub(r'^\[.*?\]\s*', '', prem_reply)
         prem_reply = prem_reply.strip('"').strip()
+        
+        # Standardize name variants and clear small-model hallucinations
+        prem_reply = re.sub(r'\bMaltree\b', user_name, prem_reply, flags=re.IGNORECASE)
+        prem_reply = re.sub(r'\bMaitri\b', user_name, prem_reply, flags=re.IGNORECASE)
+        prem_reply = re.sub(r'\bAva\b', user_name, prem_reply, flags=re.IGNORECASE)
+        prem_reply = re.sub(r'\bUser\b', user_name, prem_reply)
 
         # Sentence punctuation enforcement for TTS audio stability
         sentence_match = re.match(r'^(.+?[.!?…])\s*', prem_reply, re.DOTALL)
