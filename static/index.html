@@ -281,9 +281,16 @@
         </div>
 
         <div class="audit-container" id="audit-trail-box" style="display: none;">
-          <span class="section-title">Smart Contract Audit Trail</span>
-          <div class="audit-log-box" id="audit-entries">
-            <!-- Dynamic entries loaded here -->
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 12px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 8px;">
+            <span class="section-title" style="margin-bottom:0;">On-Chain Ledger Visualizer</span>
+            <span style="font-family:var(--font-mono); font-size:9px; color:var(--text-secondary); letter-spacing: 1px;">LEDGER STATE</span>
+          </div>
+          <div class="blockchain-visualizer" id="blockchain-chain-container">
+            <!-- Blocks rendered horizontally here -->
+          </div>
+          
+          <div class="block-inspector-panel" id="block-inspector" style="display: none;">
+            <!-- Extended details populated dynamically -->
           </div>
         </div>
       </div>

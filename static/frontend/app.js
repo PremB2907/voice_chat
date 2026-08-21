@@ -1044,8 +1044,8 @@ const btnVerifyIntegrity = document.getElementById("btn-verify-integrity");
 const btnVerifyConsent = document.getElementById("btn-verify-consent");
 const btnViewAudit = document.getElementById("btn-view-audit");
 
-const auditTrailBox = document.getElementById("audit-trail-box");
-const auditEntries = document.getElementById("audit-entries");
+const chainContainer = document.getElementById("blockchain-chain-container");
+const blockInspector = document.getElementById("block-inspector");
 
 async function updateBlockchainStatus() {
   if (!trustBlockchainStatus) return;
@@ -1444,41 +1444,146 @@ async function renderAuditTrail() {
     const res = await fetch(`${SERVER}/blockchain/audit`);
     const logs = await res.json();
     
-    if (!auditEntries) return;
-    auditEntries.innerHTML = "";
+    if (!chainContainer) return;
+    chainContainer.innerHTML = "";
+    if (blockInspector) blockInspector.style.display = "none";
+    const auditTrailBox = document.getElementById("audit-trail-box");
+
     if (logs.length === 0) {
-      auditEntries.innerHTML = `<div style="text-align:center;color:var(--text-secondary);font-size:11px;padding:12px;">No audit logs recorded yet.</div>`;
+      chainContainer.innerHTML = `<div style="text-align:center;color:var(--text-secondary);font-size:11px;padding:20px;width:100%;">No audit logs recorded yet.</div>`;
     } else {
-      [...logs].reverse().forEach(entry => {
-        const item = document.createElement("div");
-        item.className = "audit-entry";
-        
-        let statusClass = "status-unknown";
-        if (entry.status === "VERIFIED" || entry.status === "success") statusClass = "status-verified";
-        if (entry.status === "TAMPERING_DETECTED") statusClass = "status-failed";
-        
-        item.innerHTML = `
-          <div class="audit-header" style="display:flex; justify-content:space-between; font-weight:bold; font-family:var(--font-mono); font-size:10px;">
-            <span style="color:var(--accent);">${entry.event_type}</span>
-            <span class="${statusClass}">${entry.status}</span>
-          </div>
-          <div class="audit-time" style="font-size:9px; color:var(--text-secondary); margin:2px 0;">${entry.timestamp}</div>
-          <div class="audit-hash" style="font-family:var(--font-mono); font-size:8.5px; word-break:break-all;">Hash: ${entry.hash}</div>
-          <div class="audit-tx" style="font-family:var(--font-mono); font-size:8.5px; word-break:break-all; opacity:0.8;">Tx: ${entry.tx_hash || "N/A"}</div>
-        `;
-        item.style.borderBottom = "1px dashed var(--border-subtle)";
-        item.style.paddingBottom = "8px";
-        item.style.marginBottom = "8px";
-        auditEntries.appendChild(item);
+      // Sort blocks ascending by block_number or timestamp so they chain chronologically left-to-right
+      const sortedLogs = [...logs].sort((a, b) => {
+        const blockA = a.block_number || 0;
+        const blockB = b.block_number || 0;
+        return blockA - blockB;
       });
+
+      sortedLogs.forEach((entry, idx) => {
+        // Create block container
+        const block = document.createElement("div");
+        block.className = "blockchain-block";
+        block.id = `block-card-${entry.event_id || idx}`;
+        
+        let statusDotClass = "pending";
+        if (entry.status === "VERIFIED" || entry.status === "success" || entry.status === "CONFIRMED") {
+          statusDotClass = "verified";
+        } else if (entry.status === "TAMPERING_DETECTED" || entry.status === "FAILED") {
+          statusDotClass = "failed";
+        }
+
+        const blockNum = entry.block_number !== undefined && entry.block_number !== null ? `#${entry.block_number}` : `Tx-${idx}`;
+        const shortHash = entry.hash ? (entry.hash.substring(0, 8) + "...") : "N/A";
+        
+        block.innerHTML = `
+          <div class="blockchain-block-header">
+            <span class="blockchain-block-index">BLOCK ${blockNum}</span>
+            <span class="blockchain-block-dot ${statusDotClass}" title="Status: ${entry.status}"></span>
+          </div>
+          <div class="blockchain-block-body">
+            <div class="blockchain-block-type" title="${entry.event_type}">${entry.event_type.replace(/_/g, ' ')}</div>
+            <div class="blockchain-block-time">${entry.timestamp || entry.created_at || "N/A"}</div>
+            <div class="blockchain-block-hash">Hash: ${shortHash}</div>
+          </div>
+        `;
+
+        // Handle block selection and details inspection on click
+        block.addEventListener("click", () => {
+          // Deselect others
+          document.querySelectorAll(".blockchain-block").forEach(b => b.classList.remove("selected"));
+          block.classList.add("selected");
+
+          if (blockInspector) {
+            blockInspector.style.display = "block";
+            
+            // Format details nicely
+            let detailsHtml = "";
+            if (entry.details) {
+              detailsHtml = `<div class="block-inspector-json">${JSON.stringify(entry.details, null, 2)}</div>`;
+            }
+
+            blockInspector.innerHTML = `
+              <div class="block-inspector-header">
+                <span class="block-inspector-title">Block ${blockNum} Metadata Details</span>
+                <span class="block-inspector-close" id="close-inspector-btn">CLOSE</span>
+              </div>
+              <div class="block-inspector-row">
+                <span class="label">Event Type:</span>
+                <span class="value">${entry.event_type}</span>
+              </div>
+              <div class="block-inspector-row">
+                <span class="label">Record Status:</span>
+                <span class="value" style="text-transform:uppercase; font-weight:bold; color:var(--accent);">${entry.status}</span>
+              </div>
+              <div class="block-inspector-row">
+                <span class="label">Block Hash:</span>
+                <span class="value">${entry.hash || entry.record_hash || "N/A"}</span>
+              </div>
+              <div class="block-inspector-row">
+                <span class="label">Transaction Hash:</span>
+                <span class="value">
+                  ${entry.tx_hash || "Offline Mode (Local Sim)"}
+                  ${entry.tx_hash ? `<span class="copy-btn" id="copy-tx-hash-btn" title="Copy Tx Hash">⎘</span>` : ""}
+                </span>
+              </div>
+              <div class="block-inspector-row">
+                <span class="label">Contract Target:</span>
+                <span class="value">${entry.contract_address || "N/A"}</span>
+              </div>
+              <div class="block-inspector-row">
+                <span class="label">Timestamp:</span>
+                <span class="value">${entry.timestamp || entry.created_at || "N/A"}</span>
+              </div>
+              ${detailsHtml}
+            `;
+
+            // Clipboard copying helper for transaction hash
+            const copyBtn = document.getElementById("copy-tx-hash-btn");
+            if (copyBtn && entry.tx_hash) {
+              copyBtn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                navigator.clipboard.writeText(entry.tx_hash);
+                showToast("Transaction hash copied to clipboard.");
+              });
+            }
+
+            // Close button listener
+            const closeBtn = document.getElementById("close-inspector-btn");
+            if (closeBtn) {
+              closeBtn.addEventListener("click", () => {
+                blockInspector.style.display = "none";
+                block.classList.remove("selected");
+              });
+            }
+
+            blockInspector.scrollIntoView({ behavior: "smooth", block: "nearest" });
+          }
+        });
+
+        chainContainer.appendChild(block);
+
+        // Add visual link arrow connector if this is not the last block in the chain
+        if (idx < sortedLogs.length - 1) {
+          const connector = document.createElement("div");
+          connector.className = "blockchain-connector";
+          connector.innerHTML = "⇢";
+          chainContainer.appendChild(connector);
+        }
+      });
+      
+      // Auto-scroll visualizer container to the latest block on the far right
+      setTimeout(() => {
+        chainContainer.scrollLeft = chainContainer.scrollWidth;
+      }, 100);
     }
-    
+
     if (auditTrailBox) {
       auditTrailBox.style.display = "block";
       auditTrailBox.scrollIntoView({ behavior: "smooth", block: "nearest" });
     }
   } catch (err) {
     showToast("Failed to retrieve audit trail.");
+    console.error(err);
   }
 }
 
