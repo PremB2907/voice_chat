@@ -1674,5 +1674,404 @@
             "persona_name": "Prem",
             "user_name": "User"
         }
+    },
+    {
+        "event_id": "evt_bc001edc",
+        "event_type": "RESPONSE_PROVENANCE_REGISTERED",
+        "chain_id": 1337,
+        "contract_address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+        "contract_version": "1.0.0",
+        "transaction_hash": "0xa76b0dfd0e4c2e6f2eeeeed8c80df77bef339fc61836e01ced287cec8f143b1f",
+        "block_number": 2,
+        "record_hash": "0xe7ac53adb55e19ca582d4d5f55dea095026114c216b3df7051128374e351facb",
+        "status": "CONFIRMED",
+        "created_at": "2026-08-21 12:43:23",
+        "details": {
+            "model_name": "tinyllama",
+            "emotion": "neutral",
+            "memory_version": 0,
+            "persona_name": "Prem",
+            "user_name": "User"
+        }
+    },
+    {
+        "event_id": "evt_ae0bfaad",
+        "event_type": "RESPONSE_PROVENANCE_REGISTERED",
+        "chain_id": 1337,
+        "contract_address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+        "contract_version": "1.0.0",
+        "transaction_hash": "0xbcedf347ecf590796a53d7f0a2cac34beb3c6969846dc39150f29c6fa3955c92",
+        "block_number": 3,
+        "record_hash": "0x101b9d246cef52e754d37ec2967cc928faeb178d38b584e17b5c37b0ccda4d35",
+        "status": "CONFIRMED",
+        "created_at": "2026-08-21 12:44:04",
+        "details": {
+            "model_name": "tinyllama",
+            "emotion": "neutral",
+            "memory_version": 0,
+            "persona_name": "Prem",
+            "user_name": "User"
+        }
+    },
+    {
+        "event_id": "evt_77f3d8f6",
+        "event_type": "RESPONSE_PROVENANCE_REGISTERED",
+        "chain_id": 1337,
+        "contract_address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+        "contract_version": "1.0.0",
+        "transaction_hash": "0xf749283b7fb62710fbbba14489b58b0e7c78a4ce1da6dc25d63edf0514dcef9a",
+        "block_number": 2,
+        "record_hash": "0xe45d16a4469442f289f66f24bb2b9fc1922cc0b73ff74a31b969510244986efe",
+        "status": "CONFIRMED",
+        "created_at": "2026-08-21 12:56:50",
+        "details": {
+            "model_name": "tinyllama",
+            "emotion": "neutral",
+            "memory_version": 0,
+            "persona_name": "Prem",
+            "user_name": "Maitree"
+        }
+    },
+    {
+        "event_id": "evt_f5ab6b79",
+        "event_type": "RESPONSE_PROVENANCE_REGISTERED",
+        "chain_id": 1337,
+        "contract_address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+        "contract_version": "1.0.0",
+        "transaction_hash": "0x62eb2c3c1c425ebb92a57283d59291bd038791f9075ee570d02ec19b7a5101d8",
+        "block_number": 2,
+        "record_hash": "0x385760a6b9b0784f244acba8d25cd8e3d6e5f55fc7ae3779bf1f003adc953206",
+        "status": "CONFIRMED",
+        "created_at": "2026-08-21 13:01:07",
+        "details": {
+            "model_name": "tinyllama",
+            "emotion": "neutral",
+            "memory_version": 0,
+            "persona_name": "Prem",
+            "user_name": "Maitree"
+        }
+    },
+    {
+        "event_id": "evt_f956b6be",
+        "event_type": "RESPONSE_PROVENANCE_REGISTERED",
+        "chain_id": 1337,
+        "contract_address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+        "contract_version": "1.0.0",
+        "transaction_hash": "0x23c4ae3617f9279f8634cb7efed4415a18816a783ca6d7eca672de32ae84718c",
+        "block_number": 3,
+        "record_hash": "0x4a7e1f2484563edfc02edc69c2d8e8874f1dfdd8b348cf90c7059a5316dc74cc",
+        "status": "CONFIRMED",
+        "created_at": "2026-08-21 13:01:20",
+        "details": {
+            "model_name": "tinyllama",
+            "emotion": "sadness",
+            "memory_version": 0,
+            "persona_name": "Prem",
+            "user_name": "Maitree"
+        }
+    },
+    {
+        "event_id": "evt_ae965367",
+        "event_type": "RESPONSE_PROVENANCE_REGISTERED",
+        "chain_id": 1337,
+        "contract_address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+        "contract_version": "1.0.0",
+        "transaction_hash": "0x6c1be415603993d40fd74b9a03c9185f0256acf5804a72001e3908b5aa5d374f",
+        "block_number": 4,
+        "record_hash": "0x195a16ec8c5f0c2785265bf201a4bf9aa84f0055ef923b78ece6e71bd032c9db",
+        "status": "CONFIRMED",
+        "created_at": "2026-08-21 13:01:48",
+        "details": {
+            "model_name": "tinyllama",
+            "emotion": "neutral",
+            "memory_version": 0,
+            "persona_name": "Prem",
+            "user_name": "Maitree"
+        }
+    },
+    {
+        "event_id": "evt_a6de8656",
+        "event_type": "RESPONSE_PROVENANCE_REGISTERED",
+        "chain_id": 1337,
+        "contract_address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+        "contract_version": "1.0.0",
+        "transaction_hash": "0x928065442a26d19e0c94b1d388617e36bf11bb21e24e181f9b84b9437487d037",
+        "block_number": 5,
+        "record_hash": "0xd5369942441b344b2fe6c6c3ed94f454638e3107c00fbbce3484b7685fa495b2",
+        "status": "CONFIRMED",
+        "created_at": "2026-08-21 13:02:44",
+        "details": {
+            "model_name": "tinyllama",
+            "emotion": "neutral",
+            "memory_version": 0,
+            "persona_name": "Prem",
+            "user_name": "Maitree"
+        }
+    },
+    {
+        "event_id": "evt_b5749c24",
+        "event_type": "RESPONSE_PROVENANCE_REGISTERED",
+        "chain_id": 1337,
+        "contract_address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+        "contract_version": "1.0.0",
+        "transaction_hash": "0x633c242338256011ab303300b21e3ca896c4b8fbc73d7e7150d049cb18440605",
+        "block_number": 2,
+        "record_hash": "0x318a5b0cb2a733a8736b1bb7fa89fe830d48ef0647c189226bbd3f992a18ae50",
+        "status": "CONFIRMED",
+        "created_at": "2026-08-21 13:07:01",
+        "details": {
+            "model_name": "tinyllama",
+            "emotion": "neutral",
+            "memory_version": 0,
+            "persona_name": "Prem",
+            "user_name": "Maitree"
+        }
+    },
+    {
+        "event_id": "evt_42d2dd1d",
+        "event_type": "RESPONSE_PROVENANCE_REGISTERED",
+        "chain_id": 1337,
+        "contract_address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+        "contract_version": "1.0.0",
+        "transaction_hash": "0xaa7658acd37cd1dccf8e39fd14a6c9e0a3786c9a45230e582feb37af57e2c7f2",
+        "block_number": 3,
+        "record_hash": "0x77cbc1538cebec7f3abc0875115d651982d08bc11d3a6df95011100bc629fbe5",
+        "status": "CONFIRMED",
+        "created_at": "2026-08-21 13:07:15",
+        "details": {
+            "model_name": "tinyllama",
+            "emotion": "neutral",
+            "memory_version": 0,
+            "persona_name": "Prem",
+            "user_name": "Maitree"
+        }
+    },
+    {
+        "event_id": "evt_c84a3604",
+        "event_type": "RESPONSE_PROVENANCE_REGISTERED",
+        "chain_id": 1337,
+        "contract_address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+        "contract_version": "1.0.0",
+        "transaction_hash": "0x93744eee18d8a5bc79e5d14b65238f60ff521ada63a97baef2d16660970f0230",
+        "block_number": 4,
+        "record_hash": "0xa44fba7ec711379a23da367f6c7956894609758cf888cb615a02217d896b3dfc",
+        "status": "CONFIRMED",
+        "created_at": "2026-08-21 13:12:33",
+        "details": {
+            "model_name": "llama3",
+            "emotion": "neutral",
+            "memory_version": 0,
+            "persona_name": "Prem",
+            "user_name": "Maitree"
+        }
+    },
+    {
+        "event_id": "evt_82eb8b6f",
+        "event_type": "RESPONSE_PROVENANCE_REGISTERED",
+        "chain_id": 1337,
+        "contract_address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+        "contract_version": "1.0.0",
+        "transaction_hash": "0xd62da5f74455f82f3800df35fe469c8e30d56f59f2960ccbbd90cbdca135c1b2",
+        "block_number": 5,
+        "record_hash": "0xc10c6ce4e4c13b4f2d2d81a6da6ab5a22e64cce1983c262213005dfe39f1d145",
+        "status": "CONFIRMED",
+        "created_at": "2026-08-21 13:12:59",
+        "details": {
+            "model_name": "llama3",
+            "emotion": "neutral",
+            "memory_version": 0,
+            "persona_name": "Prem",
+            "user_name": "Maitree"
+        }
+    },
+    {
+        "event_id": "evt_ef77145c",
+        "event_type": "RESPONSE_PROVENANCE_REGISTERED",
+        "chain_id": 1337,
+        "contract_address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+        "contract_version": "1.0.0",
+        "transaction_hash": "0xc4969d69a62e1cf8f59f19a6a9827c8f2a572aed43702060694b00c704a52c83",
+        "block_number": 6,
+        "record_hash": "0x59e131b6e4a795ed3e90b931e6e1f98bf7e7edc1c38fc4e2f62f175c1b4a2d4a",
+        "status": "CONFIRMED",
+        "created_at": "2026-08-21 13:13:11",
+        "details": {
+            "model_name": "llama3",
+            "emotion": "sadness",
+            "memory_version": 0,
+            "persona_name": "Prem",
+            "user_name": "Maitree"
+        }
+    },
+    {
+        "event_id": "evt_7621b3c1",
+        "event_type": "RESPONSE_PROVENANCE_REGISTERED",
+        "chain_id": 1337,
+        "contract_address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+        "contract_version": "1.0.0",
+        "transaction_hash": "0xb7d5c2db2fd31524e49aad9abef2219ee9e6423a0248e363bdf1236da57f3413",
+        "block_number": 7,
+        "record_hash": "0xd7c0b6f4c0131912e53c34c8793c58aa10697afea747e55f9daa9b9bee6a86ed",
+        "status": "CONFIRMED",
+        "created_at": "2026-08-21 13:19:13",
+        "details": {
+            "model_name": "llama3",
+            "emotion": "neutral",
+            "memory_version": 0,
+            "persona_name": "Prem",
+            "user_name": "Maitree"
+        }
+    },
+    {
+        "event_id": "evt_58505e7e",
+        "event_type": "RESPONSE_PROVENANCE_REGISTERED",
+        "chain_id": 1337,
+        "contract_address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+        "contract_version": "1.0.0",
+        "transaction_hash": "0x9c4bd640e86639f237721e812dd47a94fecd4eccc476f8c4bd55aa5e76647d03",
+        "block_number": 8,
+        "record_hash": "0xe9a39a7bdc6cd21cfd368e0a776571522702a36418fe50aa93e63507b08871da",
+        "status": "CONFIRMED",
+        "created_at": "2026-08-21 13:19:26",
+        "details": {
+            "model_name": "llama3",
+            "emotion": "neutral",
+            "memory_version": 0,
+            "persona_name": "Prem",
+            "user_name": "Maitree"
+        }
+    },
+    {
+        "event_id": "evt_370d37cb",
+        "event_type": "RESPONSE_PROVENANCE_REGISTERED",
+        "chain_id": 1337,
+        "contract_address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+        "contract_version": "1.0.0",
+        "transaction_hash": "0xbdbdf0e99fccb496a061bb2eb6ca61182cc7f7fcc71487a590ce142ba4f6d628",
+        "block_number": 9,
+        "record_hash": "0xbda8d80607691956812e37699ba22de83cc1cb2f17bb9d3b156227c212476955",
+        "status": "CONFIRMED",
+        "created_at": "2026-08-21 13:39:33",
+        "details": {
+            "model_name": "llama3",
+            "emotion": "neutral",
+            "memory_version": 0,
+            "persona_name": "Prem",
+            "user_name": "Maitree"
+        }
+    },
+    {
+        "event_id": "evt_58e4ff05",
+        "event_type": "RESPONSE_PROVENANCE_REGISTERED",
+        "chain_id": 1337,
+        "contract_address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+        "contract_version": "1.0.0",
+        "transaction_hash": "0xb152b0fc31b5ebecf650ca4216844884567602a211cbdea42ad213ae3eb41e03",
+        "block_number": 10,
+        "record_hash": "0x2a72fa262bb9ce3389da5dc21dc09b41b492cf5ebd77ae2cc6e263c2e5a6ec88",
+        "status": "CONFIRMED",
+        "created_at": "2026-08-21 13:39:53",
+        "details": {
+            "model_name": "llama3",
+            "emotion": "surprise",
+            "memory_version": 0,
+            "persona_name": "Prem",
+            "user_name": "Maitree"
+        }
+    },
+    {
+        "event_id": "evt_845f3823",
+        "event_type": "RESPONSE_PROVENANCE_REGISTERED",
+        "chain_id": 1337,
+        "contract_address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+        "contract_version": "1.0.0",
+        "transaction_hash": "0x69c334eba9909d9db7a19e0c935c1d6c2c26c50f8b56c103b755b7daa0987f39",
+        "block_number": 11,
+        "record_hash": "0x76241fe8e8280c54f8a3b723761bbb33a16ea3a895acbfadd28cc2b6dc1787dc",
+        "status": "CONFIRMED",
+        "created_at": "2026-08-21 13:43:52",
+        "details": {
+            "model_name": "llama3",
+            "emotion": "neutral",
+            "memory_version": 0,
+            "persona_name": "Prem",
+            "user_name": "Maitree"
+        }
+    },
+    {
+        "event_id": "evt_e9c70e96",
+        "event_type": "RESPONSE_PROVENANCE_REGISTERED",
+        "chain_id": 1337,
+        "contract_address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+        "contract_version": "1.0.0",
+        "transaction_hash": "0xbfb6274fc3cc2c37647990888dde94e652be394d778b98f7feeee63303194668",
+        "block_number": 12,
+        "record_hash": "0x6ea67a0fea1095fcbd8c9c6402d7bb3c349adbbd0f1d60cb0ac399e8087e77d2",
+        "status": "CONFIRMED",
+        "created_at": "2026-08-21 13:44:16",
+        "details": {
+            "model_name": "llama3",
+            "emotion": "joy",
+            "memory_version": 0,
+            "persona_name": "Prem",
+            "user_name": "Maitree"
+        }
+    },
+    {
+        "event_id": "evt_1619c3e6",
+        "event_type": "RESPONSE_PROVENANCE_REGISTERED",
+        "chain_id": 1337,
+        "contract_address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+        "contract_version": "1.0.0",
+        "transaction_hash": "0x876f2ee645175cab393c01252947d38853aea764fcb972584b3b1e33ec973e78",
+        "block_number": 13,
+        "record_hash": "0x0f9e3fa4c63bae63afa747c1537f690fcff35a3ae272c86e14765c82b89e97c5",
+        "status": "CONFIRMED",
+        "created_at": "2026-08-21 13:44:37",
+        "details": {
+            "model_name": "llama3",
+            "emotion": "neutral",
+            "memory_version": 0,
+            "persona_name": "Prem",
+            "user_name": "Maitree"
+        }
+    },
+    {
+        "event_id": "evt_e70dc67c",
+        "event_type": "RESPONSE_PROVENANCE_REGISTERED",
+        "chain_id": 1337,
+        "contract_address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+        "contract_version": "1.0.0",
+        "transaction_hash": "0x562d2dc3153eb762c2f6b2657664080580b4cdc1e231e43a76751079490ee481",
+        "block_number": 14,
+        "record_hash": "0x791026a727789bf976e3ffa234721b4ca53799f5756128e04d08592aa298a171",
+        "status": "CONFIRMED",
+        "created_at": "2026-08-21 13:44:49",
+        "details": {
+            "model_name": "llama3",
+            "emotion": "sadness",
+            "memory_version": 0,
+            "persona_name": "Prem",
+            "user_name": "Maitree"
+        }
+    },
+    {
+        "event_id": "evt_86a47c3b",
+        "event_type": "RESPONSE_PROVENANCE_REGISTERED",
+        "chain_id": 1337,
+        "contract_address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+        "contract_version": "1.0.0",
+        "transaction_hash": "0x1c690efa58c82bd6289d52d23bc4e4960a734487e47a750f16317a559af4276d",
+        "block_number": 15,
+        "record_hash": "0xc1aee15c5e9ccbd46117261624d0ea86a5738a5c37fd22cbb26c39e29e09d0d5",
+        "status": "CONFIRMED",
+        "created_at": "2026-08-21 14:00:05",
+        "details": {
+            "model_name": "llama3",
+            "emotion": "neutral",
+            "memory_version": 0,
+            "persona_name": "Prem",
+            "user_name": "Maitree"
+        }
     }
 ]

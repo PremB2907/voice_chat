@@ -203,8 +203,7 @@ function addMessage(sender, text, isUser = false, saveItem = true, aiTransparenc
   
   let transparencyBadge = "";
   if (!isUser) {
-    const confidence = (aiTransparency && aiTransparency.confidence_score) ? `${aiTransparency.confidence_score}%` : 'AI';
-    transparencyBadge = `<span class="ai-badge" title="MemoryBridge AI Transparency Disclosure">[AI · ${confidence}]</span>`;
+    transparencyBadge = `<span class="ai-badge" title="MemoryBridge digital replica disclaimer (simulated character, no autonomous agency)">[DIGITAL IMITATION]</span>`;
   }
 
   let provenanceBadge = "";
@@ -215,17 +214,17 @@ function addMessage(sender, text, isUser = false, saveItem = true, aiTransparenc
     
     let badgeClass = "status-unknown";
     let badgeText = "Verification Pending";
-    if (status === "CONFIRMED") {
+    if (status === "CONFIRMED" || status === "success") {
       badgeClass = "status-verified";
-      badgeText = "Blockchain Verified";
+      badgeText = "On-Chain Verified";
     } else if (status === "FAILED") {
       badgeClass = "status-failed";
       badgeText = "Verification Failed";
     }
     
     provenanceBadge = `
-      <div class="provenance-badge ${badgeClass}" id="prov-${evId}" data-hash="${hash}" title="On-Chain Response Hash: ${hash}">
-        [TRUST] <span class="badge-text">${badgeText}</span>
+      <div class="provenance-badge ${badgeClass}" id="prov-${evId}" data-hash="${hash}" title="Authenticity registered on local private ledger (Hardhat). Response Hash: ${hash}">
+        [PROVENANCE] <span class="badge-text">${badgeText}</span>
       </div>
     `;
   }
@@ -717,19 +716,41 @@ function initThreeJS() {
   controls.target.set(0, 1.4, 0); // Focus around the face area
   controls.update();
 
-  // Lighting — softer, more ambient
-  const hemiLight = new THREE.HemisphereLight(0xc8b8e8, 0x333355, 0.8);
+  // Warm, golden ambient/hemisphere lighting matching pitch deck palette
+  const hemiLight = new THREE.HemisphereLight(0xfff8eb, 0x11111a, 0.95);
   hemiLight.position.set(0, 20, 0);
   scene.add(hemiLight);
 
-  const dirLight = new THREE.DirectionalLight(0xe8deff, 0.6);
-  dirLight.position.set(0, 5, 5);
+  // Soft warm directional front-light
+  const dirLight = new THREE.DirectionalLight(0xffecd6, 0.75);
+  dirLight.position.set(2, 5, 4);
+  dirLight.castShadow = true;
+  dirLight.shadow.mapSize.width = 1024;
+  dirLight.shadow.mapSize.height = 1024;
+  dirLight.shadow.bias = -0.001;
   scene.add(dirLight);
 
-  // Subtle rim light for atmosphere
-  const rimLight = new THREE.DirectionalLight(0x9b8ec4, 0.3);
-  rimLight.position.set(-3, 2, -3);
+  // Spotlight for dramatic stage/studio presence focus
+  const spotLight = new THREE.SpotLight(0xfff5e0, 1.5, 8, Math.PI / 6, 0.5, 1);
+  spotLight.position.set(0, 3.5, 1.5);
+  spotLight.target.position.set(0, 1, 0);
+  spotLight.castShadow = true;
+  scene.add(spotLight);
+  scene.add(spotLight.target);
+
+  // Subtle golden rim light for premium hair highlighting
+  const rimLight = new THREE.DirectionalLight(0xd4af37, 0.35);
+  rimLight.position.set(-3, 3, -3);
   scene.add(rimLight);
+
+  // Ground shadow receiver floor to prevent floating look
+  const floorGeo = new THREE.PlaneGeometry(10, 10);
+  const floorMat = new THREE.ShadowMaterial({ opacity: 0.35 });
+  const floor = new THREE.Mesh(floorGeo, floorMat);
+  floor.rotation.x = -Math.PI / 2;
+  floor.position.y = 0;
+  floor.receiveShadow = true;
+  scene.add(floor);
 
   clock = new THREE.Clock();
 
@@ -787,17 +808,16 @@ function initThreeJS() {
           if (!name.includes("armature") && !name.includes("root") && !name.includes("hips") && !name.includes("spine")) {
             if (name.includes("upperarm") || name.includes("leftarm") || name.includes("rightarm") || name.includes("arm_l") || name.includes("arm_r")) {
               if (name.includes("l") || name.includes("left")) {
-                if (!window.leftArmBone) {
-                  window.leftArmBone = child;
-                  child.rotation.z = -1.15;
-                  child.rotation.y = 0.2;
-                }
+                if (!window.leftArmBone) window.leftArmBone = child;
               } else if (name.includes("r") || name.includes("right")) {
-                if (!window.rightArmBone) {
-                  window.rightArmBone = child;
-                  child.rotation.z = 1.15;
-                  child.rotation.y = -0.2;
-                }
+                if (!window.rightArmBone) window.rightArmBone = child;
+              }
+            }
+            if (name.includes("forearm") || name.includes("lowerarm") || name.includes("arm_l_lower") || name.includes("arm_r_lower") || name.includes("forearm_l") || name.includes("forearm_r")) {
+              if (name.includes("l") || name.includes("left")) {
+                if (!window.leftForearmBone) window.leftForearmBone = child;
+              } else if (name.includes("r") || name.includes("right")) {
+                if (!window.rightForearmBone) window.rightForearmBone = child;
               }
             }
           }
@@ -831,9 +851,9 @@ function initThreeJS() {
         // Ground feet at y = 0
         model.position.y = -updatedBox.min.y;
 
-        // Position camera to frame head & upper body clearly
-        camera.position.set(0, updatedSize.y * 0.75, Math.max(1.2, updatedSize.y * 0.55));
-        controls.target.set(0, updatedSize.y * 0.70, 0);
+        // Position camera closer (waist-up, tighter crop)
+        camera.position.set(0, updatedSize.y * 0.88, Math.max(0.65, updatedSize.y * 0.38));
+        controls.target.set(0, updatedSize.y * 0.84, 0);
         controls.update();
       }
 
@@ -927,12 +947,22 @@ function initThreeJS() {
         window.headBone.rotation.y = base + Math.sin(elapsedTime * 0.7) * 0.025;
       }
 
-      // 4. Procedural Arm Micro Sway
+      // 4. Procedural Arm Posture (Enforcing Relaxed Arms over T-Pose)
       if (window.leftArmBone) {
-        window.leftArmBone.rotation.x = Math.sin(elapsedTime * 1.2) * 0.015;
+        window.leftArmBone.rotation.z = -1.25;
+        window.leftArmBone.rotation.y = 0.2;
+        window.leftArmBone.rotation.x = Math.sin(elapsedTime * 1.2) * 0.02;
       }
       if (window.rightArmBone) {
-        window.rightArmBone.rotation.x = -Math.sin(elapsedTime * 1.2) * 0.015;
+        window.rightArmBone.rotation.z = 1.25;
+        window.rightArmBone.rotation.y = -0.2;
+        window.rightArmBone.rotation.x = -Math.sin(elapsedTime * 1.2) * 0.02;
+      }
+      if (window.leftForearmBone) {
+        window.leftForearmBone.rotation.z = -0.15;
+      }
+      if (window.rightForearmBone) {
+        window.rightForearmBone.rotation.z = 0.15;
       }
     }
 
@@ -1484,8 +1514,8 @@ setInterval(async () => {
         const textSpan = badge.querySelector(".badge-text");
         if (entry.status === "CONFIRMED" || entry.status === "success") {
           badge.className = "provenance-badge status-verified";
-          if (textSpan) textSpan.textContent = "Blockchain Verified";
-          badge.title = `On-Chain Response Hash: ${badge.getAttribute("data-hash")}\nTx: ${entry.transaction_hash}\nBlock: ${entry.block_number}`;
+          if (textSpan) textSpan.textContent = "On-Chain Verified";
+          badge.title = `Authenticity registered on local private ledger (Hardhat).\nResponse Hash: ${badge.getAttribute("data-hash")}\nTx: ${entry.transaction_hash}\nBlock: ${entry.block_number}`;
           
           const historyIndex = chatHistory.findIndex(h => h.blockchainProvenance && h.blockchainProvenance.event_id === evId);
           if (historyIndex !== -1) {
@@ -1508,6 +1538,19 @@ setInterval(async () => {
     console.error("Error polling transactions:", err);
   }
 }, 3000);
+
+// Keyboard shortcut Ctrl + Alt + D to toggle Dev Debug Panel
+window.addEventListener("keydown", (e) => {
+  if (e.ctrlKey && e.altKey && e.key.toLowerCase() === "d") {
+    e.preventDefault();
+    const debugPanel = document.getElementById("dev-debug-panel");
+    if (debugPanel) {
+      const isHidden = debugPanel.style.display === "none" || getComputedStyle(debugPanel).display === "none";
+      debugPanel.style.display = isHidden ? "block" : "none";
+      console.log("⚙️ Developer Debug Panel visibility toggled via shortcut.");
+    }
+  }
+});
 
 if (document.readyState === "complete" || document.readyState === "interactive") {
   initThreeJS();

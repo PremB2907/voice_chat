@@ -2,23 +2,23 @@
 
 :root {
   /* Restrained Quiet-Luxury Palette */
-  --bg-primary: #0A0A0B;
-  --bg-surface: #111213;
-  --bg-surface-elevated: #18191B;
+  --bg-primary: #09090a;         /* Rich near-black */
+  --bg-surface: #101011;
+  --bg-surface-elevated: #161618;
   
-  --text-primary: #F4F3EF;      /* Warm Ivory */
-  --text-secondary: #9E9D99;    /* Muted Taupe/Sand */
-  --text-muted: #62615E;
+  --text-primary: #eae6df;       /* Warm Ivory */
+  --text-secondary: #979590;     /* Muted Taupe/Sand */
+  --text-muted: #5e5c58;
   
-  --accent: #C5BAA8;            /* Muted Champagne Gold */
-  --accent-light: #E6DFD3;
+  --accent: #b89047;             /* Restrained Gold */
+  --accent-light: #eae6df;
   
-  --status-sage: #8FA18B;       /* Muted Sage for Verified/Active States */
-  --status-sage-light: #A8BCA3;
-  --status-warn: #CF9C97;       /* Soft Terracotta/Rose for Warn/Erasure */
+  --status-sage: var(--accent);  /* Gold for Active/Verified States */
+  --status-sage-light: #d4af37;
+  --status-warn: #CF9C97;        /* Soft Terracotta/Rose for Warn/Erasure */
   
-  --border-subtle: rgba(244, 243, 239, 0.08); /* 1px Hairline */
-  --border-active: rgba(244, 243, 239, 0.2);
+  --border-subtle: rgba(234, 230, 223, 0.08); /* 1px Hairline Ivory */
+  --border-active: rgba(234, 230, 223, 0.2);
   
   --font-serif: 'Cormorant Garamond', serif;
   --font-sans: 'Inter', sans-serif;
@@ -193,10 +193,11 @@ a {
 }
 
 .menu-tab-btn .tab-label {
-  font-family: var(--font-serif);
-  font-size: 18px;
-  font-weight: 400;
-  letter-spacing: 0.2px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
 }
 
 .menu-tab-btn:hover {
@@ -1065,6 +1066,7 @@ a {
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
+  display: none; /* Hidden by default - gated behind Ctrl+Alt+D */
 }
 
 .dev-debug-panel.collapsed {

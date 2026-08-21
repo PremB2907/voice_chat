@@ -76,14 +76,14 @@
     </nav>
 
     <div class="sidebar-footer">
-      <button class="shutdown-btn" id="voice-toggle" style="width: 100%; text-align: center; border-color: var(--accent); color: var(--accent); margin-bottom: 6px; font-weight: bold;">Voice: ON</button>
-      <button class="shutdown-btn" id="clear-btn" style="width: 100%; text-align: center; border-color: var(--text-secondary); color: var(--text-secondary); margin-bottom: 6px; font-weight: bold;">Clear Chat</button>
-      <button class="shutdown-btn" id="erase-btn" style="width: 100%; text-align: center; border-color: var(--status-warn); color: var(--status-warn); margin-bottom: 8px; font-weight: bold;">GDPR Erase</button>
+      <button class="shutdown-btn" id="voice-toggle" style="width: 100%; text-align: center; border: 1px solid rgba(184, 144, 71, 0.3); color: var(--accent); margin-bottom: 6px; font-weight: bold;">Voice: ON</button>
+      <button class="shutdown-btn" id="clear-btn" style="width: 100%; text-align: center; border: 1px solid rgba(151, 149, 144, 0.3); color: var(--text-secondary); margin-bottom: 6px; font-weight: bold;">Clear Chat</button>
+      <button class="shutdown-btn" id="erase-btn" style="width: 100%; text-align: center; border: 1px solid rgba(207, 156, 151, 0.3); color: var(--status-warn); margin-bottom: 8px; font-weight: bold;">GDPR Erase</button>
       <a href="/step1.html" style="font-family: var(--font-mono); font-size: 8px; font-weight: bold; letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent); border: 1px solid var(--border-subtle); padding: 8px; text-align: center; margin-bottom: 12px; display: block;">← SETUP ONBOARDING</a>
-      <div class="session-duration" style="margin-bottom: 12px; text-align: center;">
-        DURATION: <span id="session-clock">00:00</span>
+      <div class="session-duration" style="margin-bottom: 12px; text-align: center;" title="Elapsed session duration tracking">
+        SESSION: <span id="session-clock">00:00</span>
       </div>
-      <button class="shutdown-btn" id="shutdown-btn" title="Stop Server" style="width: 100%;">Shutdown</button>
+      <button class="shutdown-btn" id="shutdown-btn" title="Stop Server" style="width: 100%; border: 1px solid rgba(207, 156, 151, 0.3);">Shutdown</button>
     </div>
   </aside>
 
@@ -153,9 +153,6 @@
       <!-- [TAB 1]: PRESENCE (CHATVIEW) -->
       <div class="tab-content active" id="tab-presence">
         <div class="presence-wrap">
-          <div class="ethical-disclaimer">
-            MemoryBridge is a digital imitation simulating responses. It possesses no subjectivity or autonomous agency.
-          </div>
           
           <div class="chat-container" id="chat-box" aria-live="polite">
             <div class="empty-state" id="empty-state">
