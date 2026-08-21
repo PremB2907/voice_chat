@@ -1047,12 +1047,13 @@ if __name__ == "__main__":
     def _prewarm_ollama():
         log_event("info", "ollama_prewarm_start", model=OLLAMA_MODEL)
         try:
-            http_requests.post(OLLAMA_URL, json={
+            resp = http_requests.post(OLLAMA_URL, json={
                 "model": OLLAMA_MODEL,
                 "prompt": "hello",
                 "stream": False,
                 "keep_alive": -1
             }, timeout=120)
+            resp.raise_for_status()
             log_event("info", "ollama_prewarm_ok", model=OLLAMA_MODEL)
         except Exception:
             log_event("warning", "ollama_prewarm_failed", hint="Make sure Ollama is running on localhost:11434")
