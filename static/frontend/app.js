@@ -300,22 +300,26 @@ async function pollServerStatus() {
 
 function setLoading(on) {
   isLoading = on;
-  waveBar.classList.toggle("active", on);
-  sendBtn.disabled = on;
-  userInput.disabled = on;
+  if (waveBar) waveBar.classList.toggle("active", on);
+  if (sendBtn) sendBtn.disabled = on;
+  if (userInput) userInput.disabled = on;
 
   if (on) {
     let s = 0;
-    waveTimer.textContent = "0s";
-    timerInterval = setInterval(() => { waveTimer.textContent = (++s) + "s"; }, 1000);
+    if (waveTimer) {
+      waveTimer.textContent = "0s";
+      timerInterval = setInterval(() => { waveTimer.textContent = (++s) + "s"; }, 1000);
+    }
     addTyping();
   } else {
-    clearInterval(timerInterval);
+    if (timerInterval) clearInterval(timerInterval);
     removeTyping();
-    userInput.disabled = false;
-    setTimeout(() => {
-      if (window.innerWidth > 768) userInput.focus();
-    }, 100);
+    if (userInput) {
+      userInput.disabled = false;
+      setTimeout(() => {
+        if (window.innerWidth > 768) userInput.focus();
+      }, 100);
+    }
   }
 }
 
