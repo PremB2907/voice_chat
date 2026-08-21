@@ -609,6 +609,12 @@ def chat():
             if sentences:
                 prem_reply = sentences[0].strip() + "."
 
+    # Translate to English for text, voice, STM, and blockchain if voice is ON
+    if generate_audio:
+        translated_reply = translate_hinglish_to_english(prem_reply)
+        log_event("info", "tts_translating", original=prem_reply, translated=translated_reply)
+        prem_reply = translated_reply
+
     # Update Short-Term Memory
     if memory:
         memory.add_conversation_turn(user_input, prem_reply)
@@ -655,17 +661,15 @@ def chat():
             raise RuntimeError("No voice samples found in voice_samples/")
         
         t0 = time.time()
-        tts_text = translate_hinglish_to_english(prem_reply)
-        log_event("info", "tts_translating", original=prem_reply, translated=tts_text)
         with suppress_stdout_stderr(True):
             get_tts().tts_to_file(
-                text=tts_text,
+                text=prem_reply,
                 speaker_wav=speaker_wavs,
                 language="en",
                 file_path=filepath
             )
         t_synth = time.time() - t0
-        words = max(1, len(tts_text.split()))
+        words = max(1, len(prem_reply.split()))
         est_duration = words / 2.5
         rtf_score = round(t_synth / est_duration, 2)
         log_event("info", "tts_generated", synthesis_time=round(t_synth, 2), rtf=rtf_score)
