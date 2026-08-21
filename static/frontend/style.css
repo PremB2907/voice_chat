@@ -246,7 +246,7 @@ a {
 
 /* ═══ COLUMN 2: CENTERPIECE 3D AVATAR ═══ */
 .middle-panel {
-  flex: 1.1;
+  flex: 1.6;
   border-right: 1px solid var(--border-subtle);
   background-color: var(--bg-primary);
   display: flex;
@@ -358,7 +358,7 @@ a {
 
 /* ═══ COLUMN 3: WORKSPACE CONTENT PANEL ═══ */
 .right-panel {
-  flex: 1.4;
+  flex: 0.9;
   background-color: #0C0D0E;
   display: flex;
   flex-direction: column;

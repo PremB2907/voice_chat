@@ -960,6 +960,8 @@ function initThreeJS() {
       }
 
       // 4. Procedural Arm Posture (Enforcing Relaxed Arms over T-Pose)
+      // Disabled to prevent conflicts with GLTF model's native armature/animation pose
+      /*
       if (window.leftArmBone) {
         window.leftArmBone.rotation.z = -1.25;
         window.leftArmBone.rotation.y = 0.2;
@@ -976,6 +978,7 @@ function initThreeJS() {
       if (window.rightForearmBone) {
         window.rightForearmBone.rotation.z = 0.15;
       }
+      */
     }
 
     renderer.render(scene, camera);
