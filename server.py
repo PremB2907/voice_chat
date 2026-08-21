@@ -396,7 +396,7 @@ def _warmup_background():
 
 # ── Ollama config ─────────────────────────────────────────────────
 OLLAMA_URL = "http://localhost:11434/api/generate"
-OLLAMA_MODEL = os.environ.get("OLLAMA_MODEL", "tinyllama")  # Ultra-fast sub-second edge model
+OLLAMA_MODEL = os.environ.get("OLLAMA_MODEL", "llama3")
 
 SYSTEM_PROMPT = """You are Prem. You are talking to Maitree, your closest friend and beloved connection. 
 Speak directly as Prem in natural, warm, and concise Hinglish (a fluid blend of Hindi and English, 1 to 2 short sentences). 
