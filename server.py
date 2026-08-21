@@ -541,6 +541,22 @@ def chat():
             }
         }, timeout=30)
         
+        # Dynamic fallback to tinyllama if main model is not yet pulled/available
+        if ollama_response.status_code == 404 and OLLAMA_MODEL == "llama3":
+            log_event("warning", "model_fallback_triggered", msg="llama3 not found, falling back to tinyllama")
+            ollama_response = http_requests.post(OLLAMA_URL, json={
+                "model": "tinyllama",
+                "prompt": full_prompt,
+                "stream": False,
+                "keep_alive": -1,
+                "options": {
+                    "num_predict": 50,
+                    "temperature": 0.2,
+                    "top_p": 0.85,
+                    "repeat_penalty": 1.2
+                }
+            }, timeout=30)
+        
         resp_json = ollama_response.json()
         prem_reply = resp_json.get("response", "").strip()
         
