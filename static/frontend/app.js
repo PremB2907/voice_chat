@@ -834,8 +834,13 @@ function initThreeJS() {
         }
       });
 
-      // Auto-scale & auto-fit camera framing to model bounding box
-      const box = new THREE.Box3().setFromObject(model);
+      // Auto-scale & auto-fit camera framing to model bounding box (mesh-only to prevent skeleton bone offset distortion)
+      const box = new THREE.Box3();
+      model.traverse((child) => {
+        if (child.isMesh || child.isSkinnedMesh) {
+          box.expandByObject(child);
+        }
+      });
       if (!box.isEmpty()) {
         const size = box.getSize(new THREE.Vector3());
         
@@ -845,11 +850,17 @@ function initThreeJS() {
           model.scale.setScalar(scaleFactor);
         }
 
-        const updatedBox = new THREE.Box3().setFromObject(model);
+        const updatedBox = new THREE.Box3();
+        model.traverse((child) => {
+          if (child.isMesh || child.isSkinnedMesh) {
+            updatedBox.expandByObject(child);
+          }
+        });
         const updatedSize = updatedBox.getSize(new THREE.Vector3());
 
         // Ground feet at y = 0
-        model.position.y = -updatedBox.min.y;
+        window.avatarBaseY = -updatedBox.min.y;
+        model.position.y = window.avatarBaseY;
 
         // Position camera closer (waist-up, tighter crop)
         camera.position.set(0, updatedSize.y * 0.88, Math.max(0.65, updatedSize.y * 0.38));
@@ -933,8 +944,9 @@ function initThreeJS() {
       if (window.avatarController) {
         window.avatarController.update(delta, elapsedTime);
       }
-      // 1. Natural Breathing (Subtle Y vertical float)
-      window.avatarModel.position.y = Math.sin(elapsedTime * 1.5) * 0.012;
+      // 1. Natural Breathing (Subtle Y vertical float relative to base Y)
+      const baseY = window.avatarBaseY || 0;
+      window.avatarModel.position.y = baseY + Math.sin(elapsedTime * 1.5) * 0.012;
 
       // 2. Spine Breathing Sway
       if (window.spineBone) {
