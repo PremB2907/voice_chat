@@ -31,8 +31,8 @@ class MemoryStore:
     def _get_model(self):
         if self._model is None:
             import torch
-            device = "cuda" if torch.cuda.is_available() else "cpu"
-            logger.info("Loading SentenceTransformer model for memory", extra={"model": self.model_name, "device": device})
+            device = "cpu"
+            logger.info("Loading SentenceTransformer model for memory on CPU", extra={"model": self.model_name})
             self._model = SentenceTransformer(self.model_name, device=device)
         return self._model
 

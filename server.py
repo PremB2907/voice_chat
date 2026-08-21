@@ -198,8 +198,18 @@ def get_tts():
 
         use_gpu = torch.cuda.is_available()
         log_event("info", "tts_init", gpu=use_gpu)
-        with suppress_stdout_stderr(True):
-            _tts = TTS("tts_models/multilingual/multi-dataset/xtts_v2", gpu=use_gpu)
+        try:
+            with suppress_stdout_stderr(True):
+                _tts = TTS("tts_models/multilingual/multi-dataset/xtts_v2", gpu=use_gpu)
+        except Exception as e:
+            if use_gpu:
+                log_event("warning", "tts_gpu_oom", msg="CUDA OOM or error during TTS GPU init, falling back to CPU", error=str(e))
+                if torch.cuda.is_available():
+                    torch.cuda.empty_cache()
+                with suppress_stdout_stderr(True):
+                    _tts = TTS("tts_models/multilingual/multi-dataset/xtts_v2", gpu=False)
+            else:
+                raise e
     return _tts
 
 log_event("info", "emotion", msg="Emotion model will lazy-load on first use")
@@ -212,8 +222,8 @@ def get_emotion_classifier():
         return emotion_classifier
     try:
         import torch
-        device_id = 0 if torch.cuda.is_available() else -1
-        log_event("info", "emotion_init", device="cuda" if device_id >= 0 else "cpu")
+        device_id = -1
+        log_event("info", "emotion_init", device="cpu")
         emotion_classifier = pipeline(
             "text-classification",
             model="j-hartmann/emotion-english-distilroberta-base",
